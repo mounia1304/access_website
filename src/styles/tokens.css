@@ -1,0 +1,147 @@
+/*
+ * Design tokens — the single place to change the look of the site.
+ *
+ * The look follows the client's own mockup of the first screen
+ * (reference/maquette-premier-ecran-2.webp): a very pale blue-white page, navy titles with
+ * one half in a lighter indigo, slate text, indigo pill buttons, white cards on pale
+ * periwinkle panels, icons in rounded tiles, and slanted shapes that echo the logo.
+ * One typeface, DM Sans (regular for text, medium for labels and titles, semi-bold for the
+ * hero title), plus a handwritten face for the slogan.
+ *
+ * COLOURS. The "Palette" block holds every colour; nothing else in the project contains a
+ * colour value. The "Roles" blocks say where each one is used; shades are color-mix() blends.
+ * The values were measured on the mockup; the client asked not to change them.
+ *
+ * AFTER ANY CHANGE: run `npm run check:palette`. The accent has to carry white text and be
+ * readable on white (4.5:1); paragraphs have to stay readable on the tinted surfaces.
+ */
+
+:root {
+	color-scheme: light;
+
+	/* ── Palette ───────────────────────────────────────────── */
+	--p-ink: #0a2246; /* navy: titles, menu, card labels */
+	--p-slate: #5f6980; /* paragraphs */
+	--p-accent: #371ee1; /* indigo: buttons, links, logo, footer */
+	--p-violet: #6259f7; /* lighter indigo: the coloured half of titles */
+	--p-tint: #e8effd; /* pale periwinkle: chips, selected card; lighter mixes give tiles, panels and the page */
+	--p-periwinkle: #c6cbfc; /* stronger tint: decorative bars, the disc of a selected card */
+	--p-sky: #73d7f4; /* sky blue: testimonial card, lanes of the dark banner */
+	--p-pale: #abe7f8; /* pale cyan: second button, the route line */
+	--p-navy: #0f2a46; /* the one dark banner */
+
+	/* ── Roles: text ───────────────────────────────────────── */
+	--c-ink: var(--p-ink); /* titles, names, menu */
+	--c-text: var(--p-slate); /* paragraphs */
+	--c-display: var(--p-violet); /* the coloured half of titles (large text only) */
+	--c-label: color-mix(in srgb, var(--p-accent) 65%, var(--p-ink)); /* small coloured text: chips, labels, icons */
+
+	/* ── Roles: page, panels, cards ────────────────────────── */
+	--c-bg: color-mix(in srgb, var(--p-tint) 17%, white); /* the page */
+	--c-surface: #fff; /* menu bar, cards, round buttons */
+	--c-topbar: color-mix(in srgb, var(--p-tint) 32%, white); /* the thin bar above the menu */
+	--c-bar: rgb(255 255 255 / 0.94); /* menu bar once frosted, and its drop-downs */
+	--c-panel: color-mix(in srgb, var(--p-tint) 45%, white); /* large quiet blocks that hold cards */
+	--c-tint: var(--p-tint); /* chips, the selected card, notices */
+	--c-tile: color-mix(in srgb, var(--p-tint) 74%, white); /* icon tiles, arrow discs, quiet hovers */
+	--c-tile-strong: var(--p-periwinkle); /* the arrow disc of a selected or pointed-at card */
+	--c-chip: var(--c-tile); /* small quiet fills: language pill, menu button */
+	--c-on-chip: var(--c-ink);
+	--c-card: #fff;
+	--c-card-hover: #fff;
+	--c-card-line: color-mix(in srgb, var(--p-tint) 80%, white); /* hairline round cards and panels */
+	--c-rule: color-mix(in srgb, var(--p-periwinkle) 75%, white); /* the short line after a label */
+
+	/* ── Roles: the accent ─────────────────────────────────── */
+	--c-accent: var(--p-accent);
+	--c-on-accent: #fff;
+	--c-on-accent-soft: rgb(255 255 255 / 0.84); /* paragraphs on an accent fill */
+	--c-accent-hover: color-mix(in srgb, var(--p-accent) 82%, black);
+
+	/* ── Roles: fills that carry the ink colour ────────────── */
+	--c-feature: var(--p-sky); /* the testimonial card */
+	--c-on-feature: var(--c-ink);
+	--c-on-feature-soft: color-mix(in srgb, var(--c-ink) 78%, var(--p-sky)); /* secondary text on it */
+	--c-soft: var(--p-pale); /* second button, on dark and accent fills */
+	--c-on-soft: var(--c-ink);
+	--c-soft-hover: color-mix(in srgb, var(--p-pale) 78%, white);
+
+	/* ── Roles: the dark banner ────────────────────────────── */
+	--c-dark: var(--p-navy);
+	--c-on-dark: rgb(255 255 255 / 0.84); /* paragraphs; titles there are plain white */
+	--c-dark-lane: var(--p-sky); /* decorative lanes drawn on it */
+
+	/* ── Roles: lines ──────────────────────────────────────── */
+	--c-line: color-mix(in srgb, var(--p-ink) 9%, transparent);
+	--c-line-strong: color-mix(in srgb, var(--p-ink) 16%, white); /* outlined buttons, logo tiles */
+	--c-line-accent: rgb(255 255 255 / 0.22); /* hairlines on an accent fill */
+	--c-field-line: color-mix(in srgb, var(--p-ink) 52%, white); /* the line of a form field */
+
+	/* ── Roles: glows, slanted shapes, the route line ──────── */
+	/* Paragraphs sit on glows: this is the darkest it can be with the slate text. */
+	--c-glow: color-mix(in srgb, var(--p-periwinkle) 14%, var(--p-tint));
+	--c-shape: color-mix(in srgb, var(--p-periwinkle) 12%, var(--p-tint)); /* pale slanted bar */
+	--c-shape-strong: var(--p-periwinkle); /* stronger slanted bar */
+	--c-wave: color-mix(in srgb, var(--p-pale) 22%, var(--c-shape)); /* large shape in a corner of the first screen */
+	--c-route: var(--p-pale);
+	--c-route-mark: var(--p-accent); /* the dashes that travel on it */
+
+	/* Soft shadows, tinted with the palette's blue. */
+	--shadow-soft: 0 1px 2px rgb(22 40 120 / 0.04), 0 12px 32px rgb(22 40 120 / 0.06);
+	--shadow-pop: 0 2px 6px rgb(22 40 120 / 0.05), 0 22px 44px rgb(22 40 120 / 0.13);
+
+	/* ── Typography ────────────────────────────────────────── */
+	--font-sans: 'DM Sans Variable', 'DM Sans', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
+		Arial, sans-serif;
+	--font-script: 'La Belle Aurore', 'Segoe Script', 'Bradley Hand', cursive; /* the slogan only */
+
+	--fs-display: clamp(4rem, 2.4rem + 7.2vw, 7rem); /* giant figures */
+	/* The hero title follows the screen's width and its height, so the first screen always fits. */
+	--fs-hero: clamp(2.5rem, min(4.26vw, 8.6svh), 5.25rem);
+	--fs-h2: clamp(2rem, 1.6rem + 1.7vw, 2.875rem);
+	--fs-quote: clamp(1.4375rem, 1.2rem + 1.05vw, 2rem); /* large quotes and statements */
+	--fs-h3: clamp(1.1875rem, 1.1rem + 0.4vw, 1.375rem); /* card titles */
+	--fs-body: 1rem;
+	--fs-small: 0.875rem;
+	--fs-ui: 0.9375rem; /* menu, buttons, card labels */
+	--fs-label: 0.875rem; /* small interface text */
+	--fs-eyebrow: 0.71875rem; /* uppercase label above a title */
+	--fs-micro: 0.75rem; /* legal line */
+
+	/* ── Layout ────────────────────────────────────────────── */
+	--container: 76rem;
+	--gutter: clamp(1rem, 4vw, 3rem);
+	--space-section: clamp(4.5rem, 3rem + 6vw, 8.5rem);
+
+	/* The top bar and the menu run almost edge to edge. */
+	--container-wide: 116rem;
+	--gutter-wide: clamp(1rem, 3.25vw, 4rem);
+
+	/* The first screen is wider than the sections below it. */
+	--container-hero: 100rem;
+	--gutter-hero: clamp(1rem, 5.27vw, 6.25rem);
+
+	--topbar-h: 2.625rem;
+	--header-h: 4rem; /* menu bar once the page has scrolled */
+	--header-h-top: 4.5rem; /* menu bar at the top of the page */
+
+	/* ── Shapes ────────────────────────────────────────────── */
+	--r-xs: 6px; /* language pill */
+	--r-sm: 12px; /* drop-down rows, notices */
+	--r-tile: 1.125rem; /* icon tiles */
+	--r-md: 22px; /* cards */
+	--r-lg: 28px; /* panels, photos */
+	--r-pill: 999px; /* buttons, chips */
+
+	/* The slant of the logo, shared by the hero's frame and bars. */
+	--slant: -35.4deg;
+
+	--ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* Large screens that are also tall enough: a taller menu bar at the top of the page. */
+@media (min-width: 60em) and (min-height: 46em) {
+	:root {
+		--header-h-top: 5.1875rem;
+	}
+}

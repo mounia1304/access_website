@@ -1,0 +1,161 @@
+---
+// The "30 900 opérations" figure, which has its own block on the current site.
+// Here it is the one dark banner of the page.
+import { useTranslations } from '../i18n';
+
+const t = useTranslations();
+const { bigNumber } = t;
+
+// Decoration on the right of the banner: five lanes that come in from the right, take a
+// bend together and leave at the bottom, each carrying one dash (same idea and same speed
+// as the route line).
+const VIEW = { width: 520, height: 460 };
+const BEND = { x: 300, y: 300 };
+const DASH = 34;
+const SPEED = 100; // px per second
+const lanes = [0, 1, 2, 3, 4].map((index) => {
+	const radius = 60 + index * 34;
+	const length = VIEW.width - BEND.x + (Math.PI / 2) * radius + VIEW.height - BEND.y;
+	return {
+		path: `M${VIEW.width} ${BEND.y - radius}H${BEND.x}a${radius} ${radius} 0 0 0 ${-radius} ${radius}V${VIEW.height}`,
+		dash: `${DASH} ${(length - DASH).toFixed(1)}`,
+		style: `--lane-length: ${length.toFixed(1)}px; --lane-time: ${(length / SPEED).toFixed(2)}s; --lane-delay: ${(-index * 1.7).toFixed(1)}s`,
+	};
+});
+---
+
+<section class="section bignum">
+	<div class="container">
+		<div class="banner on-dark reveal">
+			<p class="banner__text">
+				<strong>{bigNumber.value}</strong>
+				<span>{bigNumber.label}</span>
+			</p>
+			<svg
+				class="lanes"
+				viewBox={`0 0 ${VIEW.width} ${VIEW.height}`}
+				fill="none"
+				aria-hidden="true"
+				focusable="false"
+				data-lanes
+			>
+				{
+					lanes.map((lane) => (
+						<>
+							<path class="lanes__line" d={lane.path} />
+							<path class="lanes__dash" d={lane.path} stroke-dasharray={lane.dash} style={lane.style} />
+						</>
+					))
+				}
+			</svg>
+		</div>
+	</div>
+</section>
+
+<script>
+	// The dashes only move while the banner is on screen.
+	const lanes = document.querySelectorAll<SVGElement>('[data-lanes]');
+	if (lanes.length && 'IntersectionObserver' in window) {
+		const observer = new IntersectionObserver((entries) => {
+			for (const entry of entries) entry.target.toggleAttribute('data-live', entry.isIntersecting);
+		});
+		lanes.forEach((svg) => observer.observe(svg));
+	}
+</script>
+
+<style>
+	.bignum {
+		padding-top: 0;
+	}
+
+	.banner {
+		position: relative;
+		display: flex;
+		align-items: center;
+		min-height: clamp(17rem, 12rem + 14vw, 23rem);
+		padding: clamp(1.75rem, 1rem + 4.5vw, 5rem);
+		border-radius: var(--r-lg);
+		background: var(--c-dark);
+		overflow: hidden;
+	}
+
+	.banner__text {
+		position: relative;
+		z-index: 1;
+		display: grid;
+		gap: 1rem;
+	}
+
+	.banner__text strong {
+		font-size: var(--fs-display);
+		letter-spacing: -0.02em;
+		line-height: 1;
+		white-space: nowrap;
+	}
+
+	.banner__text span {
+		max-width: 22rem;
+		font-size: var(--fs-h3);
+		line-height: 1.3;
+	}
+
+	/* Small screens: the lanes sit in the bottom right corner, behind the text. */
+	.lanes {
+		position: absolute;
+		right: -5rem;
+		bottom: -3rem;
+		width: auto;
+		max-width: none;
+		height: 85%;
+		opacity: 0.55;
+	}
+
+	.lanes__line,
+	.lanes__dash {
+		stroke: var(--c-dark-lane);
+		stroke-width: 2.5;
+	}
+
+	.lanes__line {
+		stroke-opacity: 0.4;
+	}
+
+	.lanes__dash {
+		stroke-linecap: round;
+		animation: lane-travel var(--lane-time) linear var(--lane-delay) infinite paused;
+	}
+
+	.lanes[data-live] .lanes__dash {
+		animation-play-state: running;
+	}
+
+	:global([data-motion='paused']) .lanes .lanes__dash {
+		animation-play-state: paused;
+	}
+
+	@keyframes lane-travel {
+		from {
+			stroke-dashoffset: var(--lane-length);
+		}
+
+		to {
+			stroke-dashoffset: 0;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.lanes__dash {
+			animation: none;
+		}
+	}
+
+	@media (min-width: 52em) {
+		.lanes {
+			top: 0;
+			right: 0;
+			bottom: auto;
+			height: 100%;
+			opacity: 1;
+		}
+	}
+</style>

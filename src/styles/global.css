@@ -1,0 +1,483 @@
+@import './tokens.css';
+
+/* ── Reset ─────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	-webkit-text-size-adjust: 100%;
+	text-size-adjust: 100%;
+	scroll-behavior: smooth;
+	scroll-padding-top: calc(var(--header-h) + 1rem);
+}
+
+body {
+	margin: 0;
+	font-family: var(--font-sans);
+	font-size: var(--fs-body);
+	font-weight: 400;
+	line-height: 1.5;
+	letter-spacing: 0.01em;
+	color: var(--c-text);
+	background: var(--c-bg);
+	/* The route lines are drawn wider than any screen. */
+	overflow-x: clip;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+figure,
+blockquote,
+dl,
+dd,
+ol,
+ul {
+	margin: 0;
+}
+
+ol,
+ul {
+	padding: 0;
+	list-style: none;
+}
+
+img,
+svg,
+picture {
+	display: block;
+	max-width: 100%;
+}
+
+img {
+	height: auto;
+}
+
+a {
+	color: inherit;
+	text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+	font: inherit;
+	letter-spacing: inherit;
+	color: inherit;
+}
+
+address {
+	font-style: normal;
+}
+
+:focus-visible {
+	outline: 2px solid var(--c-accent);
+	outline-offset: 3px;
+	border-radius: 4px;
+}
+
+::selection {
+	background: var(--c-accent);
+	color: var(--c-on-accent);
+}
+
+/* ── Type ──────────────────────────────────────────────────── */
+
+/* Titles are navy and medium; one half of each is set in a lighter indigo. */
+h1,
+h2,
+h3,
+h4 {
+	color: var(--c-ink);
+	font-weight: 500;
+	line-height: 1.15;
+	letter-spacing: -0.02em;
+	text-wrap: balance;
+}
+
+h2 {
+	font-size: var(--fs-h2);
+}
+
+h3 {
+	font-size: var(--fs-h3);
+	line-height: 1.3;
+	letter-spacing: -0.005em;
+}
+
+/* The coloured half of a title (see Title.astro). */
+.mark {
+	color: var(--c-display);
+}
+
+strong {
+	color: var(--c-ink);
+	font-weight: 500;
+}
+
+p {
+	text-wrap: pretty;
+}
+
+/* Small uppercase label above a title, followed by a short line. */
+.eyebrow {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.75rem;
+	width: fit-content;
+	color: var(--c-label);
+	font-size: var(--fs-eyebrow);
+	font-weight: 600;
+	letter-spacing: 0.22em;
+	line-height: 1.25rem;
+	text-transform: uppercase;
+}
+
+.eyebrow::after {
+	content: '';
+	width: 1.5625rem;
+	height: 1.5px;
+	border-radius: 2px;
+	background: var(--c-rule);
+}
+
+/* Pale pill that starts with a dash: the hero's tagline. */
+.chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.6rem;
+	width: fit-content;
+	padding: 0.21875rem 1.5rem 0.21875rem 0.9rem;
+	border-radius: var(--r-pill);
+	background: var(--c-tint);
+	color: var(--c-label);
+	font-size: 0.8125rem;
+	font-weight: 500;
+	line-height: 1.25rem;
+}
+
+.chip::before {
+	content: '';
+	flex: none;
+	width: 1rem;
+	height: 2px;
+	border-radius: 2px;
+	background: currentColor;
+	opacity: 0.55;
+}
+
+/* ── Layout helpers ────────────────────────────────────────── */
+.container {
+	width: min(100% - 2 * var(--gutter), var(--container));
+	margin-inline: auto;
+}
+
+/* Wider frame of the top bar and the menu. */
+.container--wide {
+	width: min(100% - 2 * var(--gutter-wide), var(--container-wide));
+}
+
+.section {
+	position: relative;
+	padding-block: var(--space-section);
+}
+
+.section-head {
+	display: grid;
+	gap: 0.9rem;
+	justify-items: start;
+	max-width: 46rem;
+	margin-bottom: clamp(2rem, 1.25rem + 2.5vw, 3.5rem);
+}
+
+.section-head--center {
+	justify-items: center;
+	margin-inline: auto;
+	text-align: center;
+}
+
+/* Soft light behind a block, in place of a coloured background.
+   --glow-x moves it sideways, --glow-top and --glow-height place it. */
+.glow {
+	position: relative;
+	isolation: isolate;
+	/* The light is wider than a phone's screen: what sticks out sideways is cut off. */
+	overflow-x: clip;
+}
+
+.glow::before {
+	content: '';
+	position: absolute;
+	top: var(--glow-top, 0);
+	left: 50%;
+	z-index: -1;
+	/* Never narrower than 58rem, so the light keeps its size on phones. (The sizes inside
+	   the gradient stay plain percentages: browsers reject mixed units there.) */
+	width: max(100%, 58rem);
+	height: var(--glow-height, 100%);
+	translate: -50% 0;
+	background: radial-gradient(34% 50% at var(--glow-x, 50%) 50%, var(--c-glow), transparent);
+	pointer-events: none;
+}
+
+/* Text on the dark banner and on accent fills. */
+.on-dark {
+	color: var(--c-on-dark);
+}
+
+.on-accent {
+	color: var(--c-on-accent-soft);
+}
+
+:is(.on-dark, .on-accent) :is(h2, h3, strong) {
+	color: var(--c-on-accent);
+}
+
+.on-dark :focus-visible {
+	outline-color: var(--c-soft);
+}
+
+.on-accent :focus-visible {
+	outline-color: var(--c-on-accent);
+}
+
+.visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}
+
+.skip-link {
+	position: absolute;
+	left: 1rem;
+	top: -4rem;
+	z-index: 100;
+	padding: 0.75rem 1.25rem;
+	border-radius: var(--r-pill);
+	background: var(--c-accent);
+	color: var(--c-on-accent);
+	font-size: var(--fs-label);
+	font-weight: 500;
+	transition: top 0.15s;
+}
+
+.skip-link:focus {
+	top: 1rem;
+}
+
+/* ── Buttons ───────────────────────────────────────────────── */
+
+/* Pills. A main action carries an arrow, which slides when the button is pointed at. */
+.btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.8rem;
+	min-height: 2.75rem;
+	padding: 0.6rem 1.6rem;
+	border: 1px solid transparent;
+	border-radius: var(--r-pill);
+	font-size: 0.90625rem;
+	font-weight: 500;
+	line-height: 1.25rem;
+	white-space: nowrap;
+	cursor: pointer;
+	transition:
+		color 0.15s ease-in-out,
+		background-color 0.15s ease-in-out,
+		border-color 0.15s ease-in-out;
+}
+
+.btn .icon {
+	flex: none;
+	transition: transform 0.25s var(--ease);
+}
+
+.btn:hover .icon {
+	transform: translateX(3px);
+}
+
+.btn--sm {
+	min-height: 2.375rem;
+	padding: 0.4rem 1.3rem;
+	font-size: 0.8125rem;
+}
+
+.btn--accent {
+	background: var(--c-accent);
+	color: var(--c-on-accent);
+}
+
+.btn--accent:hover {
+	background: var(--c-accent-hover);
+}
+
+.btn--outline {
+	border-color: var(--c-line-strong);
+	background: var(--c-surface);
+	color: var(--c-ink);
+}
+
+.btn--outline:hover {
+	background: var(--c-tile);
+}
+
+/* The button used on dark and accent fills. */
+.btn--soft {
+	background: var(--c-soft);
+	color: var(--c-on-soft);
+}
+
+.btn--soft:hover {
+	background: var(--c-soft-hover);
+}
+
+/* Round white button that carries a single icon (slider arrows, pause). */
+.circle {
+	display: inline-flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	width: 2.75rem;
+	height: 2.75rem;
+	padding: 0;
+	border: 0;
+	border-radius: 50%;
+	background: var(--c-surface);
+	box-shadow: var(--shadow-soft);
+	color: var(--c-accent);
+	cursor: pointer;
+	transition:
+		color 0.15s ease-in-out,
+		background-color 0.15s ease-in-out;
+}
+
+.circle:hover {
+	background: var(--c-accent);
+	color: var(--c-on-accent);
+}
+
+/* Rounded square that carries an icon. */
+.icon-tile {
+	display: inline-flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	width: 3.25rem;
+	height: 3.25rem;
+	border-radius: var(--r-tile);
+	background: var(--c-tile);
+	color: var(--c-label);
+}
+
+/* Small disc with an arrow, at the foot of a card. */
+.disc {
+	display: inline-flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	width: 1.75rem;
+	height: 1.75rem;
+	border-radius: 50%;
+	background: var(--c-tile);
+	color: var(--c-accent);
+	transition: background-color 0.25s;
+}
+
+.disc .icon {
+	transition: transform 0.3s var(--ease);
+}
+
+/* ── Cards ─────────────────────────────────────────────────── */
+
+/* White, with a pale hairline and a soft shadow. */
+.card {
+	position: relative;
+	border: 1px solid var(--c-card-line);
+	border-radius: var(--r-md);
+	background: var(--c-card);
+	box-shadow: var(--shadow-soft);
+	transition:
+		box-shadow 0.3s,
+		border-color 0.3s;
+}
+
+/* The whole card is clickable through the link in its title, so the link's name stays short. */
+.card__link::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+}
+
+.card__link:focus-visible {
+	outline: 0;
+}
+
+.card:has(.card__link:focus-visible) {
+	outline: 2px solid var(--c-accent);
+	outline-offset: 3px;
+}
+
+@media (hover: hover) {
+	.card:has(.card__link):hover {
+		border-color: var(--c-tile-strong);
+		box-shadow: var(--shadow-pop);
+	}
+
+	.card:hover .disc {
+		background: var(--c-tile-strong);
+	}
+
+	.card:hover .disc .icon {
+		transform: translateX(2px);
+	}
+}
+
+/* ── Movement ──────────────────────────────────────────────── */
+
+/* Cards fade in and rise as they enter the screen. The effect follows the scrolling itself
+   (scroll back up and it plays backwards); browsers without the feature just show the cards. */
+@keyframes reveal-rise {
+	from {
+		opacity: 0;
+		transform: translateY(2.5rem);
+	}
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	@supports (animation-timeline: view()) {
+		.reveal {
+			animation: reveal-rise linear both;
+			animation-timeline: view();
+			animation-range: entry 0% cover 28%;
+		}
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		transition-duration: 0.01ms !important;
+	}
+}

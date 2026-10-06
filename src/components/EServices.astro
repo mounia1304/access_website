@@ -1,0 +1,106 @@
+---
+import Icon from './Icon.astro';
+import Title from './Title.astro';
+import { route, useTranslations } from '../i18n';
+
+const t = useTranslations();
+const { eservices } = t;
+// The quote request (first item) is the main action: it gets the accent-coloured tile.
+---
+
+<section class="section eservices glow" id="e-services">
+	<div class="container">
+		<header class="section-head section-head--center">
+			<p class="eyebrow">{eservices.eyebrow}</p>
+			<Title parts={eservices.title} />
+		</header>
+
+		<ul class="eservices__grid">
+			{
+				eservices.items.map((item, index) => (
+					<li class:list={['card', 'etile', 'reveal', { 'etile--main': index === 0 }]}>
+						<span class="icon-tile">
+							<Icon name={item.icon} size={28} />
+						</span>
+						<span class="disc" aria-hidden="true">
+							<Icon name="arrow-right" size={14} />
+						</span>
+						<h3>
+							<a class="card__link" href={route(item.key)}>
+								{item.name}
+							</a>
+						</h3>
+					</li>
+				))
+			}
+		</ul>
+	</div>
+</section>
+
+<style>
+	.eservices {
+		--glow-top: 2rem;
+	}
+
+	.eservices__grid {
+		display: grid;
+		gap: 0.9375rem;
+	}
+
+	/* Icon tile top left, arrow top right, title along the bottom. */
+	.etile {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		grid-template-rows: auto 1fr;
+		gap: 1.75rem 1rem;
+		align-items: start;
+		min-height: 11rem;
+		padding: 1.75rem;
+	}
+
+	.etile h3 {
+		grid-column: 1 / -1;
+		align-self: end;
+	}
+
+	.etile.etile--main {
+		border-color: transparent;
+		background: var(--c-accent);
+		transition: background-color 0.15s ease-in-out;
+	}
+
+	.etile--main h3 {
+		color: var(--c-on-accent);
+	}
+
+	.etile--main .icon-tile {
+		background: rgb(255 255 255 / 0.14);
+		color: var(--c-on-accent);
+	}
+
+	.etile.etile--main .disc {
+		background: var(--c-surface);
+	}
+
+	.etile--main:has(a:focus-visible) {
+		outline-offset: 4px;
+	}
+
+	@media (hover: hover) {
+		.etile.etile--main:hover {
+			border-color: transparent;
+			background: var(--c-accent-hover);
+		}
+	}
+
+	@media (min-width: 56em) {
+		.eservices__grid {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
+
+		.etile {
+			min-height: 13rem;
+			padding: 2rem;
+		}
+	}
+</style>

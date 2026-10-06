@@ -1,0 +1,92 @@
+---
+import Icon from './Icon.astro';
+import Title from './Title.astro';
+import { route, useTranslations } from '../i18n';
+
+const t = useTranslations();
+const { services } = t;
+---
+
+<section class="section services glow" id="services">
+	<div class="container">
+		<header class="section-head section-head--center">
+			<p class="eyebrow">{services.eyebrow}</p>
+			<Title parts={services.title} stack />
+		</header>
+
+		<ul class="services__grid">
+			{
+				services.items.map((item) => (
+					<li class="card service reveal">
+						<span class="icon-tile">
+							<Icon name={item.icon} size={28} />
+						</span>
+						<h3>
+							<a class="card__link" href={route(item.key)}>
+								{item.name}
+							</a>
+						</h3>
+						<p>{item.text}</p>
+						<span class="service__more" aria-hidden="true">
+							{t.common.learnMore}
+							<span class="disc">
+								<Icon name="arrow-right" size={14} />
+							</span>
+						</span>
+					</li>
+				))
+			}
+		</ul>
+	</div>
+</section>
+
+<style>
+	.services {
+		--glow-top: 3rem;
+	}
+
+	.services__grid {
+		display: grid;
+		gap: 0.9375rem;
+	}
+
+	/* Icon tile at the top, "Savoir plus" and its arrow at the foot. */
+	.service {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		min-height: 15rem;
+		padding: 1.75rem;
+	}
+
+	.service h3 {
+		margin-top: 1.25rem;
+	}
+
+	.service p {
+		max-width: 30rem;
+		margin-top: 0.5rem;
+	}
+
+	.service__more {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.7rem;
+		margin-top: auto;
+		padding-top: 1.75rem;
+		color: var(--c-ink);
+		font-size: var(--fs-label);
+		font-weight: 500;
+		line-height: 1.25rem;
+	}
+
+	@media (min-width: 48em) {
+		.services__grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+
+		.service {
+			padding: 2rem;
+		}
+	}
+</style>

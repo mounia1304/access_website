@@ -1,0 +1,16 @@
+---
+// Section title in two colours, as in the reference design and on the current site:
+// the first part black, the second part in the accent colour.
+// A title given as a single string is set entirely in the accent colour.
+interface Props {
+	parts: string | readonly string[];
+	/** Puts the two parts on two lines. */
+	stack?: boolean;
+	class?: string;
+}
+
+const { parts, stack = false, class: className } = Astro.props;
+const [lead, mark] = typeof parts === 'string' ? ['', parts] : parts;
+---
+
+<h2 class={className}>{lead}{lead && (stack ? <br /> : ' ')}<span class="mark">{mark}</span></h2>

@@ -1,0 +1,162 @@
+---
+import Icon from './Icon.astro';
+import Marquee from './Marquee.astro';
+import MotionToggle from './MotionToggle.astro';
+import Title from './Title.astro';
+import { useTranslations } from '../i18n';
+
+const t = useTranslations();
+const { why } = t;
+---
+
+<section class="section why glow" id="engagements">
+	<div class="container why__grid">
+		<header class="section-head why__head">
+			<p class="eyebrow">{why.eyebrow}</p>
+			<Title parts={why.title} stack />
+		</header>
+
+		<ul class="why__list">
+			{
+				why.items.map((item) => (
+					<li class="card why__card reveal">
+						<span class="icon-tile">
+							<Icon name={item.icon} size={28} />
+						</span>
+						<h3>{item.title}</h3>
+						<p>{item.text}</p>
+					</li>
+				))
+			}
+		</ul>
+	</div>
+
+	<!-- Key figures: a band of giant numbers gliding by. -->
+	<div class="why__figures">
+		<Marquee speed={90}>
+			<dl class="figures">
+				{
+					why.stats.map((stat) => (
+						<div class="figure">
+							<dt>{stat.label}</dt>
+							<dd>
+								<Icon name={stat.icon} size={64} />
+								{stat.value}
+							</dd>
+						</div>
+					))
+				}
+			</dl>
+		</Marquee>
+		<div class="container why__pause">
+			<MotionToggle />
+		</div>
+	</div>
+</section>
+
+<style>
+	.why {
+		--glow-x: 36%;
+		--glow-height: 60rem;
+	}
+
+	.why__grid {
+		display: grid;
+	}
+
+	.why__list {
+		display: grid;
+		gap: 0.9375rem;
+	}
+
+	.why__card {
+		padding: 1.75rem;
+	}
+
+	.why__card h3 {
+		margin-top: 1.25rem;
+	}
+
+	.why__card p {
+		margin-top: 0.5rem;
+	}
+
+	/* ── Key figures ────────────────────────────────────── */
+	.why__figures {
+		margin-top: clamp(4rem, 2.5rem + 6vw, 8rem);
+	}
+
+	.figures {
+		display: flex;
+	}
+
+	/* The label comes first in the markup, the figure first on screen. */
+	.figure {
+		display: flex;
+		flex: none;
+		flex-direction: column-reverse;
+		align-items: center;
+		gap: 0.25rem;
+		padding-right: clamp(4rem, 2rem + 8vw, 10rem);
+	}
+
+	.figure dd {
+		display: flex;
+		align-items: center;
+		gap: 0.2em;
+		color: var(--c-ink);
+		font-size: var(--fs-display);
+		letter-spacing: -0.02em;
+		line-height: 1.16;
+		white-space: nowrap;
+	}
+
+	.figure dd :global(.icon) {
+		flex: none;
+		width: 0.56em;
+		height: 0.56em;
+		color: var(--c-accent);
+	}
+
+	.figure dt {
+		white-space: nowrap;
+	}
+
+	.why__pause {
+		display: flex;
+		justify-content: flex-end;
+		margin-top: 1.5rem;
+	}
+
+	/* Less movement asked for: the four figures at once, on as many lines as needed. */
+	@media (prefers-reduced-motion: reduce) {
+		.figures {
+			flex-wrap: wrap;
+			justify-content: center;
+			row-gap: 2.5rem;
+		}
+
+		.figure {
+			padding-inline: clamp(1rem, 4vw, 3rem);
+		}
+	}
+
+	@media (min-width: 64em) {
+		/* The title stays in view on the left while the reasons scroll by on the right. */
+		.why__grid {
+			grid-template-columns: minmax(0, 5fr) minmax(0, 6.2fr);
+			column-gap: clamp(2rem, 6vw, 6rem);
+			align-items: start;
+		}
+
+		.why__head {
+			position: sticky;
+			top: calc(var(--header-h) + 2.5rem);
+			margin-bottom: 0;
+		}
+
+		.why__card {
+			padding: 2rem;
+		}
+	}
+</style>

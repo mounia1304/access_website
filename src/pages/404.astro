@@ -1,0 +1,40 @@
+---
+// Shown for every page that is not built yet (inner pages come in phase 2).
+import Base from '../layouts/Base.astro';
+import { route, useTranslations } from '../i18n';
+
+const t = useTranslations();
+const { notFound } = t;
+---
+
+<Base title={`${notFound.eyebrow} | Access Transit`} noindex>
+	<section class="section pending glow">
+		<div class="container pending__inner">
+			<p class="eyebrow">{notFound.eyebrow}</p>
+			<h1>{notFound.title}</h1>
+			<p>{notFound.text}</p>
+			<a class="btn btn--accent" href={route('home')}>{notFound.back}</a>
+		</div>
+	</section>
+</Base>
+
+<style>
+	.pending__inner {
+		display: grid;
+		gap: 1.25rem;
+		justify-items: center;
+		align-content: center;
+		min-height: 22rem;
+		text-align: center;
+	}
+
+	.pending h1 {
+		max-width: 16em;
+		font-size: var(--fs-h2);
+	}
+
+	.pending p:not(.eyebrow) {
+		max-width: 36rem;
+		margin-bottom: 0.75rem;
+	}
+</style>

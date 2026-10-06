@@ -1,0 +1,24 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+import { icons, type IconName } from './icons';
+
+interface Props extends HTMLAttributes<'svg'> {
+	name: IconName;
+	size?: number | string;
+}
+
+const { name, size = 20, class: className, ...rest } = Astro.props;
+---
+
+<svg
+	xmlns="http://www.w3.org/2000/svg"
+	viewBox="0 0 256 256"
+	width={size}
+	height={size}
+	fill="currentColor"
+	aria-hidden="true"
+	focusable="false"
+	class:list={['icon', className]}
+	{...rest}
+	set:html={icons[name]}
+/>

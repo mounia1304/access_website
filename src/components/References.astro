@@ -1,0 +1,90 @@
+---
+// Client logos on a conveyor. They are shown in grey so the strip stays calm, and take
+// their own colours while the strip is pointed at (which also stops it).
+import { Image } from 'astro:assets';
+import Marquee from './Marquee.astro';
+import MotionToggle from './MotionToggle.astro';
+import Title from './Title.astro';
+import { clients } from '../data/references';
+import { useTranslations } from '../i18n';
+
+const t = useTranslations();
+const { references } = t;
+---
+
+<section class="section references" id="references">
+	<div class="container">
+		<header class="section-head section-head--center">
+			<p class="eyebrow">{references.eyebrow}</p>
+			<Title parts={references.title} />
+		</header>
+	</div>
+
+	<Marquee>
+		<ul class="logos">
+			{
+				clients.map((client) => (
+					<li>
+						<Image src={client.image} alt={client.name} width={300} loading="lazy" />
+					</li>
+				))
+			}
+		</ul>
+	</Marquee>
+
+	<div class="container references__pause">
+		<MotionToggle />
+	</div>
+</section>
+
+<style>
+	.logos {
+		display: flex;
+		align-items: center;
+	}
+
+	/* Every logo sits in the same box, whatever its proportions. */
+	.logos li {
+		flex: none;
+		width: clamp(7rem, 5rem + 7vw, 10.5rem);
+		height: clamp(4rem, 3rem + 3.5vw, 5.75rem);
+		margin-right: clamp(2.5rem, 1rem + 5.5vw, 5.5rem);
+	}
+
+	.logos :global(img) {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		filter: grayscale(1);
+		mix-blend-mode: multiply;
+		opacity: 0.85;
+		transition:
+			filter 0.3s,
+			opacity 0.3s;
+	}
+
+	.references :global(.marquee):hover .logos :global(img) {
+		filter: none;
+		opacity: 1;
+	}
+
+	.references__pause {
+		display: flex;
+		justify-content: flex-end;
+		margin-top: 1.5rem;
+	}
+
+	/* Less movement asked for: all the logos at once, on as many lines as needed. */
+	@media (prefers-reduced-motion: reduce) {
+		.logos {
+			flex-wrap: wrap;
+			justify-content: center;
+			row-gap: 2rem;
+			padding-inline: var(--gutter);
+		}
+
+		.logos li {
+			margin-inline: clamp(1rem, 3vw, 2.5rem);
+		}
+	}
+</style>

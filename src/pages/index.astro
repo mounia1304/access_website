@@ -1,0 +1,36 @@
+---
+// Homepage: same blocks, in the same order, as the current access-transit.com homepage.
+// Under the first screen, the route line (decoration) runs between them: it crosses the
+// page in the gaps and runs down the side margins, alternating sides on its way down.
+import Base from '../layouts/Base.astro';
+import RouteLine from '../components/RouteLine.astro';
+import Hero from '../components/Hero.astro';
+import About from '../components/About.astro';
+import Services from '../components/Services.astro';
+import Why from '../components/Why.astro';
+import Testimonials from '../components/Testimonials.astro';
+import BigNumber from '../components/BigNumber.astro';
+import References from '../components/References.astro';
+import Partners from '../components/Partners.astro';
+import EServices from '../components/EServices.astro';
+import Contact from '../components/Contact.astro';
+---
+
+<Base>
+	<Hero />
+	<About />
+	<RouteLine from="left" side="right" drop={240} />
+	<Services />
+	<RouteLine from="left" side="left" anchor="bottom" drop={280} />
+	<Why />
+	<RouteLine from="right" side="left" drop={220} />
+	<Testimonials />
+	<BigNumber />
+	<RouteLine from="right" side="right" anchor="bottom" drop={300} />
+	<References />
+	<Partners />
+	<RouteLine from="left" side="right" drop={220} />
+	<EServices />
+	<RouteLine from="right" side="left" drop={240} />
+	<Contact />
+</Base>

@@ -1,0 +1,198 @@
+---
+// The five testimonials of the current site. One is shown at a time, on the sky-blue card;
+// the list of names beside it works as tabs (click, arrow keys, Home and End).
+import Title from './Title.astro';
+import { useTranslations } from '../i18n';
+
+const t = useTranslations();
+const { testimonials } = t;
+
+const items = testimonials.items.map((item, index) => ({
+	...item,
+	panelId: `temoignage-${index + 1}`,
+	tabId: `temoignage-onglet-${index + 1}`,
+	first: index === 0,
+}));
+---
+
+<section class="section testimonials" id="temoignages">
+	<div class="container">
+		<header class="section-head">
+			<p class="eyebrow">{testimonials.eyebrow}</p>
+			<Title parts={testimonials.title} />
+		</header>
+
+		<div class="quotes" data-quotes>
+			<div class="quotes__card">
+				{
+					items.map((item) => (
+						<div
+							class="quote"
+							id={item.panelId}
+							role="tabpanel"
+							aria-labelledby={item.tabId}
+							data-quote
+							data-current={item.first ? '' : undefined}
+							inert={!item.first}
+						>
+							<figure>
+								<blockquote>
+									<p>{item.quote}</p>
+								</blockquote>
+								<figcaption>
+									{item.name}, {item.role}
+								</figcaption>
+							</figure>
+						</div>
+					))
+				}
+			</div>
+
+			<div class="quotes__tabs" role="tablist" aria-label={testimonials.tablist}>
+				{
+					items.map((item) => (
+						<button
+							class="quotes__tab"
+							type="button"
+							role="tab"
+							id={item.tabId}
+							aria-controls={item.panelId}
+							aria-selected={item.first ? 'true' : 'false'}
+							tabindex={item.first ? 0 : -1}
+							data-quote-tab
+						>
+							<span class="quotes__name">{item.name}</span>
+							<span class="quotes__role">{item.role}</span>
+						</button>
+					))
+				}
+			</div>
+		</div>
+	</div>
+</section>
+
+<script>
+	for (const root of document.querySelectorAll<HTMLElement>('[data-quotes]')) {
+		const panels = [...root.querySelectorAll<HTMLElement>('[data-quote]')];
+		const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-quote-tab]')];
+		let current = 0;
+
+		const show = (index: number, focusTab = false) => {
+			current = (index + panels.length) % panels.length;
+			panels.forEach((panel, i) => {
+				panel.toggleAttribute('data-current', i === current);
+				panel.inert = i !== current;
+			});
+			tabs.forEach((tab, i) => {
+				tab.setAttribute('aria-selected', String(i === current));
+				tab.tabIndex = i === current ? 0 : -1;
+			});
+			if (focusTab) tabs[current].focus();
+		};
+
+		tabs.forEach((tab, index) => {
+			tab.addEventListener('click', () => show(index));
+			tab.addEventListener('keydown', (event) => {
+				let target: number;
+				if (event.key === 'ArrowDown' || event.key === 'ArrowRight') target = current + 1;
+				else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') target = current - 1;
+				else if (event.key === 'Home') target = 0;
+				else if (event.key === 'End') target = panels.length - 1;
+				else return;
+				event.preventDefault();
+				show(target, true);
+			});
+		});
+	}
+</script>
+
+<style>
+	.quotes {
+		display: grid;
+		gap: 1.5rem 0.75rem;
+	}
+
+	/* All testimonials share one grid cell, so the card keeps the height of the longest one. */
+	.quotes__card {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		padding: clamp(1.75rem, 1rem + 4vw, 3.75rem);
+		border-radius: var(--r-lg);
+		background: var(--c-feature);
+		color: var(--c-on-feature-soft);
+	}
+
+	.quote {
+		grid-area: 1 / 1;
+		opacity: 0;
+		visibility: hidden;
+		transition:
+			opacity 0.3s,
+			visibility 0.3s;
+	}
+
+	.quote[data-current] {
+		opacity: 1;
+		visibility: visible;
+	}
+
+	.quote blockquote {
+		color: var(--c-on-feature);
+		font-size: var(--fs-quote);
+		letter-spacing: -0.01em;
+		line-height: 1.32;
+	}
+
+	.quote figcaption {
+		margin-top: 1.25rem;
+	}
+
+	/* The names: a line above each, darker on the one being shown. */
+	.quotes__tabs {
+		display: grid;
+		align-content: start;
+	}
+
+	.quotes__tab {
+		display: grid;
+		gap: 0.1rem;
+		padding: 0.85rem 0 0.9rem;
+		border: 0;
+		border-top: 1px solid var(--c-line-strong);
+		border-radius: 0;
+		background: none;
+		text-align: left;
+		cursor: pointer;
+		transition: border-color 0.4s;
+	}
+
+	.quotes__name {
+		color: var(--c-text);
+		transition: color 0.3s ease;
+	}
+
+	.quotes__role {
+		font-size: var(--fs-small);
+	}
+
+	.quotes__tab:hover .quotes__name,
+	.quotes__tab[aria-selected='true'] .quotes__name {
+		color: var(--c-ink);
+	}
+
+	.quotes__tab[aria-selected='true'] {
+		border-top-color: var(--c-ink);
+	}
+
+	@media (min-width: 60em) {
+		.quotes {
+			grid-template-columns: minmax(0, 7.6fr) minmax(0, 4.4fr);
+			column-gap: clamp(1.5rem, 4vw, 4rem);
+			align-items: stretch;
+		}
+
+		.quotes__card {
+			min-height: 22rem;
+		}
+	}
+</style>

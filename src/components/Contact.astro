@@ -1,0 +1,214 @@
+---
+import Icon from './Icon.astro';
+import Title from './Title.astro';
+import { site } from '../data/site';
+import { useTranslations } from '../i18n';
+
+const t = useTranslations();
+const { contact } = t;
+const { form } = contact;
+---
+
+<section class="section contact glow" id="contact">
+	<div class="container contact__grid">
+		<div class="contact__intro">
+			<header class="section-head">
+				<p class="eyebrow">{contact.eyebrow}</p>
+				<Title parts={contact.title} />
+			</header>
+
+			<a class="contact__phone" href={site.phone.href}>
+				<span class="icon-tile">
+					<Icon name="phone-call" size={28} />
+				</span>
+				{site.phone.display}
+			</a>
+			<dl class="contact__addresses">
+				{
+					site.addresses.map((address, index) => (
+						<div>
+							<dt>
+								{contact.address} {index + 1}
+							</dt>
+							<dd>
+								<address>{address}</address>
+							</dd>
+						</div>
+					))
+				}
+			</dl>
+		</div>
+
+		<!-- Demo only for now: the form is wired to e-mail delivery in phase 4. -->
+		<form class="card form" data-demo-form>
+			<div class="form__row">
+				<div class="field">
+					<label for="contact-name">{form.name}</label>
+					<input id="contact-name" name="name" type="text" autocomplete="name" required />
+				</div>
+				<div class="field">
+					<label for="contact-email">{form.email}</label>
+					<input id="contact-email" name="email" type="email" autocomplete="email" required />
+				</div>
+			</div>
+			<div class="form__row">
+				<div class="field">
+					<label for="contact-phone">{form.phone}</label>
+					<input id="contact-phone" name="phone" type="tel" autocomplete="tel" />
+				</div>
+				<div class="field">
+					<label for="contact-company">{form.company}</label>
+					<input id="contact-company" name="company" type="text" autocomplete="organization" />
+				</div>
+			</div>
+			<div class="field">
+				<label for="contact-message">{form.message}</label>
+				<textarea id="contact-message" name="message" rows="4" required></textarea>
+			</div>
+			<div>
+				<button class="btn btn--accent" type="submit">{form.submit}</button>
+			</div>
+			<p class="form__status" role="status" data-demo-status hidden>
+				<Icon name="check" size={18} />
+				{form.demo}
+			</p>
+		</form>
+	</div>
+</section>
+
+<script>
+	for (const form of document.querySelectorAll<HTMLFormElement>('[data-demo-form]')) {
+		form.addEventListener('submit', (event) => {
+			event.preventDefault();
+			form.querySelector<HTMLElement>('[data-demo-status]')?.removeAttribute('hidden');
+		});
+	}
+</script>
+
+<style>
+	.contact {
+		--glow-x: 66%;
+	}
+
+	.contact__grid {
+		display: grid;
+		gap: 2.5rem;
+	}
+
+	.contact .section-head {
+		margin-bottom: 2rem;
+	}
+
+	.contact__phone {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.85rem;
+		color: var(--c-ink);
+		font-size: var(--fs-quote);
+		letter-spacing: -0.01em;
+		line-height: 1.2;
+		white-space: nowrap;
+		transition: color 0.15s ease-in-out;
+	}
+
+	.contact__phone:hover {
+		color: var(--c-accent);
+	}
+
+	.contact__addresses {
+		display: grid;
+		gap: 1.5rem;
+		max-width: 26rem;
+		margin-top: 2rem;
+		padding-top: 2rem;
+		border-top: 1px solid var(--c-line);
+	}
+
+	.contact__addresses dt {
+		margin-bottom: 0.25rem;
+		color: var(--c-ink);
+	}
+
+	/* The form: a white card, fields drawn as a single line. */
+	.form {
+		display: grid;
+		gap: 1.75rem;
+		padding: clamp(1.5rem, 1rem + 2.5vw, 2.5rem);
+	}
+
+	.form__row {
+		display: grid;
+		gap: 1.75rem;
+	}
+
+	.field {
+		display: grid;
+		gap: 0.15rem;
+	}
+
+	.field label {
+		color: var(--c-ink);
+		font-size: var(--fs-label);
+		font-weight: 500;
+	}
+
+	.field input,
+	.field textarea {
+		width: 100%;
+		padding: 0.5rem 0 0.6rem;
+		border: 0;
+		border-bottom: 1px solid var(--c-field-line);
+		border-radius: 0;
+		background: none;
+		color: var(--c-ink);
+		transition:
+			border-color 0.15s ease-in-out,
+			box-shadow 0.15s ease-in-out;
+	}
+
+	.field textarea {
+		min-height: 6.5rem;
+		resize: vertical;
+	}
+
+	.field input:hover,
+	.field textarea:hover {
+		border-bottom-color: var(--c-ink);
+	}
+
+	.field input:focus-visible,
+	.field textarea:focus-visible {
+		outline: 0;
+		border-bottom-color: var(--c-accent);
+		box-shadow: 0 1px 0 var(--c-accent);
+	}
+
+	.form__status {
+		display: flex;
+		align-items: center;
+		gap: 0.6rem;
+		padding: 0.85rem 1rem;
+		border-radius: var(--r-sm);
+		background: var(--c-tint);
+		color: var(--c-ink);
+		font-size: var(--fs-small);
+	}
+
+	.form__status[hidden] {
+		display: none;
+	}
+
+	@media (min-width: 36em) {
+		.form__row {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	@media (min-width: 60em) {
+		.contact__grid {
+			grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+			column-gap: clamp(2rem, 6vw, 6rem);
+			align-items: start;
+		}
+	}
+</style>

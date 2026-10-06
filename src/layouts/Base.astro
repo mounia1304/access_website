@@ -1,0 +1,71 @@
+---
+import '@fontsource-variable/dm-sans/wght.css';
+import '@fontsource/la-belle-aurore/latin-400.css';
+import '../styles/global.css';
+import fontSans from '@fontsource-variable/dm-sans/files/dm-sans-latin-wght-normal.woff2?url';
+
+import TopBar from '../components/TopBar.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../data/site';
+import { defaultLocale, useTranslations, type Locale } from '../i18n';
+
+interface Props {
+	title?: string;
+	description?: string;
+	locale?: Locale;
+	noindex?: boolean;
+}
+
+const { locale = defaultLocale, noindex = false } = Astro.props;
+const t = useTranslations(locale);
+const title = Astro.props.title ?? t.meta.title;
+const description = Astro.props.description ?? t.meta.description;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+
+const structuredData = {
+	'@context': 'https://schema.org',
+	'@type': 'Organization',
+	name: site.name,
+	url: site.url,
+	foundingDate: String(site.founded),
+	email: site.email,
+	telephone: site.phone.display,
+	sameAs: [site.linkedin],
+	address: { '@type': 'PostalAddress', ...site.postalAddress },
+};
+---
+
+<!doctype html>
+<html lang={locale}>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>{title}</title>
+		<meta name="description" content={description} />
+		{noindex && <meta name="robots" content="noindex" />}
+		<link rel="canonical" href={canonical} />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="preload" href={fontSans} as="font" type="font/woff2" crossorigin />
+		{/* Colour of the browser bar on phones: the menu bar's colour (--c-surface in tokens.css). */}
+		<meta name="theme-color" content="#ffffff" />
+
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content={site.name} />
+		<meta property="og:locale" content="fr_FR" />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:url" content={canonical} />
+
+		<script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
+	</head>
+	<body>
+		<a class="skip-link" href="#contenu">{t.common.skip}</a>
+		<TopBar />
+		<Header />
+		<main id="contenu">
+			<slot />
+		</main>
+		<Footer />
+	</body>
+</html>

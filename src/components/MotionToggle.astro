@@ -1,0 +1,62 @@
+---
+// Pause button for what moves by itself on the page (the gliding strips and the dashes of
+// the route line). Every copy of the button controls the same switch.
+import Icon from './Icon.astro';
+import { useTranslations } from '../i18n';
+
+const t = useTranslations();
+---
+
+<button
+	class="circle motion-toggle"
+	type="button"
+	data-motion-toggle
+	data-pause={t.common.pauseMotion}
+	data-play={t.common.playMotion}
+	title={t.common.pauseMotion}
+>
+	<Icon name="pause" size={16} class="motion-toggle__pause" />
+	<Icon name="play" size={16} class="motion-toggle__play" />
+	<span class="visually-hidden" data-motion-label>{t.common.pauseMotion}</span>
+</button>
+
+<script>
+	const root = document.documentElement;
+	const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-motion-toggle]')];
+	for (const button of buttons) {
+		button.addEventListener('click', () => {
+			const paused = root.dataset.motion !== 'paused';
+			if (paused) root.dataset.motion = 'paused';
+			else delete root.dataset.motion;
+			for (const other of buttons) {
+				const label = (paused ? other.dataset.play : other.dataset.pause) ?? '';
+				other.title = label;
+				const text = other.querySelector('[data-motion-label]');
+				if (text) text.textContent = label;
+			}
+		});
+	}
+</script>
+
+<style>
+	.motion-toggle {
+		width: 2.5rem;
+		height: 2.5rem;
+	}
+
+	.motion-toggle :global(.motion-toggle__play),
+	:global([data-motion='paused']) .motion-toggle :global(.motion-toggle__pause) {
+		display: none;
+	}
+
+	:global([data-motion='paused']) .motion-toggle :global(.motion-toggle__play) {
+		display: block;
+	}
+
+	/* Nothing moves by itself for visitors who asked their system for less movement. */
+	@media (prefers-reduced-motion: reduce) {
+		.motion-toggle {
+			display: none;
+		}
+	}
+</style>

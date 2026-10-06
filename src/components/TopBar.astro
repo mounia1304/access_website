@@ -1,0 +1,109 @@
+---
+// Contact details and language switch, above the menu: a thin tinted bar.
+// It scrolls away with the page; the menu bar under it stays.
+import Icon from './Icon.astro';
+import { site } from '../data/site';
+import { useTranslations } from '../i18n';
+
+const t = useTranslations();
+---
+
+<aside class="topbar" aria-label={t.common.quickInfo}>
+	<div class="container container--wide topbar__inner">
+		<ul class="topbar__list">
+			<li>
+				<a href={site.phone.href}><Icon name="phone" size={16} />{site.phone.short}</a>
+			</li>
+			<li class="topbar__wide">
+				<a href={`mailto:${site.email}`}><Icon name="envelope" size={16} />{site.email}</a>
+			</li>
+			<li class="topbar__wide">
+				<span class="topbar__item"><Icon name="map-pin" size={16} />{site.location}</span>
+			</li>
+		</ul>
+		<span class="lang" role="group" aria-label={t.common.langSwitch}>
+			<span class="lang__current" aria-current="true">FR</span>
+			<span class="lang__soon" title={t.common.langSoon}>EN</span>
+		</span>
+	</div>
+</aside>
+
+<style>
+	.topbar {
+		position: relative;
+		z-index: 1;
+		background: var(--c-topbar);
+		font-size: 0.78125rem;
+		letter-spacing: 0.03em;
+	}
+
+	.topbar__inner {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1.5rem;
+		height: var(--topbar-h);
+	}
+
+	.topbar__list {
+		display: flex;
+		align-items: center;
+		gap: clamp(1.5rem, 3.4vw, 3.75rem);
+		padding-left: 0.25rem;
+	}
+
+	.topbar__list a,
+	.topbar__item {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.6rem;
+	}
+
+	.topbar__list :global(.icon) {
+		color: var(--c-accent);
+	}
+
+	.topbar__list a {
+		transition: color 0.15s ease-in-out;
+	}
+
+	.topbar__list a:hover {
+		color: var(--c-ink);
+	}
+
+	.topbar__wide {
+		display: none;
+	}
+
+	/* Language switch: the current language sits on a small tinted pill. */
+	.lang {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25rem;
+		padding-right: 0.25rem;
+		font-size: 0.75rem;
+		line-height: 1;
+	}
+
+	.lang > span {
+		padding: 0.35rem 0.5rem;
+		border-radius: var(--r-xs);
+	}
+
+	.lang__current {
+		background: var(--c-tint);
+		color: var(--c-ink);
+		font-weight: 600;
+	}
+
+	.lang__soon {
+		font-weight: 500;
+		cursor: not-allowed;
+	}
+
+	@media (min-width: 48em) {
+		.topbar__wide {
+			display: block;
+		}
+	}
+</style>

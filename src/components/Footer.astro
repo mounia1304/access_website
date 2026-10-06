@@ -1,0 +1,178 @@
+---
+import Icon from './Icon.astro';
+import LogoSlot from './LogoSlot.astro';
+import { site } from '../data/site';
+import { route, useTranslations } from '../i18n';
+
+const t = useTranslations();
+const year = new Date().getFullYear();
+
+const columns = [
+	{
+		title: t.nav.services,
+		links: t.services.items.map((item) => ({ label: item.name, href: route(item.key) })),
+	},
+	{
+		title: t.nav.eservices,
+		links: t.eservices.items.map((item) => ({ label: item.name, href: route(item.key) })),
+	},
+];
+---
+
+<footer class="footer on-accent">
+	<div class="container footer__grid">
+		<div class="footer__about">
+			<p>{t.footer.about}</p>
+			<a class="footer__social" href={site.linkedin} target="_blank" rel="noopener">
+				<Icon name="linkedin" size={20} />
+				LinkedIn
+			</a>
+		</div>
+
+		{
+			columns.map((column) => (
+				<nav aria-label={column.title}>
+					<p class="footer__title">{column.title}</p>
+					<ul>
+						{column.links.map((link) => (
+							<li>
+								<a href={link.href}>{link.label}</a>
+							</li>
+						))}
+					</ul>
+				</nav>
+			))
+		}
+
+		<div class="footer__contact">
+			<p class="footer__title">{t.footer.contact}</p>
+			<ul>
+				{
+					site.addresses.map((address, index) => (
+						<li>
+							<strong>
+								{t.footer.address} {index + 1}&nbsp;:
+							</strong>{' '}
+							{address}
+						</li>
+					))
+				}
+				<li>
+					<strong>{t.footer.email}&nbsp;:</strong>{' '}
+					<a href={`mailto:${site.email}`}>{site.email}</a>
+				</li>
+				<li>
+					<strong>{t.footer.phones}&nbsp;:</strong>{' '}
+					<a href={site.phone.href}>{site.phone.display}</a> / <a href={site.mobile.href}>{site.mobile.display}</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="footer__base">
+		<div class="container footer__bottom">
+			<a href={route('home')} aria-label={`${site.name} — ${t.nav.home}`}>
+				<LogoSlot tone="dark" />
+			</a>
+			<p>© {year} {site.brand} | {t.footer.rights}</p>
+		</div>
+	</div>
+</footer>
+
+<style>
+	.footer {
+		background: var(--c-accent);
+	}
+
+	.footer__grid {
+		display: grid;
+		gap: 2.5rem 2rem;
+		padding-block: clamp(3rem, 2rem + 4vw, 5rem);
+	}
+
+	.footer__about {
+		display: grid;
+		gap: 1.5rem;
+		align-content: start;
+		justify-items: start;
+	}
+
+	.footer__social {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		color: var(--c-on-accent);
+	}
+
+	/* Column titles are the quiet ones here; the links under them are white. */
+	.footer__title {
+		margin-bottom: 0.75rem;
+		font-size: var(--fs-small);
+	}
+
+	.footer ul {
+		display: grid;
+		gap: 0.45rem;
+	}
+
+	.footer nav a {
+		color: var(--c-on-accent);
+	}
+
+	.footer__contact ul {
+		gap: 0.7rem;
+	}
+
+	.footer a {
+		text-underline-offset: 0.25em;
+	}
+
+	.footer a:hover {
+		text-decoration: underline;
+	}
+
+	.footer a[href^='tel:'] {
+		white-space: nowrap;
+	}
+
+	.footer__base {
+		border-top: 1px solid var(--c-line-accent);
+	}
+
+	.footer__bottom {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1.25rem 2rem;
+		padding-block: 1.75rem 2.25rem;
+		font-size: var(--fs-small);
+	}
+
+	.footer__bottom a:hover {
+		text-decoration: none;
+	}
+
+	@media (min-width: 40em) {
+		.footer__grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+
+		.footer__about,
+		.footer__contact {
+			grid-column: 1 / -1;
+		}
+	}
+
+	@media (min-width: 64em) {
+		.footer__grid {
+			grid-template-columns: minmax(0, 4fr) minmax(0, 2fr) minmax(0, 2.2fr) minmax(0, 3.8fr);
+			column-gap: clamp(2rem, 4vw, 4rem);
+		}
+
+		.footer__about,
+		.footer__contact {
+			grid-column: auto;
+		}
+	}
+</style>
