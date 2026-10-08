@@ -136,30 +136,36 @@ const fr = {
 		],
 		motto: 'Notre force, votre atout',
 		ceo: { name: 'Mohamed EZZAHRAOUI', role: 'Directeur Général' },
-		imageAlt: 'Navire porte-conteneurs à quai et avion-cargo au décollage',
+		imageAlt: 'Camion porte-conteneurs, navire chargé de conteneurs à quai, portiques et avion au décollage',
 	},
 
 	services: {
 		eyebrow: 'Nos métiers',
 		title: ['Découvrez', 'nos services'],
+		// The first three sentences are those of the client's mockup of this screen
+		// (reference/maquette-troisieme-ecran.webp). The current site reads:
+		//   douane:  'Nous assurons la réalisation des services de passage en douane.'
+		//   routier: 'Nous garantissons un service de transport terrestre régulier.'
+		//   aerien:  'Un service personnalisé sur tous les aéroports internationaux.'
+		// The mockup's "une acheminement" is corrected to "un acheminement".
 		items: [
 			{
 				key: 'douane',
-				icon: 'stamp',
+				icon: 'customs-file',
 				name: 'Transit en douane',
-				text: 'Nous assurons la réalisation des services de passage en douane.',
+				text: 'Nous assurons la réalisation des services de passage en douane en toute sécurité et dans les meilleurs délais.',
 			},
 			{
 				key: 'routier',
 				icon: 'truck',
 				name: 'Transport routier',
-				text: 'Nous garantissons un service de transport terrestre régulier.',
+				text: 'Nous garantissons un acheminement de transport terrestre régulier.',
 			},
 			{
 				key: 'aerien',
 				icon: 'airplane',
 				name: 'Transport aérien',
-				text: 'Un service personnalisé sur tous les aéroports internationaux.',
+				text: 'Nous assurons la sécurité et la rapidité des expéditions internationales.',
 			},
 			{
 				key: 'maritime',

@@ -1,5 +1,9 @@
 // Icons come from Phosphor (MIT), all in the "regular" weight, which matches the line icons
-// of the client's mockup. Only the ones listed here end up in the page.
+// of the client's mockups. Only the ones listed here end up in the page.
+//
+// Two exceptions, both for the service plates (Services.astro): the four "ghost" pictures are
+// Phosphor's "fill" weight, shown large and pale in a corner of each plate; and "customs-file"
+// is drawn here after the client's mockup (a document with a badge), in Phosphor's proportions.
 
 import arrowLeft from '@phosphor-icons/core/assets/regular/arrow-left.svg?raw';
 import arrowRight from '@phosphor-icons/core/assets/regular/arrow-right.svg?raw';
@@ -33,6 +37,23 @@ import globe from '@phosphor-icons/core/assets/regular/globe-hemisphere-west.svg
 import handshake from '@phosphor-icons/core/assets/regular/handshake.svg?raw';
 import packageBox from '@phosphor-icons/core/assets/regular/package.svg?raw';
 import mapTrifold from '@phosphor-icons/core/assets/regular/map-trifold.svg?raw';
+import waves from '@phosphor-icons/core/assets/regular/waves.svg?raw';
+
+import ghostPen from '@phosphor-icons/core/assets/fill/pen-fill.svg?raw';
+import ghostTruck from '@phosphor-icons/core/assets/fill/truck-fill.svg?raw';
+import ghostPlane from '@phosphor-icons/core/assets/fill/airplane-tilt-fill.svg?raw';
+import ghostBoat from '@phosphor-icons/core/assets/fill/boat-fill.svg?raw';
+
+// A page with a folded corner and three lines, and a round badge that carries a figure.
+const line = 'fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"';
+const customsFile = [
+	`<path ${line} d="M124 224H56a8 8 0 0 1-8-8V40a8 8 0 0 1 8-8h96l56 56v36"/>`,
+	`<path ${line} d="M152 32v56h56"/>`,
+	`<path ${line} d="M88 124h72M88 156h36M88 188h20"/>`,
+	`<circle ${line} cx="184" cy="188" r="38"/>`,
+	'<circle cx="184" cy="177" r="10"/>',
+	'<path d="M163 207a22 15 0 0 1 42 0 36 36 0 0 1-42 0z"/>',
+].join('');
 
 // Keep only what is inside the <svg> tag; Icon.astro supplies its own wrapper.
 const inner = (svg: string) => svg.replace(/^[\s\S]*?<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
@@ -69,6 +90,12 @@ export const icons = {
 	handshake: inner(handshake),
 	package: inner(packageBox),
 	'map-trifold': inner(mapTrifold),
+	waves: inner(waves),
+	'customs-file': customsFile,
+	'ghost-pen': inner(ghostPen),
+	'ghost-truck': inner(ghostTruck),
+	'ghost-plane': inner(ghostPlane),
+	'ghost-boat': inner(ghostBoat),
 } as const;
 
 export type IconName = keyof typeof icons;

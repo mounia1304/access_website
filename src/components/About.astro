@@ -1,145 +1,587 @@
 ---
-import { Image } from 'astro:assets';
+// Second screen, built after the client's mockup (reference/maquette-deuxieme-ecran.webp,
+// 1944 x 809): on the left a tag, the two-line title, the two paragraphs, then the motto with
+// the managing director's portrait, name and signature; on the right the picture in a slanted
+// frame, with round-ended bars, thin strokes and the handwritten slogan.
+//
+// THE PICTURE is a short film supplied by the client (photos/presentation/transport.mp4,
+// 1280 x 720, 8 seconds, no sound), cut by the frame. Its first image (transport.webp) lies
+// under it: it is what shows until the film plays, and all that shows for visitors who asked
+// for less movement. The frame, the glass, the bars and the slogan are drawn here.
+import { Image, getImage } from 'astro:assets';
 import Title from './Title.astro';
-import companyPhoto from '../assets/photos/entreprise.jpg';
+import film from '../assets/photos/presentation/transport.mp4?url';
+import still from '../assets/photos/presentation/transport.webp';
 import ceoPhoto from '../assets/team/mohamed-ezzahraoui.png';
 import ceoSignature from '../assets/team/signature-ezzahraoui.png';
+import { roundedShape } from './shapes';
 import { useTranslations } from '../i18n';
 
 const t = useTranslations();
 const { about } = t;
+const { slogan } = t.hero;
+
+// The signature is black ink on a transparent background: it is used as a mask, so that it
+// takes the colour of the slogan.
+const signature = await getImage({ src: ceoSignature, width: ceoSignature.width, format: 'png' });
+
+// The picture's box, measured on the mockup (in px): 926 x 640. The frame leans like the logo
+// on its left side; on its right side the lower half steps out, where the ship's bow and the
+// crane are. In the angle it leaves at the top left stands a pane of glass, through which the
+// picture shows, veiled. The picture is cut to the outline of the two together: the frame's
+// seven corners, less the first (369, 6), which the glass covers.
+const BOX = { width: 926, height: 640 };
+const pictureShape = roundedShape(
+	[
+		[177, 6],
+		[808, 6],
+		[622, 266],
+		[916, 266],
+		[916, 324],
+		[722, 633],
+		[-66, 633],
+		[177, 282.7],
+	],
+	[0, 60, 27, 24, 20, 40, 78, 0],
+	BOX.width,
+	BOX.height,
+);
+// The glass alone: what lies left of the frame's slanted side and of its rounded first corner
+// (radius 50, which meets the two sides at the points below). It overlaps the picture's top
+// and left edges by 2px, so that none of the picture shows as a hairline around it.
+const unit = (x: number, y: number) => `${(x / BOX.width).toFixed(4)} ${(y / BOX.height).toFixed(4)}`;
+const glassShape = `M${unit(175, 4)}L${unit(395.2, 4)}L${unit(395.2, 6)}Q${unit(369, 6)} ${unit(354.1, 27.5)}L${unit(175, 285.6)}Z`;
+// A pale slab behind the frame, which shows on its left and under it (box of 823 x 476).
+const slabShape = roundedShape(
+	[
+		[330, 0],
+		[823, 0],
+		[493, 476],
+		[0, 476],
+	],
+	[0, 0, 6, 80],
+	823,
+	476,
+);
+
 ---
 
 <section class="section about" id="entreprise">
-	<div class="container about__grid">
-		<div class="about__copy">
-			<p class="eyebrow">{about.eyebrow}</p>
-			<Title parts={about.title} stack />
-			<div class="about__text">
-				{about.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
-			</div>
+	<!-- Two pale shapes in the right-hand corners of the screen. -->
+	<div class="about__decor" aria-hidden="true">
+		<span class="about__beam"></span>
+		<svg class="about__wave" viewBox="-306 0 588 365" preserveAspectRatio="none" focusable="false">
+			<path d="M-306 365L0 221Q135 157.5 282 0V365Z"></path>
+		</svg>
+	</div>
 
-			<!-- Motto and signature of the managing director. -->
-			<div class="about__sign">
-				<p class="about__motto">{about.motto}</p>
-				<div class="about__ceo">
-					<Image class="about__ceo-photo" src={ceoPhoto} alt="" width={128} height={128} loading="lazy" />
-					<p class="about__ceo-id">
-						<strong>{about.ceo.name}</strong>
-						<span>{about.ceo.role}</span>
-					</p>
-					<Image class="about__ceo-signature" src={ceoSignature} alt="" width={368} loading="lazy" />
+	<svg class="about__defs" width="0" height="0" aria-hidden="true" focusable="false">
+		<defs>
+			<clipPath id="about-picture" clipPathUnits="objectBoundingBox"><path d={pictureShape}></path></clipPath>
+			<clipPath id="about-glass" clipPathUnits="objectBoundingBox"><path d={glassShape}></path></clipPath>
+			<clipPath id="about-slab" clipPathUnits="objectBoundingBox"><path d={slabShape}></path></clipPath>
+		</defs>
+	</svg>
+
+	<div class="about__wrap">
+		<div class="about__grid">
+			<div class="about__copy">
+				<p class="chip about__tag">{about.eyebrow}</p>
+				<Title parts={about.title} stack />
+				<div class="about__text">
+					{about.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+				</div>
+
+				<!-- Motto and signature of the managing director. -->
+				<div class="about__sign">
+					<p class="about__motto">{about.motto}</p>
+					<div class="about__ceo">
+						<Image class="about__ceo-photo" src={ceoPhoto} alt="" width={150} height={150} loading="lazy" />
+						<p class="about__ceo-id">
+							<strong>{about.ceo.name}</strong>
+							<span>{about.ceo.role}</span>
+						</p>
+						<span class="about__signature" style={`--signature: url(${signature.src})`} aria-hidden="true">
+							<svg viewBox="0 0 80 14" focusable="false">
+								<path d="M2 9C26 7.5 52 5 78 3.5"></path>
+							</svg>
+						</span>
+					</div>
 				</div>
 			</div>
-		</div>
 
-		<div class="about__photo reveal">
-			<Image
-				src={companyPhoto}
-				alt={about.imageAlt}
-				widths={[360, companyPhoto.width]}
-				sizes="(min-width: 60em) 34rem, 90vw"
-				quality={76}
-				loading="lazy"
-			/>
+			<div class="about__visual reveal">
+				<div class="about__stage">
+					<span class="about__slab" aria-hidden="true"></span>
+					<span class="about__pill about__pill--pale about__pill--pale-top" aria-hidden="true"></span>
+					<span class="about__pill about__pill--pale about__pill--pale-bottom" aria-hidden="true"></span>
+					<div class="about__picture">
+						<div class="about__cut">
+							<Image
+								src={still}
+								alt={about.imageAlt}
+								widths={[640, 960, still.width]}
+								sizes="(min-width: 64em) 59vw, 114vw"
+								quality={82}
+								loading="lazy"
+							/>
+							<video class="about__film" muted playsinline preload="none" disablepictureinpicture aria-hidden="true" tabindex="-1" data-film>
+								<source src={film} type="video/mp4" />
+							</video>
+						</div>
+						<span class="about__glass" aria-hidden="true"></span>
+					</div>
+					<span class="about__pill about__pill--strong about__pill--strong-top" aria-hidden="true"></span>
+					<span class="about__pill about__pill--strong about__pill--strong-bottom" aria-hidden="true"></span>
+					<span class="about__stroke about__stroke--top" aria-hidden="true"></span>
+					<span class="about__stroke about__stroke--top-short" aria-hidden="true"></span>
+					<span class="about__stroke about__stroke--bottom" aria-hidden="true"></span>
+					<p class="about__slogan">
+						<span>{slogan[0]}</span>
+						<span>{slogan[1]}</span>
+						<svg viewBox="0 0 80 14" aria-hidden="true" focusable="false">
+							<path d="M2 9C26 7.6 52 6.6 78 6"></path>
+						</svg>
+					</p>
+				</div>
+			</div>
 		</div>
 	</div>
 </section>
 
+<script>
+	// The film plays only while its frame is on screen, and neither for visitors who asked their
+	// system for less movement nor once a pause button has been pressed (MotionToggle.astro).
+	// It is fetched the first time it has to play. At its end it dissolves into the still that
+	// lies under it, which is its first image, then starts again: the loop has no jump.
+	const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
+	const root = document.documentElement;
+
+	for (const film of document.querySelectorAll<HTMLVideoElement>('[data-film]')) {
+		let onScreen = false;
+		let rewinding = false;
+
+		const sync = () => {
+			if (rewinding) return;
+			if (onScreen && !calm.matches && root.dataset.motion !== 'paused') film.play().catch(() => {});
+			else film.pause();
+		};
+
+		film.addEventListener('playing', () => film.setAttribute('data-on', ''));
+		film.addEventListener('ended', () => {
+			rewinding = true;
+			film.removeAttribute('data-on');
+			// Once the dissolve is over (0.9s, see .about__film).
+			window.setTimeout(() => {
+				film.currentTime = 0;
+				rewinding = false;
+				sync();
+			}, 950);
+		});
+
+		new IntersectionObserver(([entry]) => {
+			onScreen = entry.isIntersecting;
+			sync();
+		}).observe(film);
+		new MutationObserver(sync).observe(root, { attributes: true, attributeFilter: ['data-motion'] });
+		calm.addEventListener('change', sync);
+	}
+</script>
+
 <style>
+	/*
+	 * All measures come from the mockup (1944 x 809) and are given in hundredths of the width of
+	 * the block (cqw), so the screen scales as a whole up to that width; text has a floor under
+	 * which it stops shrinking. 1cqw is 19.44px on the mockup.
+	 */
+	.about {
+		--tail: min(7.41vw, 9rem); /* how far the lower shape runs on under the block */
+		isolation: isolate;
+		padding-block: clamp(2.75rem, 2.62vw, 3.1875rem) clamp(3.5rem, 4.22vw, 5.125rem);
+		/* The corner shapes run past the right edge of the screen: cut them there (not above or
+		   below, where the bar comes down from the first screen and the lower shape runs on). */
+		overflow-x: clip;
+	}
+
+	.about__defs {
+		position: absolute;
+	}
+
+	/* ── Pale shapes in the corners ─────────────────────── */
+	.about__decor {
+		display: none;
+		position: absolute;
+		inset: 0 0 calc(-1 * var(--tail));
+		z-index: -1;
+		pointer-events: none;
+	}
+
+	/* A wide bar with a round end, coming down from the first screen. */
+	.about__beam {
+		position: absolute;
+		top: max(-0.46vw, -0.5625rem);
+		right: min(1.54vw, 1.875rem);
+		width: min(4.53vw, 5.5rem);
+		height: min(19.96vw, 24.25rem);
+		border-radius: var(--r-pill);
+		background: color-mix(in srgb, var(--c-tint) 80%, transparent);
+		transform: translateY(-50%) rotate(37deg);
+	}
+
+	/* A shape rising towards the right edge; it fades out under the block. */
+	.about__wave {
+		position: absolute;
+		right: 0;
+		bottom: 0;
+		width: min(30.25vw, 36.75rem);
+		height: min(18.78vw, 22.8125rem);
+		max-width: none;
+		fill: var(--c-tint);
+		-webkit-mask-image: linear-gradient(to bottom, #000 60%, transparent);
+		mask-image: linear-gradient(to bottom, #000 60%, transparent);
+	}
+
+	/* ── Layout ─────────────────────────────────────────── */
+	.about__wrap {
+		container-type: inline-size;
+		width: min(100%, 121.5rem);
+		margin-inline: auto;
+	}
+
 	.about__grid {
 		display: grid;
 		gap: 2.5rem;
+		padding-inline: var(--gutter);
+	}
+
+	/* ── Text ───────────────────────────────────────────── */
+
+	/* The tag: the chip of the first screen, in capitals. */
+	.about__tag {
+		gap: 0.92em;
+		padding: 0.5em 0.92em;
+		color: var(--c-label-soft);
+		font-size: clamp(0.8125rem, 0.952cqw, 1.15625rem);
+		font-weight: 700;
+		letter-spacing: 0.085em;
+		line-height: 1;
+		text-transform: uppercase;
+	}
+
+	.about__tag::before {
+		width: 1.135em;
 	}
 
 	.about__copy :global(h2) {
-		margin-top: 1rem;
+		margin: 0.2em 0 0 -0.04em;
+		font-size: clamp(2.5rem, 3.961cqw, 4.8125rem);
+		font-weight: 700;
+		line-height: 1;
 	}
 
 	.about__text {
 		display: grid;
-		gap: 1rem;
-		margin-top: 1.5rem;
+		gap: clamp(1rem, 1.111cqw, 1.35rem);
+		margin-top: clamp(1rem, 1.116cqw, 1.35625rem);
+		font-size: clamp(1rem, 1.049cqw, 1.275rem);
+		line-height: 1.44;
 	}
 
 	.about__sign {
-		margin-top: 2.25rem;
-		padding-top: 2rem;
+		margin-top: clamp(1.5rem, 1.955cqw, 2.375rem);
+		padding-top: clamp(1.25rem, 1.49cqw, 1.8125rem);
 		border-top: 1px solid var(--c-line);
 	}
 
 	.about__motto {
 		color: var(--c-ink);
-		font-size: var(--fs-quote);
+		font-size: clamp(1.5rem, 2.006cqw, 2.4375rem);
+		font-weight: 700;
 		letter-spacing: -0.01em;
-		line-height: 1.3;
+		line-height: 1.2;
 	}
 
 	.about__ceo {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 0.85rem;
-		margin-top: 1.5rem;
+		gap: 0.5rem clamp(0.85rem, 0.926cqw, 1.125rem);
+		margin-top: clamp(0.85rem, 0.875cqw, 1.0625rem);
 	}
 
 	.about__ceo :global(.about__ceo-photo) {
-		width: 3rem;
-		height: 3rem;
+		width: clamp(3.25rem, 3.858cqw, 4.6875rem);
+		height: auto;
+		aspect-ratio: 1;
+		border: max(2px, 0.154cqw) solid color-mix(in srgb, var(--c-line-strong) 70%, transparent);
 		border-radius: 50%;
 		object-fit: cover;
 	}
 
 	.about__ceo-id {
 		display: grid;
-		font-size: var(--fs-small);
-		line-height: 1.4;
+		font-size: clamp(0.875rem, 0.926cqw, 1.125rem);
+		line-height: 1.6;
 	}
 
 	.about__ceo-id strong {
-		font-size: 1rem;
+		font-size: clamp(1rem, 1.076cqw, 1.3075rem);
+		line-height: 1.42;
 	}
 
-	.about__ceo :global(.about__ceo-signature) {
-		width: 10.5rem;
-		margin-left: 3.85rem; /* lines up with the name when it wraps below */
-		mix-blend-mode: multiply;
+	/* The signature, in the colour of the slogan, with a stroke under it. */
+	.about__signature {
+		position: relative;
+		width: clamp(8rem, 9.31cqw, 11.3125rem);
+		margin-left: clamp(4.1rem, 4.784cqw, 5.8125rem); /* lines up with the name when it wraps below */
+		color: var(--c-label-soft);
+		/* The pen strokes are hairlines at this size: a faint halo of the same colour thickens them. */
+		filter: drop-shadow(0 0 0.35px currentColor) drop-shadow(0 0 0.35px currentColor);
+		transform: rotate(-6deg);
 	}
 
-	.about__photo {
-		aspect-ratio: 5 / 6;
-		border-radius: var(--r-lg);
-		background: var(--c-chip);
-		overflow: hidden;
+	.about__signature::before {
+		content: '';
+		display: block;
+		aspect-ratio: 500 / 156;
+		background: currentColor;
+		-webkit-mask: var(--signature) center / contain no-repeat;
+		mask: var(--signature) center / contain no-repeat;
 	}
 
-	.about__photo :global(img) {
+	.about__signature svg {
+		position: absolute;
+		top: 96%;
+		left: 24%;
+		width: 77%;
+		overflow: visible;
+	}
+
+	.about__signature path,
+	.about__slogan path {
+		fill: none;
+		stroke: currentColor;
+		stroke-linecap: round;
+		stroke-width: 2.2;
+	}
+
+	.about__signature path {
+		stroke-width: 0.9;
+	}
+
+	/* ── Picture ────────────────────────────────────────── */
+
+	/* The stage holds the frame, the bars, the strokes and the slogan, all placed in percentages
+	   of its box (1000 x 676 on the mockup), so the whole composition scales as one. */
+	.about__visual {
+		container-type: inline-size;
+	}
+
+	.about__stage {
+		position: relative;
+		aspect-ratio: 1000 / 676;
+	}
+
+	.about__slab {
+		position: absolute;
+		top: 29.44%;
+		left: -7.8%;
+		width: 82.3%;
+		height: 70.41%;
+		background: var(--c-tint);
+		clip-path: url(#about-slab);
+		-webkit-mask-image: linear-gradient(to top, #000 35%, transparent 85%);
+		mask-image: linear-gradient(to top, #000 35%, transparent 85%);
+	}
+
+	.about__picture {
+		position: absolute;
+		top: 4.88%;
+		left: 3%;
+		width: 92.6%;
+		height: 94.67%;
+	}
+
+	/* The frame cuts the picture; its right end, where the lower half steps out, fades away. */
+	.about__cut {
+		position: absolute;
+		inset: 0;
+		clip-path: url(#about-picture);
+		-webkit-mask-image: linear-gradient(to right, #000 93%, transparent 100%);
+		mask-image: linear-gradient(to right, #000 93%, transparent 100%);
+	}
+
+	/* The film is wider than the frame: it fills its height, and sits so that the plane, the
+	   lorry and the ship's bow all show. The still under it is placed the same way. */
+	.about__cut :global(img),
+	.about__film {
+		position: absolute;
+		inset: 0;
+		display: block;
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
-		object-position: 50% 38%;
+		object-position: 28% 50%;
+	}
+
+	/* Hidden until it plays; at its end it dissolves slowly into the still. */
+	.about__film {
+		opacity: 0;
+		transition: opacity 0.9s linear;
+	}
+
+	.about__film[data-on] {
+		opacity: 1;
+		transition-duration: 0.3s;
+	}
+
+	/* The pane of glass: a veil of the page's colour, opaque at the top, thinner lower down. */
+	.about__glass {
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(
+			to bottom,
+			var(--c-bg) 5%,
+			color-mix(in srgb, var(--c-bg) 76%, transparent) 20%,
+			color-mix(in srgb, var(--c-bg) 62%, transparent) 44%
+		);
+		clip-path: url(#about-glass);
+	}
+
+	/* Bars with round ends, leaning like the logo. */
+	.about__pill {
+		position: absolute;
+		border-radius: var(--r-pill);
+		transform: rotate(calc(-1 * var(--slant)));
+	}
+
+	.about__pill--strong {
+		background: linear-gradient(
+			to bottom,
+			color-mix(in srgb, var(--c-display) 40%, var(--c-shape-strong)),
+			var(--c-shape-strong)
+		);
+	}
+
+	.about__pill--strong-top {
+		top: 21.37%;
+		left: 11.15%;
+		width: 4.6%;
+		height: 30.03%;
+	}
+
+	.about__pill--strong-bottom {
+		top: 57.54%;
+		left: 88.1%;
+		width: 4.4%;
+		height: 37.28%;
+		background: linear-gradient(
+			to bottom,
+			color-mix(in srgb, var(--c-display) 40%, var(--c-shape-strong)),
+			color-mix(in srgb, var(--c-display) 18%, var(--c-shape-strong))
+		);
+	}
+
+	.about__pill--pale {
+		background: color-mix(in srgb, var(--c-shape-strong) 35%, transparent);
+	}
+
+	.about__pill--pale-top {
+		top: 14.94%;
+		left: 11.25%;
+		width: 6.2%;
+		height: 16.57%;
+		transform: rotate(50deg);
+	}
+
+	.about__pill--pale-bottom {
+		top: 76.4%;
+		left: 90.95%;
+		width: 5.5%;
+		height: 15.53%;
+		transform: rotate(40deg);
+	}
+
+	/* Thin strokes across the pale bars, on the same slant. */
+	.about__stroke {
+		position: absolute;
+		width: max(1.5px, 0.2cqw);
+		border-radius: 2px;
+		background: color-mix(in srgb, var(--c-display) 55%, var(--c-shape-strong));
+		transform: rotate(calc(-1 * var(--slant)));
+	}
+
+	.about__stroke--top {
+		top: 10.23%;
+		left: 14.85%;
+		height: 23.18%;
+	}
+
+	.about__stroke--top-short {
+		top: 16.3%;
+		left: 15.55%;
+		height: 4.23%;
+	}
+
+	.about__stroke--bottom {
+		top: 75.02%;
+		left: 92.85%;
+		height: 19.33%;
+	}
+
+	/* The handwritten slogan, in the corner the frame leaves free at the top right. */
+	.about__slogan {
+		position: absolute;
+		top: 18%;
+		right: 0;
+		display: grid;
+		justify-items: start;
+		color: var(--c-label-soft);
+		font-family: var(--font-script);
+		font-size: clamp(0.8125rem, 3.7cqw, 1.5rem);
+		letter-spacing: 0;
+		line-height: 1.27;
+		word-spacing: -0.22em;
+		white-space: nowrap;
+		/* The face only comes in one thin weight: a hairline stroke thickens it. */
+		-webkit-text-stroke: 0.04em currentColor;
+		transform: rotate(-16.5deg);
+		transform-origin: right center;
+	}
+
+	.about__slogan svg {
+		width: 3.1em;
+		margin: 0.13em 0 0 2.3em;
+		overflow: visible;
 	}
 
 	@media (min-width: 36em) {
-		.about__ceo :global(.about__ceo-signature) {
+		.about__signature {
 			margin-left: auto;
-		}
-
-		/* Tablets: the photo runs the full width under the text, in landscape. */
-		.about__photo {
-			aspect-ratio: 16 / 10;
+			/* 105px on the mockup; none on narrow columns, so the signature stays on the name's line. */
+			margin-right: clamp(0rem, 12cqw - 8rem, 6.5625rem);
 		}
 	}
 
-	@media (min-width: 60em) {
-		.about__grid {
-			grid-template-columns: minmax(0, 6.6fr) minmax(0, 5fr);
-			column-gap: clamp(3rem, 7vw, 7rem);
-			align-items: center;
+	/* ── Large screens: the mockup's layout ─────────────── */
+	@media (min-width: 64em) {
+		.about__decor {
+			display: block;
 		}
 
-		.about__photo {
-			aspect-ratio: 5 / 6;
+		.about__grid {
+			grid-template-columns: minmax(0, 800fr) minmax(0, 1000fr);
+			align-items: center;
+			gap: 0;
+			padding-inline: 6.173cqw 1.235cqw;
+		}
+
+		.about__slogan {
+			top: 26.6%;
+			right: auto;
+			left: 77.55%;
+			font-size: 2.75cqw;
+			transform-origin: left center;
 		}
 	}
 </style>

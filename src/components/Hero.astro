@@ -14,6 +14,7 @@ import { Image } from 'astro:assets';
 import Icon from './Icon.astro';
 import subject from '../assets/photos/hero/transport.webp';
 import sky from '../assets/photos/hero/ciel.jpg';
+import { roundedShape } from './shapes';
 import { route, useTranslations } from '../i18n';
 
 const t = useTranslations();
@@ -25,30 +26,6 @@ const slides = hero.slides.map((slide, index) => ({
 	tabId: `hero-tab-${index + 1}`,
 	first: index === 0,
 }));
-
-type Point = [number, number];
-
-/** Path of a polygon with rounded corners, in 0–1 units of its box (for an SVG clip path). */
-function roundedShape(points: Point[], radii: number[], width: number, height: number) {
-	const count = points.length;
-	const unit = ([x, y]: Point) => `${(x / width).toFixed(4)} ${(y / height).toFixed(4)}`;
-	let path = '';
-	points.forEach((corner, i) => {
-		const before = points[(i + count - 1) % count];
-		const after = points[(i + 1) % count];
-		const toBefore: Point = [before[0] - corner[0], before[1] - corner[1]];
-		const toAfter: Point = [after[0] - corner[0], after[1] - corner[1]];
-		const lengthBefore = Math.hypot(...toBefore);
-		const lengthAfter = Math.hypot(...toAfter);
-		const angle = Math.acos((toBefore[0] * toAfter[0] + toBefore[1] * toAfter[1]) / (lengthBefore * lengthAfter));
-		// How far from the corner a circle of this radius touches both sides.
-		const reach = Math.min(radii[i] / Math.tan(angle / 2), lengthBefore / 2, lengthAfter / 2);
-		const start: Point = [corner[0] + (toBefore[0] / lengthBefore) * reach, corner[1] + (toBefore[1] / lengthBefore) * reach];
-		const end: Point = [corner[0] + (toAfter[0] / lengthAfter) * reach, corner[1] + (toAfter[1] / lengthAfter) * reach];
-		path += `${i ? 'L' : 'M'}${unit(start)}Q${unit(corner)} ${unit(end)}`;
-	});
-	return `${path}Z`;
-}
 
 // The frame, measured on the mockup (in px, for a box of 636 x 421): its left side follows the
 // logo's slant, its right side is steeper. The sky is cut to this shape.
@@ -284,36 +261,27 @@ const subjectShape = roundedShape(
 		position: absolute;
 	}
 
-	/* A large pale shape rising in the bottom right corner of the screen. It runs on a little
-	   under the first screen and fades out there, so it has no hard lower edge. */
+	/* A large pale shape rising in the bottom right corner of the screen. It fades out in the
+	   room left under the panel, so it has no hard lower edge and the second screen starts clear. */
 	.hero__decor {
 		display: none;
 		position: absolute;
 		inset: 0;
 		z-index: -1;
 		pointer-events: none;
-	}
-
-	.hero__decor::before,
-	.hero__decor::after {
-		content: '';
-		position: absolute;
-		right: 0;
-		width: max(29%, 16rem);
-		background: linear-gradient(96deg, var(--c-wave), color-mix(in srgb, var(--c-wave) 35%, transparent));
+		-webkit-mask-image: linear-gradient(to top, transparent, #000 var(--foot));
+		mask-image: linear-gradient(to top, transparent, #000 var(--foot));
 	}
 
 	.hero__decor::before {
+		content: '';
+		position: absolute;
+		right: 0;
 		bottom: 0;
+		width: max(29%, 16rem);
 		height: 51%;
+		background: linear-gradient(96deg, var(--c-wave), color-mix(in srgb, var(--c-wave) 35%, transparent));
 		clip-path: polygon(0 100%, 53.4% 28.3%, 76% 13%, 100% 1%, 100% 100%);
-	}
-
-	.hero__decor::after {
-		top: 100%;
-		height: 9rem;
-		-webkit-mask-image: linear-gradient(to bottom, #000, transparent);
-		mask-image: linear-gradient(to bottom, #000, transparent);
 	}
 
 	.hero__wrap {

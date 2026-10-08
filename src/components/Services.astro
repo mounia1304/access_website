@@ -1,38 +1,117 @@
 ---
+// Third screen, built after the client's mockup (reference/maquette-troisieme-ecran.webp,
+// 1921 x 819): the label between two short lines, the two-line title, then the four services
+// as four plates in a row, each a little lower than the one before, each tilted and leaning
+// like a sheet dropped on a desk. Around them: pale round-ended bars and slabs on the slant of
+// the logo, and three thin strokes.
+//
+// After seeing it built, the client asked for two changes to the mockup: the plates must not
+// sit over one another, and none is larger than the others at rest. So the four are the same
+// size, with clear gaps, and the mockup's first plate (larger, with an indigo edge and a
+// tinted shadow) is what a plate becomes while it is pointed at, or reached with the keyboard.
+//
+// Sizes are in hundredths of the block's width (cqw), so the row scales as a whole; text has
+// floors under which it stops shrinking, and the plates grow taller together when it wraps.
+// Under 75em they no longer fit side by side: two per row, then one, tilted less, and the
+// background shapes give way to the usual glow.
 import Icon from './Icon.astro';
 import Title from './Title.astro';
+import type { IconName } from './icons';
 import { route, useTranslations } from '../i18n';
 
 const t = useTranslations();
 const { services } = t;
+
+// The pale picture in the corner of each plate.
+const GHOSTS: Record<string, IconName> = {
+	douane: 'ghost-pen',
+	routier: 'ghost-truck',
+	aerien: 'ghost-plane',
+	maritime: 'ghost-boat',
+};
+
+const items = services.items.map((item, index) => ({ ...item, ghost: GHOSTS[item.key], step: index }));
 ---
 
 <section class="section services glow" id="services">
-	<div class="container">
-		<header class="section-head section-head--center">
-			<p class="eyebrow">{services.eyebrow}</p>
+	<div class="services__wrap">
+		<!-- Background shapes, drawn in the mockup's own px (the drawing scales with the block). -->
+		<svg class="services__decor" viewBox="0 0 1921 819" aria-hidden="true" focusable="false">
+			<defs>
+				<linearGradient id="services-bar-left" gradientUnits="userSpaceOnUse" x1="170" y1="144.5" x2="-351" y2="878">
+					<stop offset="0"></stop>
+					<stop offset="0.35" stop-opacity="0.9"></stop>
+					<stop offset="1" stop-opacity="0"></stop>
+				</linearGradient>
+				<linearGradient id="services-band-left" gradientUnits="userSpaceOnUse" x1="159" y1="332" x2="-246" y2="903">
+					<stop offset="0" stop-opacity="0.6"></stop>
+					<stop offset="1" stop-opacity="0"></stop>
+				</linearGradient>
+				<linearGradient id="services-slab" gradientUnits="userSpaceOnUse" x1="-450" y1="0" x2="320" y2="0">
+					<stop offset="0" stop-opacity="0"></stop>
+					<stop offset="0.55" stop-opacity="0.6"></stop>
+					<stop offset="1"></stop>
+				</linearGradient>
+				<linearGradient id="services-bar-right" gradientUnits="userSpaceOnUse" x1="1742" y1="246" x2="2066" y2="-210">
+					<stop class="services__soft" offset="0" stop-opacity="0.95"></stop>
+					<stop class="services__soft" offset="0.5" stop-opacity="0.7"></stop>
+					<stop class="services__soft" offset="1" stop-opacity="0"></stop>
+				</linearGradient>
+				<linearGradient id="services-wave" gradientUnits="userSpaceOnUse" x1="0" y1="690" x2="0" y2="1010">
+					<stop class="services__soft" offset="0" stop-opacity="0.9"></stop>
+					<stop class="services__soft" offset="0.4" stop-opacity="0.8"></stop>
+					<stop class="services__soft" offset="0.62" stop-opacity="0.45"></stop>
+					<stop class="services__soft" offset="0.8" stop-opacity="0.16"></stop>
+					<stop class="services__soft" offset="0.92" stop-opacity="0.04"></stop>
+					<stop class="services__soft" offset="1" stop-opacity="0"></stop>
+				</linearGradient>
+			</defs>
+			<!-- Left: a round-ended bar, a wider and fainter one beside it, a slab under the row. -->
+			<line x1="159" y1="332" x2="-246" y2="903" stroke="url(#services-band-left)" stroke-width="110"></line>
+			<line x1="170" y1="144.5" x2="-351" y2="878" stroke="url(#services-bar-left)" stroke-width="89" stroke-linecap="round"
+			></line>
+			<path d="M-500 792L105 590L352 560V662L303 733Q296 743 284 745L-500 884Z" fill="url(#services-slab)"></path>
+			<!-- Right: a wide bar coming down from the corner, a shape rising towards the edge. -->
+			<line x1="1742" y1="246" x2="2066" y2="-210" stroke="url(#services-bar-right)" stroke-width="166" stroke-linecap="round"
+			></line>
+			<path d="M1350 950C1560 845 1780 735 1921 668L2700 300V1020H1350Z" fill="url(#services-wave)"></path>
+			<!-- Two thin strokes, on the same slant (a third one hangs under the row: .services__row::after). -->
+			<path class="services__strokes" d="M320 168L252 253M1893 453L1839 523"></path>
+		</svg>
+
+		<header class="services__head">
+			<p class="eyebrow services__eyebrow">{services.eyebrow}</p>
 			<Title parts={services.title} stack />
 		</header>
 
-		<ul class="services__grid">
+		<ul class="services__row">
 			{
-				services.items.map((item) => (
-					<li class="card service reveal">
-						<span class="icon-tile">
-							<Icon name={item.icon} size={28} />
-						</span>
-						<h3>
-							<a class="card__link" href={route(item.key)}>
-								{item.name}
-							</a>
-						</h3>
-						<p>{item.text}</p>
-						<span class="service__more" aria-hidden="true">
-							{t.common.learnMore}
-							<span class="disc">
-								<Icon name="arrow-right" size={14} />
+				items.map((item) => (
+					<li class="service reveal" style={`--step: ${item.step}`}>
+						<div class="service__plate">
+							<span class="service__sheet" aria-hidden="true">
+								<span class="service__edge" />
+								<span class="service__window">
+									{item.ghost === 'ghost-boat' && <Icon name="waves" class="service__waves" />}
+									<Icon name={item.ghost} class="service__ghost" />
+								</span>
 							</span>
-						</span>
+							<span class="service__tile">
+								<Icon name={item.icon} class="service__icon" />
+							</span>
+							<h3>
+								<a class="card__link" href={route(item.key)}>
+									<span class="service__upright">{item.name}</span>
+								</a>
+							</h3>
+							<p class="service__upright">{item.text}</p>
+							<span class="service__more service__upright" aria-hidden="true">
+								{t.common.learnMore}
+								<span class="disc">
+									<Icon name="arrow-right" />
+								</span>
+							</span>
+						</div>
 					</li>
 				))
 			}
@@ -41,52 +120,437 @@ const { services } = t;
 </section>
 
 <style>
+	/*
+	 * Measures come from the mockup (1921 x 819) and are given in hundredths of the width of the
+	 * block (cqw): 1cqw is 19.21px there. The mockup starts 66px above the label; the block gets
+	 * a little more room at the top, for the trail of chevrons that runs above it.
+	 */
 	.services {
 		--glow-top: 3rem;
+		/* The pale pictures in the corners of the plates. */
+		--ghost: color-mix(in srgb, var(--c-feature) 22%, var(--c-shape-strong));
+		padding-block: clamp(4.5rem, 5.73vw, 6.875rem) clamp(5.5rem, 8.2vw, 9.5rem);
 	}
 
-	.services__grid {
+	.services__wrap {
+		position: relative;
+		container-type: inline-size;
+		width: min(100%, 120.0625rem);
+		margin-inline: auto;
+	}
+
+	/* ── Background shapes ──────────────────────────────── */
+	.services__decor {
+		display: none;
+		position: absolute;
+		top: -3.436cqw; /* the drawing starts where the mockup does, 66px above the label */
+		left: 0;
+		z-index: -1;
+		width: 100%;
+		height: auto;
+		overflow: visible;
+		pointer-events: none;
+	}
+
+	.services__decor stop {
+		stop-color: var(--c-shape);
+	}
+
+	.services__decor .services__soft {
+		stop-color: var(--c-tint);
+	}
+
+	.services__strokes {
+		fill: none;
+		stroke: var(--c-label-soft);
+		stroke-linecap: round;
+		stroke-width: 1.6;
+	}
+
+	/* ── Label and title ────────────────────────────────── */
+	.services__head {
 		display: grid;
-		gap: 0.9375rem;
+		justify-items: center;
+		gap: clamp(0.75rem, 0.83cqw, 1rem);
+		padding-inline: var(--gutter);
+		text-align: center;
 	}
 
-	/* Icon tile at the top, "Savoir plus" and its arrow at the foot. */
+	/* The label sits between two short lines. */
+	.services__eyebrow {
+		gap: clamp(0.9rem, 1.25cqw, 1.5rem);
+		font-size: clamp(0.75rem, 0.93cqw, 1.11875rem);
+		font-weight: 700;
+	}
+
+	.services__eyebrow::before,
+	.services__eyebrow::after {
+		content: '';
+		width: clamp(1.5rem, 1.72cqw, 2.0625rem);
+		height: 2px;
+		border-radius: 2px;
+		background: color-mix(in srgb, var(--c-display) 55%, var(--c-shape-strong));
+	}
+
+	/* Letter-spacing leaves a space after the last letter: the same goes before the first. */
+	.services__eyebrow::before {
+		margin-right: 0.22em;
+	}
+
+	.services__head :global(h2) {
+		font-size: clamp(2.5rem, 3.98cqw, 4.78rem);
+		font-weight: 700;
+		letter-spacing: -0.035em;
+		line-height: 1.02;
+	}
+
+	/* ── The plates ─────────────────────────────────────── */
+	.services__row {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: 1.75rem 1.5rem;
+		margin-top: 2.25rem;
+		padding-inline: calc(var(--gutter) + 0.5rem);
+	}
+
 	.service {
+		/* The slope of the lines of text, the slope of the sheet's top edge (a little more), and
+		   how far its sides lean. Small screens use less of each. */
+		--tilt: -1.4deg;
+		--sheet-tilt: -2.2deg;
+		--lean: 4.5deg;
+		--tilt-by: 0.6;
+		--lean-by: 0.5;
+		--pad: 1.75rem;
+		--radius: 1.375rem;
+		--tile: 3.25rem;
+		--title: 1.375rem;
+		--text: 0.9375rem;
+		/* While a plate is pointed at, or its link has the keyboard's focus, --lift is 1: the
+		   plate grows by --grow and rises by --rise, and its edge turns indigo. Everything that
+		   changes then is written with --lift, and eases with the same curve. */
+		--lift: 0;
+		--grow: 0.04;
+		--rise: 0.25rem;
+		--lift-time: 0.65s; /* coming back down; going up is a little quicker (below) */
+		position: relative;
+		/* The lifted plate lies above its neighbours, and stays there until it has come back down. */
+		z-index: calc(var(--lift) * 2);
+		display: grid;
+		isolation: isolate;
+		transition: z-index 0s linear calc((1 - var(--lift)) * var(--lift-time));
+	}
+
+	.service:has(:global(.card__link:focus-visible)) {
+		--lift: 1;
+		--lift-time: 0.5s;
+	}
+
+	@media (hover: hover) {
+		.service:hover {
+			--lift: 1;
+			--lift-time: 0.5s;
+		}
+	}
+
+	/* Everything on a plate tilts and leans with it; texts and icons are then stood upright
+	   again (.service__upright), so that only their position follows the lean. */
+	.service__plate {
+		position: relative;
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
-		min-height: 15rem;
-		padding: 1.75rem;
+		min-height: 15.5rem;
+		padding: var(--pad) var(--pad) calc(var(--pad) * 0.8);
+		border-radius: var(--radius);
+		transform: skewY(calc(var(--tilt) * var(--tilt-by))) skewX(calc(var(--lean) * var(--lean-by) * -1));
+		scale: calc(1 + var(--lift) * var(--grow));
+		translate: 0 calc(var(--lift) * var(--rise) * -1);
+		transition:
+			scale var(--lift-time) var(--ease),
+			translate var(--lift-time) var(--ease);
+	}
+
+	/* The sheet under the text: it is tilted a little more than the lines it carries. Its
+	   ::after is the sheet itself; its ::before is the edge (a second sheet, a few px lower and
+	   to the right), with the plate's shadow. */
+	.service__sheet {
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		border-radius: inherit;
+		transform: skewY(calc((var(--sheet-tilt) - var(--tilt)) * var(--tilt-by)));
+	}
+
+	.service__sheet::before,
+	.service__sheet::after,
+	.service__edge {
+		content: '';
+		position: absolute;
+		inset: 0;
+		border-radius: inherit;
+	}
+
+	.service__sheet::before,
+	.service__edge {
+		translate: clamp(3px, 0.26cqw, 5px) clamp(4px, 0.31cqw, 6px);
+	}
+
+	.service__sheet::before {
+		background: color-mix(in srgb, var(--c-tile-strong) 55%, var(--c-surface));
+		box-shadow: var(--shadow-pop);
+	}
+
+	/* The edge of a lifted plate: indigo, stronger towards the bottom right, with a tinted
+	   shadow. It lies over the pale edge and fades in. */
+	.service__edge {
+		background:
+			linear-gradient(to right, color-mix(in srgb, var(--c-surface) 45%, transparent), transparent 75%),
+			linear-gradient(to bottom, transparent 4%, color-mix(in srgb, var(--c-display) 75%, var(--c-shape-strong)) 30%);
+		box-shadow: 0 1.1rem 2.4rem color-mix(in srgb, var(--c-accent) 22%, transparent);
+		opacity: var(--lift);
+		transition: opacity var(--lift-time) var(--ease);
+	}
+
+	.service__sheet::after {
+		background: var(--c-card);
+		box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c-card-line) 70%, transparent);
+	}
+
+	.service__upright {
+		display: block;
+		transform: skewX(calc(var(--lean) * var(--lean-by)));
+	}
+
+	/* The link in the title covers the whole plate, above its texts. */
+	.service .card__link::after {
+		z-index: 1;
+		border-radius: var(--radius);
+	}
+
+	.service__plate:has(:global(.card__link:focus-visible)) .service__sheet::after {
+		outline: 2px solid var(--c-accent);
+		outline-offset: 3px;
+	}
+
+	/* A pale slanted band in the top right corner, which fades out towards the bottom left;
+	   the picture of the service lies on it. */
+	.service__window {
+		--edge: clamp(0.5rem, 0.57cqw, 0.6875rem);
+		position: absolute;
+		top: var(--edge);
+		right: var(--edge);
+		z-index: 1;
+		width: 44%;
+		aspect-ratio: 170 / 125;
+		border-radius: 0 calc(var(--radius) - var(--edge)) 0 0;
+		overflow: hidden;
+		-webkit-mask-image: linear-gradient(to bottom left, #000 36%, transparent 86%);
+		mask-image: linear-gradient(to bottom left, #000 36%, transparent 86%);
+	}
+
+	/* Both sides of the band follow the slant of the logo (for a box of 170 by 125). */
+	.service__window::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: color-mix(in srgb, var(--c-shape-strong) 22%, var(--c-tint));
+		clip-path: polygon(52.3% 0, 100% 0, 100% 46%, 71.8% 100%, 0 100%);
+	}
+
+	/* The picture comes forward a little on a lifted plate. */
+	.service__window :global(.icon) {
+		position: absolute;
+		height: auto;
+		color: var(--ghost);
+		translate: calc(var(--lift) * -3%) calc(var(--lift) * -3%);
+		transition: translate var(--lift-time) var(--ease);
+	}
+
+	.service__window :global(.service__ghost) {
+		right: -2%;
+		bottom: 4%;
+		width: 56%;
+	}
+
+	/* The pen runs along the band, its tip towards the title. */
+	.service:nth-child(1) .service__window :global(.service__ghost) {
+		right: -6%;
+		bottom: 0;
+		width: 60%;
+		opacity: 0.5;
+	}
+
+	/* The lorry faces the text. */
+	.service:nth-child(2) .service__window :global(.service__ghost) {
+		right: -10%;
+		bottom: 6%;
+		width: 54%;
+		opacity: 0.5;
+		transform: scaleX(-1);
+	}
+
+	.service:nth-child(3) .service__window :global(.service__ghost) {
+		right: 8%;
+		bottom: -4%;
+		width: 52%;
+		opacity: 0.5;
+	}
+
+	.service:nth-child(4) .service__window :global(.service__ghost) {
+		right: 6%;
+		bottom: 18%;
+		width: 42%;
+		opacity: 0.85;
+	}
+
+	.service__window :global(.service__waves) {
+		right: 14%;
+		bottom: -4%;
+		width: 60%;
+		opacity: 0.4;
+	}
+
+	/* Icon in a tile that leans with the plate. */
+	.service__tile {
+		display: flex;
+		flex: none;
+		align-items: center;
+		justify-content: center;
+		width: var(--tile);
+		height: var(--tile);
+		border-radius: 27%;
+		background: var(--c-tint);
+		color: var(--c-accent);
+	}
+
+	.service__tile :global(.service__icon) {
+		width: 66%;
+		height: auto;
+		transform: skewX(calc(var(--lean) * var(--lean-by)));
 	}
 
 	.service h3 {
-		margin-top: 1.25rem;
+		margin-top: clamp(1rem, 1.04cqw, 1.25rem);
+		font-size: var(--title);
+		font-weight: 600;
+		line-height: 1.25;
+	}
+
+	.service h3 .service__upright {
+		display: inline-block;
 	}
 
 	.service p {
-		max-width: 30rem;
-		margin-top: 0.5rem;
+		margin-top: clamp(0.4rem, 0.42cqw, 0.5rem);
+		font-size: var(--text);
+		line-height: 1.75;
 	}
 
+	/* "Savoir plus" and its arrow, at the foot of the plate. */
 	.service__more {
 		display: inline-flex;
 		align-items: center;
-		gap: 0.7rem;
+		gap: clamp(0.75rem, 0.94cqw, 1.125rem);
 		margin-top: auto;
-		padding-top: 1.75rem;
-		color: var(--c-ink);
-		font-size: var(--fs-label);
+		padding-top: clamp(1rem, 0.94cqw, 1.125rem);
+		color: var(--c-label);
+		font-size: clamp(0.875rem, 0.812cqw, 0.975rem);
 		font-weight: 500;
 		line-height: 1.25rem;
 	}
 
+	/* On a lifted plate the disc takes the accent's colour and its arrow moves on. */
+	.service__more .disc {
+		width: clamp(2rem, 2.08cqw, 2.5rem);
+		height: clamp(2rem, 2.08cqw, 2.5rem);
+		background: color-mix(in srgb, var(--c-accent) calc(var(--lift) * 100%), var(--c-tile));
+		color: color-mix(in srgb, var(--c-on-accent) calc(var(--lift) * 100%), var(--c-accent));
+		transition:
+			background-color var(--lift-time) var(--ease),
+			color var(--lift-time) var(--ease);
+	}
+
+	.service__more .disc :global(.icon) {
+		width: 42%;
+		height: auto;
+		translate: calc(var(--lift) * 0.125rem) 0;
+		transition: translate var(--lift-time) var(--ease);
+	}
+
 	@media (min-width: 48em) {
-		.services__grid {
+		.services__row {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
+			column-gap: 2rem;
+		}
+	}
+
+	/* ── Large screens: four in a row, as on the mockup ─── */
+	@media (min-width: 75em) {
+		/* The background shapes take the place of the glow. */
+		.services::before {
+			content: none;
+		}
+
+		.services__decor {
+			display: block;
+		}
+
+		/* Four equal plates with clear gaps between them; each sits one step lower than the one
+		   before (the room for the last step is kept under the row). A lifted plate grows by
+		   less than half a gap on each side, so it never reaches its neighbours. */
+		.services__row {
+			--drop: clamp(0.5rem, 0.85cqw, 1rem);
+			position: relative;
+			grid-template-columns: repeat(4, minmax(0, 1fr));
+			gap: clamp(1.5rem, 2.2cqw, 2.75rem);
+			margin-top: clamp(2rem, 2.28cqw, 2.74rem);
+			padding: 0 5.2cqw calc(var(--drop) * 3);
 		}
 
 		.service {
-			padding: 2rem;
+			--tilt-by: 1;
+			--lean-by: 1;
+			--grow: 0.07;
+			--rise: 0.5rem;
+			--pad: clamp(1.15rem, 1.614cqw, 1.9375rem);
+			--radius: clamp(1.25rem, 1.46cqw, 1.75rem);
+			--tile: clamp(3.25rem, 4.27cqw, 5.125rem);
+			--title: clamp(1.25rem, 1.364cqw, 1.6375rem);
+			--text: clamp(0.9375rem, 0.807cqw, 0.96875rem);
+			translate: 0 calc(var(--drop) * var(--step));
+		}
+
+		.service__plate {
+			min-height: 0;
+		}
+
+		/* A thin stroke under the last plate's corner, on the slant of the logo. */
+		.services__row::after {
+			content: '';
+			position: absolute;
+			top: calc(100% + 1.1cqw);
+			left: 74.2%;
+			width: 1.6px;
+			height: clamp(1.75rem, 2.4cqw, 2.875rem);
+			border-radius: 2px;
+			background: var(--c-label-soft);
+			transform: rotate(calc(-1 * var(--slant)));
+			pointer-events: none;
+		}
+	}
+
+	/* Visitors who asked their system for less movement: the edge and the disc still change
+	   colour, but nothing grows or moves. (Last, so that it also applies on large screens.) */
+	@media (prefers-reduced-motion: reduce) {
+		.service {
+			--grow: 0;
+			--rise: 0rem;
+		}
+
+		.service__window :global(.icon),
+		.service__more .disc :global(.icon) {
+			translate: none;
 		}
 	}
 </style>

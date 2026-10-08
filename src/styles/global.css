@@ -23,7 +23,7 @@ body {
 	letter-spacing: 0.01em;
 	color: var(--c-text);
 	background: var(--c-bg);
-	/* The route lines are drawn wider than any screen. */
+	/* The trails of chevrons are drawn wider than any screen. */
 	overflow-x: clip;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;

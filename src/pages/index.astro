@@ -1,9 +1,9 @@
 ---
 // Homepage: same blocks, in the same order, as the current access-transit.com homepage.
-// Under the first screen, the route line (decoration) runs between them: it crosses the
-// page in the gaps and runs down the side margins, alternating sides on its way down.
+// Under the second screen, a trail of chevrons (decoration) runs in the gaps between them,
+// coming from the left and from the right in turn on its way down the page.
 import Base from '../layouts/Base.astro';
-import RouteLine from '../components/RouteLine.astro';
+import ChevronTrail from '../components/ChevronTrail.astro';
 import Hero from '../components/Hero.astro';
 import About from '../components/About.astro';
 import Services from '../components/Services.astro';
@@ -19,18 +19,18 @@ import Contact from '../components/Contact.astro';
 <Base>
 	<Hero />
 	<About />
-	<RouteLine from="left" side="right" drop={240} />
+	<ChevronTrail from="left" />
 	<Services />
-	<RouteLine from="left" side="left" anchor="bottom" drop={280} />
+	<ChevronTrail from="right" />
 	<Why />
-	<RouteLine from="right" side="left" drop={220} />
+	<ChevronTrail from="left" />
 	<Testimonials />
 	<BigNumber />
-	<RouteLine from="right" side="right" anchor="bottom" drop={300} />
+	<ChevronTrail from="right" />
 	<References />
 	<Partners />
-	<RouteLine from="left" side="right" drop={220} />
+	<ChevronTrail from="left" />
 	<EServices />
-	<RouteLine from="right" side="left" drop={240} />
+	<ChevronTrail from="right" />
 	<Contact />
 </Base>

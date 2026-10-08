@@ -1,0 +1,134 @@
+---
+// The trail of chevrons: our own way of linking two sections. Pairs of the logo's chevron
+// follow one another across the page, in the gap between two sections; on its way the trail
+// climbs a step that leans like the logo. A light travels along it in the direction the
+// chevrons point, at the pace of everything else that glides on the page. It is decoration
+// only (hidden from screen readers, never in the way of a click).
+//
+// The drawing (assets/decor/chevron-trail.svg, made by scripts/make-chevron-trail.mjs) is
+// wider than any screen and centred on the page. It has no colour of its own: it is used as a
+// stencil, and what shows through it is a pale fill with a band of accent colour gliding over it.
+//
+// `from` gives the edge of the screen the light comes from. From the left, the chevrons point
+// right and the step, right of the middle, is climbed. From the right, the same drawing is
+// turned half a turn: the chevrons point left and the step, left of the middle, is gone down.
+// Either way the step leans like the logo. Screens under about 58em only see a flat stretch.
+interface Props {
+	/** Edge of the screen the light comes from. */
+	from?: 'left' | 'right';
+}
+
+const { from = 'left' } = Astro.props;
+---
+
+<div class:list={['trail', `trail--from-${from}`]} aria-hidden="true">
+	<div class="trail__view" data-trail>
+		<div class="trail__line"></div>
+	</div>
+</div>
+
+<script>
+	// The light only travels while its trail is on screen.
+	const trails = document.querySelectorAll<HTMLElement>('[data-trail]');
+	if (trails.length && 'IntersectionObserver' in window) {
+		const observer = new IntersectionObserver(
+			(entries) => {
+				for (const entry of entries) entry.target.toggleAttribute('data-live', entry.isIntersecting);
+			},
+			{ rootMargin: '120px 0px' },
+		);
+		trails.forEach((trail) => observer.observe(trail));
+	}
+</script>
+
+<style>
+	/* Takes no room in the page: the drawing straddles this point. */
+	.trail {
+		/* Size of the drawing, as written by scripts/make-chevron-trail.mjs. */
+		--trail-w: 3840px;
+		--trail-h: 108px;
+		--trail-rise: 84px; /* how much higher the trail runs after its step */
+		/* A light every 1200px, gliding at 100px per second like the conveyors (Marquee.astro). */
+		--trail-period: 1200px;
+		--trail-time: 12s;
+		position: relative;
+		z-index: 1;
+		height: 0;
+		pointer-events: none;
+	}
+
+	.trail__view {
+		position: absolute;
+		inset: calc(var(--trail-h) / -2) 0 auto;
+		height: var(--trail-h);
+		overflow: hidden;
+		/* Fainter towards the edges of the screen. */
+		-webkit-mask-image: linear-gradient(90deg, rgb(0 0 0 / 0.4), #000 50%, rgb(0 0 0 / 0.4));
+		mask-image: linear-gradient(90deg, rgb(0 0 0 / 0.4), #000 50%, rgb(0 0 0 / 0.4));
+	}
+
+	.trail__line {
+		position: absolute;
+		top: 0;
+		left: 50%;
+		width: var(--trail-w);
+		height: var(--trail-h);
+		margin-left: calc(var(--trail-w) / -2);
+		background: var(--c-trail);
+		-webkit-mask: url('../assets/decor/chevron-trail.svg') center / 100% 100% no-repeat;
+		mask: url('../assets/decor/chevron-trail.svg') center / 100% 100% no-repeat;
+	}
+
+	.trail--from-right .trail__line {
+		transform: rotate(180deg);
+	}
+
+	/* The lights: bands of accent colour, one period apart, on a layer one period wider than
+	   the trail. Sliding it by one period brings it back to where it started. */
+	.trail__line::before {
+		content: '';
+		position: absolute;
+		inset: 0 0 0 calc(-1 * var(--trail-period));
+		background: linear-gradient(90deg, transparent, var(--c-trail-light) 5.5rem, transparent 11rem) 0 0 /
+			var(--trail-period) 100% repeat-x;
+		animation: trail-glide var(--trail-time) linear infinite paused;
+	}
+
+	.trail__view[data-live] .trail__line::before {
+		animation-play-state: running;
+	}
+
+	:global([data-motion='paused']) .trail__view .trail__line::before {
+		animation-play-state: paused;
+	}
+
+	@keyframes trail-glide {
+		to {
+			transform: translateX(var(--trail-period));
+		}
+	}
+
+	/* Small screens only see a flat stretch, half a rise above or below the gap's middle: bring
+	   it back to the middle. Lights come twice as often, or the narrow screen would mostly miss them. */
+	@media (max-width: 43.99em) {
+		.trail {
+			--trail-period: 640px;
+			--trail-time: 6.4s;
+		}
+
+		.trail--from-left .trail__line {
+			transform: translateY(calc(var(--trail-rise) / -2));
+		}
+
+		.trail--from-right .trail__line {
+			transform: translateY(calc(var(--trail-rise) / 2)) rotate(180deg);
+		}
+	}
+
+	/* Visitors who asked their system for less movement get the trail with still lights. */
+	@media (prefers-reduced-motion: reduce) {
+		.trail__line::before {
+			animation: none;
+		}
+	}
+</style>

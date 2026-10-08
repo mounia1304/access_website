@@ -93,6 +93,8 @@ const pairs = [
 	['second button label', colour('c-on-soft'), colour('c-soft'), TEXT],
 	['second button label, hover', colour('c-on-soft'), colour('c-soft-hover'), TEXT],
 	['tagline chip', colour('c-label'), colour('c-tint'), TEXT],
+	['tag of the second screen', colour('c-label-soft'), colour('c-tint'), TEXT],
+	['slogan and signature of the second screen', colour('c-label-soft'), colour('c-bg'), TEXT],
 	['language pill', colour('c-on-chip'), colour('c-tint'), TEXT],
 	['top bar text', colour('c-text'), colour('c-topbar'), TEXT],
 	['icon in its tile', colour('c-label'), colour('c-tile'), LARGE],

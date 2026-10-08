@@ -27,7 +27,7 @@
 	--p-tint: #e8effd; /* pale periwinkle: chips, selected card; lighter mixes give tiles, panels and the page */
 	--p-periwinkle: #c6cbfc; /* stronger tint: decorative bars, the disc of a selected card */
 	--p-sky: #73d7f4; /* sky blue: testimonial card, lanes of the dark banner */
-	--p-pale: #abe7f8; /* pale cyan: second button, the route line */
+	--p-pale: #abe7f8; /* pale cyan: second button */
 	--p-navy: #0f2a46; /* the one dark banner */
 
 	/* ── Roles: text ───────────────────────────────────────── */
@@ -35,6 +35,7 @@
 	--c-text: var(--p-slate); /* paragraphs */
 	--c-display: var(--p-violet); /* the coloured half of titles (large text only) */
 	--c-label: color-mix(in srgb, var(--p-accent) 65%, var(--p-ink)); /* small coloured text: chips, labels, icons */
+	--c-label-soft: color-mix(in srgb, var(--p-violet) 80%, var(--p-ink)); /* second screen: its tag, slogan and signature */
 
 	/* ── Roles: page, panels, cards ────────────────────────── */
 	--c-bg: color-mix(in srgb, var(--p-tint) 17%, white); /* the page */
@@ -77,14 +78,14 @@
 	--c-line-accent: rgb(255 255 255 / 0.22); /* hairlines on an accent fill */
 	--c-field-line: color-mix(in srgb, var(--p-ink) 52%, white); /* the line of a form field */
 
-	/* ── Roles: glows, slanted shapes, the route line ──────── */
+	/* ── Roles: glows, slanted shapes, the trail of chevrons ─ */
 	/* Paragraphs sit on glows: this is the darkest it can be with the slate text. */
 	--c-glow: color-mix(in srgb, var(--p-periwinkle) 14%, var(--p-tint));
 	--c-shape: color-mix(in srgb, var(--p-periwinkle) 12%, var(--p-tint)); /* pale slanted bar */
 	--c-shape-strong: var(--p-periwinkle); /* stronger slanted bar */
 	--c-wave: color-mix(in srgb, var(--p-pale) 22%, var(--c-shape)); /* large shape in a corner of the first screen */
-	--c-route: var(--p-pale);
-	--c-route-mark: var(--p-accent); /* the dashes that travel on it */
+	--c-trail: var(--p-periwinkle); /* the chevrons that run between sections */
+	--c-trail-light: var(--p-accent); /* the light that travels along them */
 
 	/* Soft shadows, tinted with the palette's blue. */
 	--shadow-soft: 0 1px 2px rgb(22 40 120 / 0.04), 0 12px 32px rgb(22 40 120 / 0.06);
