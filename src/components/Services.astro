@@ -80,32 +80,32 @@ const items = services.items.map((item, index) => ({ ...item, ghost: GHOSTS[item
 		</svg>
 
 		<header class="services__head">
-			<p class="eyebrow services__eyebrow">{services.eyebrow}</p>
+			<p class="eyebrow eyebrow--lines">{services.eyebrow}</p>
 			<Title parts={services.title} stack />
 		</header>
 
 		<ul class="services__row">
 			{
 				items.map((item) => (
-					<li class="service reveal" style={`--step: ${item.step}`}>
-						<div class="service__plate">
-							<span class="service__sheet" aria-hidden="true">
-								<span class="service__edge" />
-								<span class="service__window">
+					<li class="service plate reveal" style={`--step: ${item.step}`}>
+						<div class="service__plate plate__body">
+							<span class="service__sheet plate__sheet" aria-hidden="true">
+								<span class="service__edge plate__edge" />
+								<span class="service__window plate__window">
 									{item.ghost === 'ghost-boat' && <Icon name="waves" class="service__waves" />}
 									<Icon name={item.ghost} class="service__ghost" />
 								</span>
 							</span>
-							<span class="service__tile">
-								<Icon name={item.icon} class="service__icon" />
+							<span class="service__tile plate__tile">
+								<Icon name={item.icon} />
 							</span>
 							<h3>
 								<a class="card__link" href={route(item.key)}>
-									<span class="service__upright">{item.name}</span>
+									<span class="service__upright plate__upright">{item.name}</span>
 								</a>
 							</h3>
-							<p class="service__upright">{item.text}</p>
-							<span class="service__more service__upright" aria-hidden="true">
+							<p class="plate__upright">{item.text}</p>
+							<span class="service__more plate__upright" aria-hidden="true">
 								{t.common.learnMore}
 								<span class="disc">
 									<Icon name="arrow-right" />
@@ -127,8 +127,6 @@ const items = services.items.map((item, index) => ({ ...item, ghost: GHOSTS[item
 	 */
 	.services {
 		--glow-top: 3rem;
-		/* The pale pictures in the corners of the plates. */
-		--ghost: color-mix(in srgb, var(--c-feature) 22%, var(--c-shape-strong));
 		padding-block: clamp(4.5rem, 5.73vw, 6.875rem) clamp(5.5rem, 8.2vw, 9.5rem);
 	}
 
@@ -176,27 +174,6 @@ const items = services.items.map((item, index) => ({ ...item, ghost: GHOSTS[item
 		text-align: center;
 	}
 
-	/* The label sits between two short lines. */
-	.services__eyebrow {
-		gap: clamp(0.9rem, 1.25cqw, 1.5rem);
-		font-size: clamp(0.75rem, 0.93cqw, 1.11875rem);
-		font-weight: 700;
-	}
-
-	.services__eyebrow::before,
-	.services__eyebrow::after {
-		content: '';
-		width: clamp(1.5rem, 1.72cqw, 2.0625rem);
-		height: 2px;
-		border-radius: 2px;
-		background: color-mix(in srgb, var(--c-display) 55%, var(--c-shape-strong));
-	}
-
-	/* Letter-spacing leaves a space after the last letter: the same goes before the first. */
-	.services__eyebrow::before {
-		margin-right: 0.22em;
-	}
-
 	.services__head :global(h2) {
 		font-size: clamp(2.5rem, 3.98cqw, 4.78rem);
 		font-weight: 700;
@@ -205,6 +182,10 @@ const items = services.items.map((item, index) => ({ ...item, ghost: GHOSTS[item
 	}
 
 	/* ── The plates ─────────────────────────────────────── */
+
+	/* The plates themselves (sheet, edge, corner band, icon tile, the way one lifts when it is
+	   pointed at) are the shared .plate of global.css. What follows is their row, what they
+	   carry here, and their sizes. */
 	.services__row {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr);
@@ -213,113 +194,8 @@ const items = services.items.map((item, index) => ({ ...item, ghost: GHOSTS[item
 		padding-inline: calc(var(--gutter) + 0.5rem);
 	}
 
-	.service {
-		/* The slope of the lines of text, the slope of the sheet's top edge (a little more), and
-		   how far its sides lean. Small screens use less of each. */
-		--tilt: -1.4deg;
-		--sheet-tilt: -2.2deg;
-		--lean: 4.5deg;
-		--tilt-by: 0.6;
-		--lean-by: 0.5;
-		--pad: 1.75rem;
-		--radius: 1.375rem;
-		--tile: 3.25rem;
-		--title: 1.375rem;
-		--text: 0.9375rem;
-		/* While a plate is pointed at, or its link has the keyboard's focus, --lift is 1: the
-		   plate grows by --grow and rises by --rise, and its edge turns indigo. Everything that
-		   changes then is written with --lift, and eases with the same curve. */
-		--lift: 0;
-		--grow: 0.04;
-		--rise: 0.25rem;
-		--lift-time: 0.65s; /* coming back down; going up is a little quicker (below) */
-		position: relative;
-		/* The lifted plate lies above its neighbours, and stays there until it has come back down. */
-		z-index: calc(var(--lift) * 2);
-		display: grid;
-		isolation: isolate;
-		transition: z-index 0s linear calc((1 - var(--lift)) * var(--lift-time));
-	}
-
-	.service:has(:global(.card__link:focus-visible)) {
-		--lift: 1;
-		--lift-time: 0.5s;
-	}
-
-	@media (hover: hover) {
-		.service:hover {
-			--lift: 1;
-			--lift-time: 0.5s;
-		}
-	}
-
-	/* Everything on a plate tilts and leans with it; texts and icons are then stood upright
-	   again (.service__upright), so that only their position follows the lean. */
 	.service__plate {
-		position: relative;
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
 		min-height: 15.5rem;
-		padding: var(--pad) var(--pad) calc(var(--pad) * 0.8);
-		border-radius: var(--radius);
-		transform: skewY(calc(var(--tilt) * var(--tilt-by))) skewX(calc(var(--lean) * var(--lean-by) * -1));
-		scale: calc(1 + var(--lift) * var(--grow));
-		translate: 0 calc(var(--lift) * var(--rise) * -1);
-		transition:
-			scale var(--lift-time) var(--ease),
-			translate var(--lift-time) var(--ease);
-	}
-
-	/* The sheet under the text: it is tilted a little more than the lines it carries. Its
-	   ::after is the sheet itself; its ::before is the edge (a second sheet, a few px lower and
-	   to the right), with the plate's shadow. */
-	.service__sheet {
-		position: absolute;
-		inset: 0;
-		z-index: -1;
-		border-radius: inherit;
-		transform: skewY(calc((var(--sheet-tilt) - var(--tilt)) * var(--tilt-by)));
-	}
-
-	.service__sheet::before,
-	.service__sheet::after,
-	.service__edge {
-		content: '';
-		position: absolute;
-		inset: 0;
-		border-radius: inherit;
-	}
-
-	.service__sheet::before,
-	.service__edge {
-		translate: clamp(3px, 0.26cqw, 5px) clamp(4px, 0.31cqw, 6px);
-	}
-
-	.service__sheet::before {
-		background: color-mix(in srgb, var(--c-tile-strong) 55%, var(--c-surface));
-		box-shadow: var(--shadow-pop);
-	}
-
-	/* The edge of a lifted plate: indigo, stronger towards the bottom right, with a tinted
-	   shadow. It lies over the pale edge and fades in. */
-	.service__edge {
-		background:
-			linear-gradient(to right, color-mix(in srgb, var(--c-surface) 45%, transparent), transparent 75%),
-			linear-gradient(to bottom, transparent 4%, color-mix(in srgb, var(--c-display) 75%, var(--c-shape-strong)) 30%);
-		box-shadow: 0 1.1rem 2.4rem color-mix(in srgb, var(--c-accent) 22%, transparent);
-		opacity: var(--lift);
-		transition: opacity var(--lift-time) var(--ease);
-	}
-
-	.service__sheet::after {
-		background: var(--c-card);
-		box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c-card-line) 70%, transparent);
-	}
-
-	.service__upright {
-		display: block;
-		transform: skewX(calc(var(--lean) * var(--lean-by)));
 	}
 
 	/* The link in the title covers the whole plate, above its texts. */
@@ -333,40 +209,11 @@ const items = services.items.map((item, index) => ({ ...item, ghost: GHOSTS[item
 		outline-offset: 3px;
 	}
 
-	/* A pale slanted band in the top right corner, which fades out towards the bottom left;
-	   the picture of the service lies on it. */
-	.service__window {
-		--edge: clamp(0.5rem, 0.57cqw, 0.6875rem);
-		position: absolute;
-		top: var(--edge);
-		right: var(--edge);
-		z-index: 1;
-		width: 44%;
-		aspect-ratio: 170 / 125;
-		border-radius: 0 calc(var(--radius) - var(--edge)) 0 0;
-		overflow: hidden;
-		-webkit-mask-image: linear-gradient(to bottom left, #000 36%, transparent 86%);
-		mask-image: linear-gradient(to bottom left, #000 36%, transparent 86%);
+	.service h3 .service__upright {
+		display: inline-block;
 	}
 
-	/* Both sides of the band follow the slant of the logo (for a box of 170 by 125). */
-	.service__window::before {
-		content: '';
-		position: absolute;
-		inset: 0;
-		background: color-mix(in srgb, var(--c-shape-strong) 22%, var(--c-tint));
-		clip-path: polygon(52.3% 0, 100% 0, 100% 46%, 71.8% 100%, 0 100%);
-	}
-
-	/* The picture comes forward a little on a lifted plate. */
-	.service__window :global(.icon) {
-		position: absolute;
-		height: auto;
-		color: var(--ghost);
-		translate: calc(var(--lift) * -3%) calc(var(--lift) * -3%);
-		transition: translate var(--lift-time) var(--ease);
-	}
-
+	/* The pictures on the corner bands. */
 	.service__window :global(.service__ghost) {
 		right: -2%;
 		bottom: 4%;
@@ -411,42 +258,6 @@ const items = services.items.map((item, index) => ({ ...item, ghost: GHOSTS[item
 		opacity: 0.4;
 	}
 
-	/* Icon in a tile that leans with the plate. */
-	.service__tile {
-		display: flex;
-		flex: none;
-		align-items: center;
-		justify-content: center;
-		width: var(--tile);
-		height: var(--tile);
-		border-radius: 27%;
-		background: var(--c-tint);
-		color: var(--c-accent);
-	}
-
-	.service__tile :global(.service__icon) {
-		width: 66%;
-		height: auto;
-		transform: skewX(calc(var(--lean) * var(--lean-by)));
-	}
-
-	.service h3 {
-		margin-top: clamp(1rem, 1.04cqw, 1.25rem);
-		font-size: var(--title);
-		font-weight: 600;
-		line-height: 1.25;
-	}
-
-	.service h3 .service__upright {
-		display: inline-block;
-	}
-
-	.service p {
-		margin-top: clamp(0.4rem, 0.42cqw, 0.5rem);
-		font-size: var(--text);
-		line-height: 1.75;
-	}
-
 	/* "Savoir plus" and its arrow, at the foot of the plate. */
 	.service__more {
 		display: inline-flex;
@@ -464,8 +275,8 @@ const items = services.items.map((item, index) => ({ ...item, ghost: GHOSTS[item
 	.service__more .disc {
 		width: clamp(2rem, 2.08cqw, 2.5rem);
 		height: clamp(2rem, 2.08cqw, 2.5rem);
-		background: color-mix(in srgb, var(--c-accent) calc(var(--lift) * 100%), var(--c-tile));
-		color: color-mix(in srgb, var(--c-on-accent) calc(var(--lift) * 100%), var(--c-accent));
+		background: color-mix(in srgb, var(--c-accent) calc(var(--on) * 100%), var(--c-tile));
+		color: color-mix(in srgb, var(--c-on-accent) calc(var(--on) * 100%), var(--c-accent));
 		transition:
 			background-color var(--lift-time) var(--ease),
 			color var(--lift-time) var(--ease);
@@ -474,7 +285,7 @@ const items = services.items.map((item, index) => ({ ...item, ghost: GHOSTS[item
 	.service__more .disc :global(.icon) {
 		width: 42%;
 		height: auto;
-		translate: calc(var(--lift) * 0.125rem) 0;
+		translate: calc(var(--lift) * var(--motion) * 0.125rem) 0;
 		transition: translate var(--lift-time) var(--ease);
 	}
 
@@ -537,20 +348,6 @@ const items = services.items.map((item, index) => ({ ...item, ghost: GHOSTS[item
 			background: var(--c-label-soft);
 			transform: rotate(calc(-1 * var(--slant)));
 			pointer-events: none;
-		}
-	}
-
-	/* Visitors who asked their system for less movement: the edge and the disc still change
-	   colour, but nothing grows or moves. (Last, so that it also applies on large screens.) */
-	@media (prefers-reduced-motion: reduce) {
-		.service {
-			--grow: 0;
-			--rise: 0rem;
-		}
-
-		.service__window :global(.icon),
-		.service__more .disc :global(.icon) {
-			translate: none;
 		}
 	}
 </style>

@@ -1,6 +1,6 @@
 ---
-// Client logos on a conveyor. They are shown in grey so the strip stays calm, and take
-// their own colours while the strip is pointed at (which also stops it).
+// Client logos on a conveyor, always in their own colours (the client asked for them never to
+// be shown in grey). Pointing at the strip stops it.
 import { Image } from 'astro:assets';
 import Marquee from './Marquee.astro';
 import MotionToggle from './MotionToggle.astro';
@@ -55,17 +55,8 @@ const { references } = t;
 		width: 100%;
 		height: 100%;
 		object-fit: contain;
-		filter: grayscale(1);
+		/* Logos with a white background take the page's colour instead. */
 		mix-blend-mode: multiply;
-		opacity: 0.85;
-		transition:
-			filter 0.3s,
-			opacity 0.3s;
-	}
-
-	.references :global(.marquee):hover .logos :global(img) {
-		filter: none;
-		opacity: 1;
 	}
 
 	.references__pause {

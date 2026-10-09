@@ -8,12 +8,16 @@
 // It writes src/assets/decor/chevron-trail.svg. The component uses that file as a stencil (a
 // CSS mask) and gives it its colours, so the drawing itself has none. If WIDTH or HEIGHT change
 // here, change them in the component too.
+//
+// It also writes chevron-pair-down.svg: one pair of the same chevrons pointing down, which the
+// fourth screen repeats down a rail (src/components/Why.astro).
 
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const out = fileURLToPath(new URL('../src/assets/decor/chevron-trail.svg', import.meta.url));
+const outPair = fileURLToPath(new URL('../src/assets/decor/chevron-pair-down.svg', import.meta.url));
 
 const WIDTH = 3840; // wider than any screen: the page shows the middle of it
 const RISE = 84; // how much higher the trail runs after the step
@@ -97,3 +101,15 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${
 mkdirSync(dirname(out), { recursive: true });
 writeFileSync(out, svg);
 console.log(`${pairs} pairs of chevrons, ${WIDTH} x ${HEIGHT}, ${(svg.length / 1024).toFixed(1)} kB -> ${out}`);
+
+// The pair pointing down: a tile as tall as the distance between two pairs, so that repeating
+// it keeps the trail's rhythm. If its size changes, change it in Why.astro too.
+const TILE = { width: 14, height: PAIR_EVERY };
+const down = (y) => chevron({ x: TILE.width / 2, y, heading: Math.PI / 2 });
+const pair = down(TILE.height / 2 - PAIR_GAP / 2) + down(TILE.height / 2 + PAIR_GAP / 2);
+writeFileSync(
+	outPair,
+	`<svg xmlns="http://www.w3.org/2000/svg" width="${TILE.width}" height="${TILE.height}" viewBox="0 0 ${TILE.width} ${TILE.height}"><path d="${pair}"/></svg>
+`,
+);
+console.log(`pair pointing down, ${TILE.width} x ${TILE.height} -> ${outPair}`);

@@ -9,7 +9,8 @@ French is the default locale, English comes later. See `README.md` for the file 
 - `npm run build` — production build into `dist/`; run it after template changes, it catches compile errors
 - `npm run check:palette` — computes the contrast of every text/background pair from `tokens.css`
 - `node scripts/make-hero-sky.mjs` — redraws the sky behind the first screen's picture (only to change it)
-- `node scripts/make-chevron-trail.mjs` — redraws the trail of chevrons that runs between sections (only to change it)
+- `node scripts/make-chevron-trail.mjs` — redraws the trail of chevrons that runs between sections, and the
+  pair of chevrons of the fourth screen's rail (only to change them)
 
 Restart the dev server after renaming tokens or classes across several components: it keeps serving
 the old scoped CSS for some of them, which shows up as cards with no background or text in the wrong colour.
@@ -26,7 +27,8 @@ several palettes) no longer apply, except for what is listed under "Kept from th
 The second screen ("Présentation de l'entreprise") has its own mockup from the client,
 `reference/maquette-deuxieme-ecran.webp` (1944 x 809), also to be reproduced exactly: see "Second screen".
 So has the third ("Découvrez nos services"): `reference/maquette-troisieme-ecran.webp` (1921 x 819),
-see "Third screen". The mockups are pictures: where their lettering is garbled (the third one reads
+see "Third screen". The fourth ("Pourquoi choisir") has no mockup: the client asked for the third
+screen's design there, see "Fourth screen". The mockups are pictures: where their lettering is garbled (the third one reads
 "NOS MÉTIEPS"), the site's own text stands.
 
 ### Colours
@@ -127,18 +129,11 @@ see "Third screen". The mockups are pictures: where their lettering is garbled (
   must not sit over one another, and none is larger than the others at rest. The four are the same size
   with clear gaps, and the mockup's first plate (larger, indigo edge, tinted shadow) is the state of
   whichever plate is pointed at. Do not go back to per-plate sizes or to plates that touch.
-- That state is one variable, `--lift` (0 at rest, 1 while the plate is pointed at or its link has the
-  keyboard's focus). Size (`--grow`), rise (`--rise`), the indigo edge (`.service__edge`, faded in), the
-  disc and the layer are all written from it and ease with `--ease` over `--lift-time` (a little
-  longer coming back). The lifted plate stays on top until it is back down (delayed `z-index`).
-  With `prefers-reduced-motion` only the colours change; that rule must stay last in the file.
+- The plates themselves are the shared `.plate` (see "Plates"). This file holds their row, the pictures
+  on their corner bands, "Savoir plus", and their sizes on large screens.
 - A lifted plate must never reach its neighbours: at every width the gap is larger than what
   `--grow` adds. Check this again after changing the gaps, the tilt or `--grow`.
-- How a plate is built: `.service__plate` carries the tilt of the text and the lean
-  (`skewY` then `skewX`); `.service__sheet` under it is tilted a little more and draws the sheet
-  (`::after`), its edge (`::before`) and the corner picture; texts and icons are stood upright again
-  with `.service__upright`, so only their position follows the lean. The link's `::after` is raised
-  above them (`z-index: 1`), or clicks on the text would not reach it.
+- The link's `::after` is raised above the texts (`z-index: 1`), or clicks on them would not reach it.
 - In the corner of each plate, a pale slanted band with a picture of the service: Phosphor's "fill"
   icons (`ghost-…` in `icons.ts`), not the mockup's drawings, which were never supplied as files.
 - The background shapes (round-ended bars, slabs, two thin strokes) are one inline SVG drawn in the
@@ -147,6 +142,47 @@ see "Third screen". The mockups are pictures: where their lettering is garbled (
 - Under 75em the plates go two per row, then one, tilted less, without the background shapes.
 - Check 1921 wide against the mockup (`previews/comparaison-maquette-3.jpg`), then 1536, 1280, 1024,
   768 and a phone, and point at each plate.
+
+### Plates
+
+- The plate is the card of the third and fourth screens, and of any later section that is asked to look
+  like them: a white sheet that is tilted and leans, with a thick edge, a pale slanted band in its top
+  right corner and an icon tile. It lives in `global.css` (block "Plates", which gives the markup):
+  `.plate` (the holder, with the variables), `.plate__body` (what tilts and leans), `.plate__sheet`,
+  `.plate__edge`, `.plate__window`, `.plate__tile`, and `.plate__upright` on texts.
+- How it is built: the body carries the tilt of the text and the lean (`skewY` then `skewX`); the
+  sheet under it is tilted a little more and draws the sheet (`::after`), its edge (`::before`) and the
+  corner band; texts and icons are stood upright again, so only their position follows the lean.
+- Its states are variables. `--lift` is 1 while the plate is pointed at or a link in it has the
+  keyboard's focus: it then grows (`--grow`), rises (`--rise`) and comes above its neighbours, staying
+  there until it is back down (delayed `z-index`). `--on` is 1 while it is lifted or `--current` is 1:
+  its edge is then indigo (`.plate__edge`, faded in). Write anything else that should follow from
+  these two, with `--ease` over `--lift-time` (a little longer coming back).
+- `--motion` is 0 for `prefers-reduced-motion`: multiply by it whatever moves or grows, as the plate
+  does. Colours still change.
+- A section sizes its plates by setting the variables on its own item class (`--tilt-by` and
+  `--lean-by` to 1, `--pad`, `--tile`, `--title`, `--text`, `--grow`…), as `Services.astro` and
+  `Why.astro` do on large screens.
+
+### Fourth screen
+
+- `Why.astro`: the client asked for the third screen's design, with the four reasons kept one above
+  the other, "creative" and animated. The title stays in view on the left with an index of the four
+  reasons; on the right the reasons are four plates down a rail of the logo's chevrons
+  (`chevron-pair-down.svg`, used as a mask), with a stop at each plate.
+- A script follows the scrolling. A line across the screen (`--focus`, 58% of its height) lights the
+  rail down to it: each plate gets `--fill` (the lit share of the stretch under its stop),
+  `data-reached` once the line has passed its stop, and `data-current` on the last one reached, which
+  gives it the indigo edge (`--current: 1`); the matching line of the index gets `data-current` too.
+  A plate that is pointed at takes the indigo edge for itself (`:has()` rule in the file).
+- The lines of the index are links to the plates. `scroll-margin-top` on a plate is worked out from
+  `--focus`, so that the plate reached this way is also the current one, on any screen height.
+- Each plate lands as it enters the screen (`why-land`, tied to the scrolling like `.reveal`). The
+  landing is on `.why__land`, inside the item, so that the stop and the rail stay put.
+- The numbers 01 to 04 are decoration (`aria-hidden`). Under 64em the index is hidden and the title is
+  not sticky; the rail stays, in a narrower gutter.
+- Check 1921, 1536, 1366 and 1024 wide while scrolling through the block, a tablet and a phone; click
+  the lines of the index; point at a plate that is not the current one.
 
 ### Movement
 
@@ -159,6 +195,8 @@ see "Third screen". The mockups are pictures: where their lettering is garbled (
   `scripts/make-chevron-trail.mjs`; its colours are `--c-trail` and `--c-trail-light`.
 - The logo conveyor and the band of figures (`Marquee.astro`) glide at about the same speed. Movement is
   slow, constant and linear: nothing bounces, flies in or plays on page load.
+- On the fourth screen the rail lights up and the plates land with the scrolling, not by themselves:
+  they need no pause button.
 - Cards fade in as they enter the screen (`.reveal`), tied to the scrolling itself with
   `animation-timeline: view()`, inside `@supports`: other browsers simply show the cards.
 - Everything that moves by itself must stop three ways: for `prefers-reduced-motion` (use `animation: none`
@@ -213,9 +251,9 @@ their pause buttons.
 - Component styles are scoped; use `:global()` to reach a child component's markup (icons, `<Image>`,
   `<Title>`, `<Marquee>`). A class passed to a child component is not matched by the parent's scoped styles.
 - Shared pieces are global classes in `src/styles/global.css`: `.btn` (`--accent`, `--outline`, `--soft`,
-  `--sm`), `.eyebrow`, `.chip`, `.mark`, `.circle`, `.icon-tile`, `.disc`, `.card` (+ `.card__link`),
-  `.glow`, `.reveal`, `.section`, `.section-head` (+ `--center`), `.on-dark`, `.on-accent`, `.container`,
-  `.container--wide`.
+  `--sm`), `.eyebrow` (+ `--lines`: between two short lines), `.chip`, `.mark`, `.circle`, `.icon-tile`,
+  `.disc`, `.card` (+ `.card__link`), `.plate` and its parts (see "Plates"), `.glow`, `.reveal`,
+  `.section`, `.section-head` (+ `--center`), `.on-dark`, `.on-accent`, `.container`, `.container--wide`.
 - Icons: add the Phosphor SVG import (regular weight) to `src/components/icons.ts`, then `<Icon name="…" />`.
   Two exceptions, both for the service plates: the `ghost-…` pictures (fill weight) and `customs-file`,
   drawn by hand after the third mockup.
@@ -233,6 +271,9 @@ their pause buttons.
   to the bottom of the cell, or short slides get a gap in the middle.
 - To reveal a bar or line, animate `clip-path: inset(...)` or `opacity`, not `transform: scale(0)`: a zero
   scale left half-drawn lines in Chrome.
+- Before reshaping shared styles, take screenshots of the sections that use them and compare after,
+  pixel for pixel, with whatever moves by itself hidden (the trails): that is how the plates were moved
+  from `Services.astro` to `global.css` without changing a pixel.
 - A transformed element becomes the reference for the absolutely positioned elements inside it: do not
   put a transform on the title of a card whose link is stretched over the card (`.card__link`), put it
   on a `<span>` inside the link.

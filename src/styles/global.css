@@ -150,6 +150,27 @@ p {
 	background: var(--c-rule);
 }
 
+/* The label between two short lines (third and fourth screens). */
+.eyebrow--lines {
+	gap: clamp(0.9rem, 1.25cqw, 1.5rem);
+	font-size: clamp(0.75rem, 0.93cqw, 1.11875rem);
+	font-weight: 700;
+}
+
+.eyebrow--lines::before,
+.eyebrow--lines::after {
+	content: '';
+	width: clamp(1.5rem, 1.72cqw, 2.0625rem);
+	height: 2px;
+	border-radius: 2px;
+	background: color-mix(in srgb, var(--c-display) 55%, var(--c-shape-strong));
+}
+
+/* Letter-spacing leaves a space after the last letter: the same goes before the first. */
+.eyebrow--lines::before {
+	margin-right: 0.22em;
+}
+
 /* Pale pill that starts with a dash: the hero's tagline. */
 .chip {
 	display: inline-flex;
@@ -448,6 +469,201 @@ p {
 	}
 }
 
+/* ── Plates ────────────────────────────────────────────────── */
+
+/* A plate is a white sheet that is tilted and leans, like a sheet dropped on a desk: it has
+   a thick edge, a pale slanted band in its top right corner and an icon tile (third and
+   fourth screens of the homepage). Markup:
+
+     .plate                 the holder: carries the variables below, and the layer
+       .plate__body         what tilts and leans; holds the content
+         .plate__sheet      the sheet, its edge and its corner band (decoration)
+           .plate__edge
+           .plate__window   a pale picture or figure goes in here
+         .plate__tile       the icon tile
+         h3, p…             texts get .plate__upright, so that they stand straight
+
+   While a plate is lifted (--lift: 1: it is pointed at, or a link in it has the keyboard's
+   focus) it grows by --grow and rises by --rise. While it is on (lifted, or --current: 1) its
+   edge is indigo. Everything that changes is written from those variables and eases with the
+   same curve; --motion (0 for visitors who asked for less movement) switches off what moves. */
+:root {
+	--motion: 1;
+}
+
+.plate {
+	--tilt: -1.4deg; /* slope of the lines of text */
+	--sheet-tilt: -2.2deg; /* slope of the sheet's top edge: a little more */
+	--lean: 4.5deg; /* how far the sides lean */
+	--tilt-by: 0.6; /* small screens use less of each: set both to 1 on large ones */
+	--lean-by: 0.5;
+	--pad: 1.75rem;
+	--radius: 1.375rem;
+	--tile: 3.25rem;
+	--title: 1.375rem;
+	--text: 0.9375rem;
+	--lift: 0;
+	--current: 0;
+	--on: max(var(--lift), var(--current));
+	--grow: 0.04;
+	--rise: 0.25rem;
+	--lift-time: 0.65s; /* coming back down; going up is a little quicker (below) */
+	position: relative;
+	/* The lifted plate lies above its neighbours, and stays there until it has come back down. */
+	z-index: calc(var(--lift) * 2);
+	display: grid;
+	isolation: isolate;
+	transition: z-index 0s linear calc((1 - var(--lift)) * var(--lift-time));
+}
+
+.plate:has(a:focus-visible) {
+	--lift: 1;
+	--lift-time: 0.5s;
+}
+
+@media (hover: hover) {
+	.plate:hover {
+		--lift: 1;
+		--lift-time: 0.5s;
+	}
+}
+
+/* Everything on a plate tilts and leans with it; texts and icons are then stood upright
+   again (.plate__upright), so that only their position follows the lean. */
+.plate__body {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	padding: var(--pad) var(--pad) calc(var(--pad) * 0.8);
+	border-radius: var(--radius);
+	transform: skewY(calc(var(--tilt) * var(--tilt-by))) skewX(calc(var(--lean) * var(--lean-by) * -1));
+	scale: calc(1 + var(--lift) * var(--grow) * var(--motion));
+	translate: 0 calc(var(--lift) * var(--rise) * var(--motion) * -1);
+	transition:
+		scale var(--lift-time) var(--ease),
+		translate var(--lift-time) var(--ease);
+}
+
+/* The sheet under the text: it is tilted a little more than the lines it carries. Its
+   ::after is the sheet itself; its ::before is the edge (a second sheet, a few px lower and
+   to the right), with the plate's shadow. */
+.plate__sheet {
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	border-radius: inherit;
+	transform: skewY(calc((var(--sheet-tilt) - var(--tilt)) * var(--tilt-by)));
+}
+
+.plate__sheet::before,
+.plate__sheet::after,
+.plate__edge {
+	content: '';
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+}
+
+.plate__sheet::before,
+.plate__edge {
+	translate: clamp(3px, 0.26cqw, 5px) clamp(4px, 0.31cqw, 6px);
+}
+
+.plate__sheet::before {
+	background: color-mix(in srgb, var(--c-tile-strong) 55%, var(--c-surface));
+	box-shadow: var(--shadow-pop);
+}
+
+/* The edge of a plate that is on: indigo, stronger towards the bottom right, with a tinted
+   shadow. It lies over the pale edge and fades in. */
+.plate__edge {
+	background:
+		linear-gradient(to right, color-mix(in srgb, var(--c-surface) 45%, transparent), transparent 75%),
+		linear-gradient(to bottom, transparent 4%, color-mix(in srgb, var(--c-display) 75%, var(--c-shape-strong)) 30%);
+	box-shadow: 0 1.1rem 2.4rem color-mix(in srgb, var(--c-accent) 22%, transparent);
+	opacity: var(--on);
+	transition: opacity var(--lift-time) var(--ease);
+}
+
+.plate__sheet::after {
+	background: var(--c-card);
+	box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c-card-line) 70%, transparent);
+}
+
+.plate__upright {
+	display: block;
+	transform: skewX(calc(var(--lean) * var(--lean-by)));
+}
+
+/* A pale slanted band in the top right corner, which fades out towards the bottom left. */
+.plate__window {
+	--edge: clamp(0.5rem, 0.57cqw, 0.6875rem);
+	position: absolute;
+	top: var(--edge);
+	right: var(--edge);
+	z-index: 1;
+	width: 44%;
+	aspect-ratio: 170 / 125;
+	border-radius: 0 calc(var(--radius) - var(--edge)) 0 0;
+	overflow: hidden;
+	-webkit-mask-image: linear-gradient(to bottom left, #000 36%, transparent 86%);
+	mask-image: linear-gradient(to bottom left, #000 36%, transparent 86%);
+}
+
+/* Both sides of the band follow the slant of the logo (for a box of 170 by 125). */
+.plate__window::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: color-mix(in srgb, var(--c-shape-strong) 22%, var(--c-tint));
+	clip-path: polygon(52.3% 0, 100% 0, 100% 46%, 71.8% 100%, 0 100%);
+}
+
+/* What lies on the band (a picture, a figure) comes forward a little on a lifted plate. */
+.plate__window > * {
+	position: absolute;
+	color: var(--c-ghost);
+	translate: calc(var(--lift) * var(--motion) * -3%) calc(var(--lift) * var(--motion) * -3%);
+	transition: translate var(--lift-time) var(--ease);
+}
+
+.plate__window .icon {
+	height: auto;
+}
+
+/* Icon in a tile that leans with the plate. */
+.plate__tile {
+	display: flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	width: var(--tile);
+	height: var(--tile);
+	border-radius: 27%;
+	background: var(--c-tint);
+	color: var(--c-accent);
+}
+
+.plate__tile .icon {
+	width: 66%;
+	height: auto;
+	transform: skewX(calc(var(--lean) * var(--lean-by)));
+}
+
+.plate__body h3 {
+	margin-top: clamp(1rem, 1.04cqw, 1.25rem);
+	font-size: var(--title);
+	font-weight: 600;
+	line-height: 1.25;
+}
+
+.plate__body p {
+	margin-top: clamp(0.4rem, 0.42cqw, 0.5rem);
+	font-size: var(--text);
+	line-height: 1.75;
+}
+
 /* ── Movement ──────────────────────────────────────────────── */
 
 /* Cards fade in and rise as they enter the screen. The effect follows the scrolling itself
@@ -470,6 +686,10 @@ p {
 }
 
 @media (prefers-reduced-motion: reduce) {
+	:root {
+		--motion: 0;
+	}
+
 	html {
 		scroll-behavior: auto;
 	}

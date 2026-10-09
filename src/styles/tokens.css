@@ -52,6 +52,7 @@
 	--c-card-hover: #fff;
 	--c-card-line: color-mix(in srgb, var(--p-tint) 80%, white); /* hairline round cards and panels */
 	--c-rule: color-mix(in srgb, var(--p-periwinkle) 75%, white); /* the short line after a label */
+	--c-ghost: color-mix(in srgb, var(--p-sky) 22%, var(--p-periwinkle)); /* the pale picture or figure in the corner of a plate */
 
 	/* ── Roles: the accent ─────────────────────────────────── */
 	--c-accent: var(--p-accent);

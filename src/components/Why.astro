@@ -1,4 +1,17 @@
 ---
+// Fourth screen: why choose Access Transit. It has no mockup of its own: the client asked for
+// the design of the third screen (the plates of the services), with the four reasons kept one
+// above the other, and for it to be animated.
+//
+// On the left, the title stays in view, with an index of the four reasons. On the right, the
+// reasons are four plates down a rail of the logo's chevrons, with a stop at each plate.
+// As the page scrolls:
+// - the rail lights up down to a line across the screen (--focus), stop after stop;
+// - the plate at that line takes the indigo edge of a lifted plate, and its line of the index
+//   is marked (the script at the foot of the markup);
+// - each plate lands as it enters the screen: it slides in from the right and settles.
+// A plate that is pointed at lifts like those of the third screen, and takes the indigo edge
+// for itself. Below, the band of figures is as it was.
 import Icon from './Icon.astro';
 import Marquee from './Marquee.astro';
 import MotionToggle from './MotionToggle.astro';
@@ -7,28 +20,89 @@ import { useTranslations } from '../i18n';
 
 const t = useTranslations();
 const { why } = t;
+
+const items = why.items.map((item, index) => ({
+	...item,
+	id: `engagement-${index + 1}`,
+	number: String(index + 1).padStart(2, '0'),
+	last: index === why.items.length - 1,
+}));
 ---
 
-<section class="section why glow" id="engagements">
-	<div class="container why__grid">
-		<header class="section-head why__head">
-			<p class="eyebrow">{why.eyebrow}</p>
-			<Title parts={why.title} stack />
-		</header>
+<section class="section why glow" id="engagements" data-why>
+	<div class="why__wrap">
+		<!-- Background shapes on the slant of the logo, drawn for a block 1921px wide. -->
+		<svg class="why__decor" viewBox="0 0 1921 900" aria-hidden="true" focusable="false">
+			<defs>
+				<linearGradient id="why-bar-left" gradientUnits="userSpaceOnUse" x1="36" y1="84" x2="-420" y2="726">
+					<stop offset="0"></stop>
+					<stop offset="0.4" stop-opacity="0.85"></stop>
+					<stop offset="1" stop-opacity="0"></stop>
+				</linearGradient>
+				<linearGradient id="why-bar-right" gradientUnits="userSpaceOnUse" x1="1660" y1="330" x2="1984" y2="-126">
+					<stop class="why__soft" offset="0" stop-opacity="0.95"></stop>
+					<stop class="why__soft" offset="0.5" stop-opacity="0.7"></stop>
+					<stop class="why__soft" offset="1" stop-opacity="0"></stop>
+				</linearGradient>
+			</defs>
+			<!-- A round-ended bar coming in from the left edge, a wider one coming down from the right corner. -->
+			<line x1="36" y1="84" x2="-420" y2="726" stroke="url(#why-bar-left)" stroke-width="118" stroke-linecap="round"></line>
+			<line x1="1660" y1="330" x2="1984" y2="-126" stroke="url(#why-bar-right)" stroke-width="170" stroke-linecap="round"
+			></line>
+			<!-- Thin strokes, on the same slant. -->
+			<path class="why__strokes" d="M880 96L818 183M1880 520L1833 586"></path>
+		</svg>
 
-		<ul class="why__list">
-			{
-				why.items.map((item) => (
-					<li class="card why__card reveal">
-						<span class="icon-tile">
-							<Icon name={item.icon} size={28} />
-						</span>
-						<h3>{item.title}</h3>
-						<p>{item.text}</p>
-					</li>
-				))
-			}
-		</ul>
+		<div class="why__grid">
+			<header class="why__head">
+				<p class="eyebrow eyebrow--lines">{why.eyebrow}</p>
+				<Title parts={why.title} stack />
+
+				<!-- The four reasons at a glance: each line leads to its plate, and the script marks
+				     the one the page has reached. -->
+				<ol class="why__index">
+					{
+						items.map((item) => (
+							<li>
+								<a class="why__index-link" href={`#${item.id}`} data-why-link>
+									<span class="why__index-number" aria-hidden="true">
+										{item.number}
+									</span>
+									<span class="why__index-mark" aria-hidden="true" />
+									{item.title}
+								</a>
+							</li>
+						))
+					}
+				</ol>
+			</header>
+
+			<ul class="why__list">
+				{
+					items.map((item) => (
+						<li class="why__item plate" id={item.id} data-why-item>
+							{!item.last && <span class="why__rail" aria-hidden="true" />}
+							<span class="why__stop" aria-hidden="true" data-why-stop />
+							<div class="why__land">
+								<div class="plate__body">
+									<span class="plate__sheet" aria-hidden="true">
+										<span class="plate__edge" />
+										<span class="plate__window">
+											<span class="why__number">{item.number}</span>
+										</span>
+									</span>
+									<span class="plate__tile">
+										<Icon name={item.icon} />
+									</span>
+									<h3 class="plate__upright">{item.title}</h3>
+									<p class="plate__upright">{item.text}</p>
+								</div>
+							</div>
+						</li>
+					))
+				}
+			</ul>
+		</div>
 	</div>
 
 	<!-- Key figures: a band of giant numbers gliding by. -->
@@ -54,31 +128,330 @@ const { why } = t;
 	</div>
 </section>
 
+<script>
+	// Follows the scrolling: lights each stretch of the rail down to a line across the screen,
+	// and marks the stops it has passed, the plate it is at and that plate's line of the index.
+	for (const root of document.querySelectorAll<HTMLElement>('[data-why]')) {
+		const items = [...root.querySelectorAll<HTMLElement>('[data-why-item]')];
+		const stops = items.map((item) => item.querySelector<HTMLElement>('[data-why-stop]'));
+		const links = [...root.querySelectorAll<HTMLElement>('[data-why-link]')];
+		if (!items.length) continue;
+		// The line, as a share of the screen's height (shared with the styles).
+		const share = parseFloat(getComputedStyle(root).getPropertyValue('--focus')) || 0.58;
+		let queued = false;
+
+		const update = () => {
+			queued = false;
+			const line = window.innerHeight * share;
+			const tops = stops.map((stop) => {
+				const box = stop?.getBoundingClientRect();
+				return box ? box.top + box.height / 2 : Infinity;
+			});
+			let current = -1;
+			items.forEach((item, i) => {
+				const reached = tops[i] <= line;
+				if (reached) current = i;
+				// How much of the stretch from this stop to the next lies above the line.
+				const next = tops[i + 1];
+				const fill = next === undefined ? 0 : Math.min(1, Math.max(0, (line - tops[i]) / (next - tops[i])));
+				item.style.setProperty('--fill', fill.toFixed(3));
+				item.toggleAttribute('data-reached', reached);
+			});
+			items.forEach((item, i) => item.toggleAttribute('data-current', i === current));
+			links.forEach((link, i) => link.toggleAttribute('data-current', i === current));
+		};
+
+		const queue = () => {
+			if (queued) return;
+			queued = true;
+			requestAnimationFrame(update);
+		};
+
+		// Only while the block is on screen.
+		new IntersectionObserver(([entry]) => {
+			if (entry.isIntersecting) {
+				window.addEventListener('scroll', queue, { passive: true });
+				window.addEventListener('resize', queue);
+				queue();
+			} else {
+				window.removeEventListener('scroll', queue);
+				window.removeEventListener('resize', queue);
+			}
+		}).observe(root);
+	}
+</script>
+
 <style>
+	/*
+	 * Sizes are in hundredths of the block's width (cqw), like the third screen's, so that the
+	 * two read as one design: 1cqw is 19.21px on a block 1921px wide.
+	 */
 	.why {
 		--glow-x: 36%;
 		--glow-height: 60rem;
+		/* The line across the screen that the rail lights up to, as a share of the screen's
+		   height. The script reads it. */
+		--focus: 0.58;
 	}
 
+	.why__wrap {
+		position: relative;
+		container-type: inline-size;
+		width: min(100%, 120.0625rem);
+		margin-inline: auto;
+	}
+
+	/* ── Background shapes ──────────────────────────────── */
+	.why__decor {
+		display: none;
+		position: absolute;
+		top: -3.436cqw;
+		left: 0;
+		z-index: -1;
+		width: 100%;
+		height: auto;
+		overflow: visible;
+		pointer-events: none;
+	}
+
+	.why__decor stop {
+		stop-color: var(--c-shape);
+	}
+
+	.why__decor .why__soft {
+		stop-color: var(--c-tint);
+	}
+
+	.why__strokes {
+		fill: none;
+		stroke: var(--c-label-soft);
+		stroke-linecap: round;
+		stroke-width: 1.6;
+	}
+
+	/* ── Label, title, index ────────────────────────────── */
 	.why__grid {
 		display: grid;
+		gap: 2.25rem;
+		padding-inline: var(--gutter);
 	}
 
-	.why__list {
+	.why__head {
 		display: grid;
-		gap: 0.9375rem;
+		justify-items: start;
+		gap: clamp(0.75rem, 0.83cqw, 1rem);
 	}
 
-	.why__card {
-		padding: 1.75rem;
+	.why__head :global(h2) {
+		font-size: clamp(2.25rem, 3.3cqw, 4rem);
+		font-weight: 700;
+		letter-spacing: -0.035em;
+		line-height: 1.04;
 	}
 
-	.why__card h3 {
-		margin-top: 1.25rem;
+	/* The index only shows beside the plates, on large screens. */
+	.why__index {
+		display: none;
 	}
 
-	.why__card p {
-		margin-top: 0.5rem;
+	.why__index-link {
+		display: flex;
+		align-items: center;
+		gap: 0.85rem;
+		padding-block: 0.5rem;
+		color: var(--c-text);
+		font-size: clamp(0.9375rem, 0.94cqw, 1.125rem);
+		font-weight: 500;
+		line-height: 1.3;
+		transition: color 0.4s var(--ease);
+	}
+
+	.why__index-number {
+		color: var(--c-label-soft);
+		font-size: 0.8em;
+		font-weight: 700;
+		letter-spacing: 0.12em;
+	}
+
+	/* A short line that grows, and turns indigo, on the line of the plate the page is at. */
+	.why__index-mark {
+		flex: none;
+		width: 1rem;
+		height: 2px;
+		border-radius: 2px;
+		background: var(--c-rule);
+		transition:
+			width 0.5s var(--ease),
+			background-color 0.5s var(--ease);
+	}
+
+	.why__index-link:hover,
+	.why__index-link[data-current] {
+		color: var(--c-ink);
+	}
+
+	.why__index-link:hover .why__index-mark {
+		background: var(--c-display);
+	}
+
+	.why__index-link[data-current] .why__index-mark {
+		width: 2.75rem;
+		background: var(--c-accent);
+	}
+
+	/* ── The rail and the plates ────────────────────────── */
+
+	/* The plates are the shared .plate of global.css. The rail runs in a gutter on their left. */
+	.why__list {
+		--rail: 2rem; /* width of the gutter */
+		--gap: 1.75rem; /* between two plates */
+		display: grid;
+		gap: var(--gap);
+		padding-left: var(--rail);
+	}
+
+	.why__item {
+		--tilt: -1deg;
+		--sheet-tilt: -1.6deg;
+		--grow: 0.025;
+		--fill: 0; /* share of the stretch of rail under this plate's stop that is lit */
+		/* The stop sits level with the icon tile, in the middle of the gutter. */
+		--stop-y: calc(var(--pad) + var(--tile) / 2 + 0.25rem);
+		--stop-x: calc(var(--rail) * -0.56);
+		/* A line of the index brings its plate to the line across the screen, stop just above it. */
+		scroll-margin-top: max(
+			1.5rem,
+			calc(var(--focus) * 100svh - var(--header-h) - 1rem - var(--stop-y) - 2.5rem)
+		);
+	}
+
+	/* The plate the page has reached takes the indigo edge… */
+	.why__item[data-current] {
+		--current: 1;
+	}
+
+	/* …unless another one is pointed at: the pointer comes first. */
+	@media (hover: hover) {
+		.why__list:has(.why__item:hover) .why__item:not(:hover) {
+			--current: 0;
+		}
+	}
+
+	/* A stretch of rail: pairs of the logo's chevron, pointing down, from this plate's stop to
+	   just above the next one. Pale; the part above the line is lit. */
+	.why__rail {
+		position: absolute;
+		top: var(--stop-y);
+		left: calc(var(--stop-x) - 7px);
+		width: 14px;
+		height: calc(100% + var(--gap) - 1.5rem);
+		background: var(--c-trail);
+		/* Two stencils, of which only what both let through shows: the chevrons, and a fade at
+		   the foot so that the last pair dissolves instead of being cut. */
+		-webkit-mask:
+			url('../assets/decor/chevron-pair-down.svg') center 0.25rem / 14px 40px repeat-y,
+			linear-gradient(to top, transparent 0.25rem, #000 2.25rem);
+		mask:
+			url('../assets/decor/chevron-pair-down.svg') center 0.25rem / 14px 40px repeat-y,
+			linear-gradient(to top, transparent 0.25rem, #000 2.25rem);
+		-webkit-mask-composite: source-in;
+		mask-composite: intersect;
+		pointer-events: none;
+	}
+
+	.why__rail::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: var(--c-display);
+		clip-path: inset(0 0 calc((1 - var(--fill)) * 100%) 0);
+	}
+
+	/* A stop: a ring, filled once the line has passed it, with a halo while the page is at it.
+	   A short line ties it to its plate. */
+	.why__stop {
+		position: absolute;
+		top: calc(var(--stop-y) - 0.5rem);
+		left: calc(var(--stop-x) - 0.5rem);
+		width: 1rem;
+		height: 1rem;
+		border: 2px solid var(--c-tile-strong);
+		border-radius: 50%;
+		background: var(--c-surface);
+		box-shadow: 0 0 0 0 color-mix(in srgb, var(--c-accent) 14%, transparent);
+		transition:
+			background-color 0.45s var(--ease),
+			border-color 0.45s var(--ease),
+			box-shadow 0.45s var(--ease);
+	}
+
+	.why__stop::after {
+		content: '';
+		position: absolute;
+		top: calc(50% - 1px);
+		left: calc(100% + 2px);
+		width: calc(var(--rail) * 0.56);
+		height: 2px;
+		border-radius: 2px;
+		background: var(--c-rule);
+	}
+
+	.why__item[data-reached] .why__stop {
+		border-color: var(--c-display);
+		background: var(--c-display);
+	}
+
+	.why__item[data-current] .why__stop {
+		border-color: var(--c-accent);
+		background: var(--c-accent);
+		box-shadow: 0 0 0 0.4rem color-mix(in srgb, var(--c-accent) 14%, transparent);
+	}
+
+	/* What lands when the plate enters the screen (the stop and the rail stay put). */
+	.why__land {
+		display: grid;
+	}
+
+	@keyframes why-land {
+		from {
+			opacity: 0;
+			translate: 3rem 1.25rem;
+			rotate: 2deg;
+		}
+	}
+
+	/* The landing follows the scrolling itself (scroll back up and it plays backwards);
+	   browsers without the feature just show the plates. */
+	@media (prefers-reduced-motion: no-preference) {
+		@supports (animation-timeline: view()) {
+			.why__land {
+				transform-origin: 0 100%;
+				animation: why-land var(--ease) both;
+				animation-timeline: view();
+				animation-range: entry 0% cover 28%;
+			}
+		}
+	}
+
+	/* The corner band is narrower than on the third screen (these plates are wider), and
+	   carries the plate's number. */
+	.why__item .plate__window {
+		width: clamp(8.5rem, 10.5cqw, 12.5rem);
+	}
+
+	.why__number {
+		top: 9%;
+		right: 10%;
+		font-size: clamp(2.75rem, 3.4cqw, 4rem);
+		font-weight: 700;
+		letter-spacing: -0.04em;
+		line-height: 1;
+		opacity: 0.8;
+		transform: skewX(calc(var(--lean) * var(--lean-by)));
+	}
+
+	.why__item p {
+		max-width: 42em;
 	}
 
 	/* ── Key figures ────────────────────────────────────── */
@@ -141,22 +514,49 @@ const { why } = t;
 		}
 	}
 
+	/* ── Large screens: the title on the left, the plates on the right ── */
 	@media (min-width: 64em) {
-		/* The title stays in view on the left while the reasons scroll by on the right. */
-		.why__grid {
-			grid-template-columns: minmax(0, 5fr) minmax(0, 6.2fr);
-			column-gap: clamp(2rem, 6vw, 6rem);
-			align-items: start;
+		/* The background shapes take the place of the glow. */
+		.why::before {
+			content: none;
 		}
 
+		.why__decor {
+			display: block;
+		}
+
+		.why__grid {
+			grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr);
+			column-gap: clamp(2.5rem, 4.6cqw, 5.5rem);
+			align-items: start;
+			padding-inline: 6.25cqw;
+		}
+
+		/* The title and the index stay in view while the plates scroll by. */
 		.why__head {
 			position: sticky;
 			top: calc(var(--header-h) + 2.5rem);
-			margin-bottom: 0;
 		}
 
-		.why__card {
-			padding: 2rem;
+		.why__index {
+			display: grid;
+			margin-top: clamp(1.25rem, 1.9cqw, 2.25rem);
+		}
+
+		.why__list {
+			--rail: clamp(2.5rem, 3.4cqw, 4rem);
+			--gap: clamp(1.75rem, 2.1cqw, 2.5rem);
+		}
+
+		.why__item {
+			--tilt-by: 1;
+			--lean-by: 1;
+			--rise: 0.375rem;
+			--pad: clamp(1.35rem, 1.82cqw, 2.1875rem);
+			--radius: clamp(1.25rem, 1.46cqw, 1.75rem);
+			--tile: clamp(3.25rem, 3.75cqw, 4.5rem);
+			--title: clamp(1.25rem, 1.364cqw, 1.6375rem);
+			--text: clamp(0.9375rem, 0.807cqw, 0.96875rem);
 		}
 	}
 </style>

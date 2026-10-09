@@ -60,7 +60,7 @@ npm run check:palette
 | The logo                             | `src/components/LogoSlot.astro` (stand-in for now)     |
 | The first screen's picture           | `src/assets/photos/hero/transport.webp` (transparent background) |
 | The sky behind that picture          | `node scripts/make-hero-sky.mjs`                       |
-| Tilt of the service plates, and how much one grows when pointed at | the variables at the top of `.service` in `src/components/Services.astro` |
+| The plates (cards of the services and of "Pourquoi choisir"): tilt, edge, how one grows when pointed at | the "Plates" block of `src/styles/global.css`; sizes per section in `Services.astro` and `Why.astro` |
 | The second screen's film             | `src/assets/photos/presentation/transport.mp4` (+ its first image, `transport.webp`) |
 | A section of the homepage            | `src/components/<Section>.astro`                       |
 | Where the trail of chevrons runs     | `src/pages/index.astro` (the `<ChevronTrail />` between sections) |
@@ -89,6 +89,8 @@ Until phase 2, every link to an inner page shows a "page en préparation" screen
   `src/assets/photos/` to replace them.
 - **Service sentences**: three of the four sentences on the service plates now follow the third mockup
   (the current site's wording is kept in a comment in `src/i18n/fr.ts`). To be confirmed by the client.
+- **"Pourquoi choisir"**: no mockup was supplied for this block; it uses the plates of the services, one
+  above the other down a rail of chevrons that lights up as the page scrolls. Awaiting approval.
 - **Service plates**: unlike the mockup, the four are the same size and do not overlap; the larger,
   indigo-edged look is what a plate takes while it is pointed at (asked for by the client).
 - **Pictures on the service plates**: the pale pictures in their corners are icons, not the mockup's
