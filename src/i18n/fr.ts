@@ -7,6 +7,7 @@
 // the accent colour), as on the current site.
 //   = non-breaking space (before : ; ! ?),   = narrow non-breaking space (thousands).
 
+import pages from './fr.pages';
 import type { RouteKey } from './routes';
 import type { IconName } from '../components/icons';
 
@@ -26,7 +27,6 @@ const fr = {
 		quickInfo: 'Informations pratiques',
 		langSwitch: 'Langue',
 		langSoon: 'Version anglaise bientôt disponible',
-		logoSlot: 'Logo provisoire',
 		quoteCta: 'Demander une cotation',
 		learnMore: 'Savoir plus',
 		pauseMotion: 'Mettre les animations en pause',
@@ -66,27 +66,29 @@ const fr = {
 		h1: 'Access Transit, transitaire au Maroc',
 		label: 'À la une',
 		tablist: 'Choisir un message',
-		prev: 'Message précédent',
-		next: 'Message suivant',
-		// The four texts below are new: they come from the client's mockup of the first screen,
-		// not from the current site.
+		// The texts below, down to the picture's description, are not on the current site: they come
+		// from the client's mockups of the first screen (the third one,
+		// reference/maquette-premier-ecran-3.webp, is the one that is built).
 		tagline: 'Votre partenaire en transport et logistique',
 		slogan: ['Plus qu’un transit,', 'une confiance'],
+		// The label of the round "play" button of the third mockup: it leads to the second screen
+		// and its film.
+		savoirFaire: 'Notre savoir-faire',
 		panel: {
 			eyebrow: 'Nos services',
 			title: ['Une expertise complète', 'en transport et logistique'],
-			text: 'Des solutions sur mesure pour accompagner vos échanges à l’international.',
+			// The link under the panel's title (third mockup): it leads to the services block.
+			link: 'Découvrir tous nos services',
 		},
 		// Describes the picture for people who cannot see it.
 		imageAlt: 'Camion porte-conteneurs, navire chargé de conteneurs, portiques de quai et avion en vol',
-		// "title" + "mark" make up the slide title: "title" in navy, "mark" in indigo on its own line.
+		// "title" + "mark" make up the slide title: "title" in navy, "mark" in orange on its own line.
 		// The button reads "En savoir plus", as in the client's mockups (the current site says "Savoir plus").
 		// The first text ends with "en toute sécurité et dans les meilleurs délais", as in the mockup;
 		// the current site's sentence stops at "douane". Its "en douane" is kept on one line.
 		slides: [
 			{
 				key: 'douane',
-				icon: 'stamp',
 				title: 'Transit en',
 				mark: 'douane',
 				text: 'Nous assurons la réalisation des services de passage en douane en toute sécurité et dans les meilleurs délais.',
@@ -94,7 +96,6 @@ const fr = {
 			},
 			{
 				key: 'aerien',
-				icon: 'airplane',
 				title: 'Transport',
 				mark: 'aérien',
 				text: 'Notre équipe en fret aérien vous offre un service personnalisé sur tous les aéroports européens et internationaux.',
@@ -102,7 +103,6 @@ const fr = {
 			},
 			{
 				key: 'routier',
-				icon: 'truck',
 				title: 'Transport',
 				mark: 'routier',
 				text: 'Nous garantissons un service de transport terrestre régulier entre le Maroc et l’Europe.',
@@ -110,7 +110,6 @@ const fr = {
 			},
 			{
 				key: 'maritime',
-				icon: 'boat',
 				title: 'Transport',
 				mark: 'maritime',
 				text: 'Nous assurons vos opérations de transport maritime par mer depuis les différents ports du monde.',
@@ -118,13 +117,12 @@ const fr = {
 			},
 			{
 				key: 'qualite',
-				icon: 'shield-check',
 				title: 'Certifié',
 				mark: 'ISO 9001',
 				text: 'Notre certification ISO 9001 version 2015 de TÜV Maroc, filiale de TÜV Rheinland Allemagne, témoigne de notre engagement en faveur de la qualité de nos services.',
 				cta: 'Notre politique qualité',
 			},
-		] satisfies ReadonlyArray<{ key: RouteKey; icon: IconName; title: string; mark: string; text: string; cta: string }>,
+		] satisfies ReadonlyArray<{ key: RouteKey; title: string; mark: string; text: string; cta: string }>,
 	},
 
 	about: {
@@ -181,26 +179,22 @@ const fr = {
 		title: ['Pourquoi choisir', 'ACCESS TRANSIT'],
 		items: [
 			{
-				icon: 'seal-check',
 				title: 'Qualité de prestation',
 				text: 'Nous offrons à nos clients des services personnalisés et un pilotage systématique de chaque opération en totale conformité avec les réglementations en vigueur et en application des normes et des bonnes pratiques professionnelles.',
 			},
 			{
-				icon: 'timer',
 				title: 'Maîtrise des délais',
 				text: 'Nous adoptons des méthodes de travail éprouvées, adaptées aux besoins de nos clients extrêmement exigeants pour réaliser une prestation dans les meilleurs délais.',
 			},
 			{
-				icon: 'scales',
 				title: 'Rapport qualité-prix',
 				text: 'Nous vous offrons le meilleur rapport qualité-prix dans l’ensemble des prestations tout en gardant une meilleure transparence.',
 			},
 			{
-				icon: 'headset',
 				title: 'Support',
 				text: 'Notre équipe est disponible 24h/24 et 7j/7 pour répondre à toutes vos interrogations et résoudre tous vos problèmes.',
 			},
-		] satisfies ReadonlyArray<{ icon: IconName; title: string; text: string }>,
+		] satisfies ReadonlyArray<{ title: string; text: string }>,
 		stats: [
 			{ icon: 'globe', value: '300', label: 'Agents internationaux' },
 			{ icon: 'handshake', value: '3 800', label: 'Clients satisfaits' },
@@ -213,6 +207,8 @@ const fr = {
 		eyebrow: 'Témoignages',
 		title: ['Avis de', 'nos clients'], // "Client Feedbacks" on the current site
 		tablist: 'Choisir un témoignage',
+		prev: 'Témoignage précédent',
+		next: 'Témoignage suivant',
 		items: [
 			{
 				quote:
@@ -294,10 +290,14 @@ const fr = {
 		rights: 'Tous les droits sont réservés',
 	},
 
+	// The inner pages have their own file.
+	pages,
+
+	// Shown for an address that leads nowhere.
 	notFound: {
-		eyebrow: 'Page en préparation',
-		title: 'Cette page arrive à la prochaine étape.',
-		text: 'Seule la page d’accueil du nouveau site est finalisée pour le moment. Les pages intérieures seront construites une fois ce design validé.',
+		eyebrow: 'Page introuvable',
+		title: 'Cette page n’existe pas ou a été déplacée.',
+		text: 'L’adresse que vous avez suivie ne mène à aucune page du site.',
 		back: 'Retour à l’accueil',
 	},
 };

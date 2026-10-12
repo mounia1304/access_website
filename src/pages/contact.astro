@@ -1,0 +1,156 @@
+---
+// Contact: the team, with each person's role, address and number as on the current site,
+// then the contact block of the homepage (phone, addresses and form).
+// (The current site also shows a map there, which points to another country: it is left out.)
+import Contact from '../components/Contact.astro';
+import Icon from '../components/Icon.astro';
+import PageHead from '../components/PageHead.astro';
+import Base from '../layouts/Base.astro';
+import { site } from '../data/site';
+import { useTranslations } from '../i18n';
+
+const t = useTranslations();
+const { contact } = t.pages;
+const people = contact.people.map((person) => ({
+	...person,
+	tel: `tel:${person.phone.replace(/\s/g, '')}`,
+	// The first letter of the first name (written last) and of the word before it: the family
+	// name without its particle ("EL BALGHITI Yassine" gives YB).
+	initials: person.name
+		.split(' ')
+		.slice(-2)
+		.reverse()
+		.map((word) => word[0])
+		.join(''),
+}));
+---
+
+<Base title={`${contact.title} | ${site.name}`}>
+	<PageHead title={contact.title} />
+
+	<section class="section page-body team">
+		<div class="wrap">
+			<div class="wrap__in">
+				<h2 class="team__title">{contact.team}</h2>
+				<ul class="team__list">
+					{
+						people.map((person) => (
+							<li class="card person reveal">
+								<span class="person__initials" aria-hidden="true">
+									{person.initials}
+								</span>
+								<div class="person__who">
+									<h3>{person.name}</h3>
+									<p>{person.role}</p>
+								</div>
+								<ul class="person__ways">
+									<li>
+										<a href={`mailto:${person.email}`}>
+											<Icon name="envelope" size={18} />
+											{person.email}
+										</a>
+									</li>
+									<li>
+										<a href={person.tel}>
+											<Icon name="phone" size={18} />
+											{person.phone}
+										</a>
+									</li>
+								</ul>
+							</li>
+						))
+					}
+				</ul>
+			</div>
+		</div>
+	</section>
+
+	<Contact wide />
+</Base>
+
+<style>
+	.team {
+		padding-bottom: 0;
+	}
+
+	.team__title {
+		margin-bottom: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+		font-size: var(--fs-quote);
+		font-weight: 700;
+		letter-spacing: -0.02em;
+	}
+
+	.team__list {
+		display: grid;
+		gap: 1.25rem;
+	}
+
+	.person {
+		display: grid;
+		grid-template-columns: auto minmax(0, 1fr);
+		align-items: center;
+		gap: 1.25rem 1rem;
+		padding: 1.5rem;
+	}
+
+	.person__initials {
+		display: grid;
+		place-items: center;
+		width: 3.25rem;
+		height: 3.25rem;
+		border-radius: 50%;
+		background: var(--c-tint);
+		color: var(--c-accent);
+		font-weight: 700;
+		letter-spacing: 0.02em;
+	}
+
+	.person h3 {
+		font-weight: 700;
+	}
+
+	.person__who p {
+		font-size: var(--fs-small);
+		line-height: 1.4;
+	}
+
+	.person__ways {
+		grid-column: 1 / -1;
+		display: grid;
+		gap: 0.5rem;
+		padding-top: 1.125rem;
+		border-top: 1px solid var(--c-line);
+	}
+
+	.person__ways a {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.625rem;
+		max-width: 100%;
+		color: var(--c-ink);
+		font-size: var(--fs-ui);
+		overflow-wrap: anywhere;
+		transition: color 0.15s ease-in-out;
+	}
+
+	.person__ways a:hover {
+		color: var(--c-accent);
+	}
+
+	.person__ways :global(.icon) {
+		flex: none;
+		color: var(--c-label);
+	}
+
+	@media (min-width: 40em) {
+		.team__list {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	@media (min-width: 72em) {
+		.team__list {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
+	}
+</style>

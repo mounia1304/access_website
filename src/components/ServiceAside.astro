@@ -1,0 +1,178 @@
+---
+// The column beside the text of an inner page, as on the current site: the four trades, the
+// company's two presentations, and a card that offers help with the phone number.
+// `trades` and `documents` can be left out (the pages of the online services only keep the card).
+import Icon from './Icon.astro';
+import ServiceIcon from './ServiceIcon.astro';
+import { site } from '../data/site';
+import { route, useTranslations } from '../i18n';
+import type { RouteKey } from '../i18n';
+
+interface Props {
+	/** The service whose page this is. */
+	current?: RouteKey;
+	trades?: boolean;
+	documents?: boolean;
+}
+
+const t = useTranslations();
+const { aside, ui } = t.pages;
+const { current, trades = true, documents = true } = Astro.props;
+---
+
+<aside class="aside">
+	{
+		trades && (
+			<nav class="aside__block" aria-labelledby="aside-trades">
+				<h2 id="aside-trades">{aside.trades}</h2>
+				<ul class="aside__trades">
+					{t.nav.serviceItems.map((item) => (
+						<li>
+							<a href={route(item.key)} aria-current={item.key === current ? 'page' : undefined}>
+								<ServiceIcon name={item.key} class="aside__icon" />
+								{item.label}
+								<Icon name="arrow-right" size={14} />
+							</a>
+						</li>
+					))}
+				</ul>
+			</nav>
+		)
+	}
+
+	{
+		documents && (
+			<div class="aside__block">
+				<h2>{aside.documents}</h2>
+				<ul class="aside__docs">
+					{aside.docs.map((doc) => (
+						<li>
+							<a href={doc.href} target="_blank" rel="noopener">
+								{doc.label}
+								<span class="visually-hidden">({ui.external})</span>
+								<Icon name="arrow-up-right" size={14} />
+							</a>
+						</li>
+					))}
+				</ul>
+			</div>
+		)
+	}
+
+	<div class="aside__help on-accent">
+		<h2>{aside.help}</h2>
+		<p>{aside.helpText}</p>
+		<a class="btn btn--soft" href={site.phone.href}>
+			<Icon name="phone-call" size={18} />
+			{site.phone.short}
+		</a>
+		<a class="aside__more" href={route('contact')}>
+			{aside.contact}
+			<Icon name="arrow-right" size={14} />
+		</a>
+	</div>
+</aside>
+
+<style>
+	.aside {
+		display: grid;
+		align-content: start;
+		gap: 1.5rem;
+	}
+
+	.aside__block {
+		padding: 1.5rem;
+		border-radius: var(--r-md);
+		background: var(--c-panel);
+	}
+
+	.aside h2 {
+		margin-bottom: 1rem;
+		font-size: var(--fs-h3);
+		font-weight: 700;
+		letter-spacing: -0.01em;
+	}
+
+	.aside ul {
+		display: grid;
+		gap: 0.375rem;
+	}
+
+	.aside__trades a,
+	.aside__docs a {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		min-height: 3.25rem;
+		padding: 0.375rem 1rem 0.375rem 0.5rem;
+		border-radius: var(--r-pill);
+		background: var(--c-surface);
+		color: var(--c-ink);
+		font-weight: 500;
+		transition:
+			background-color 0.2s,
+			color 0.2s;
+	}
+
+	.aside__docs a {
+		padding-left: 1.25rem;
+	}
+
+	.aside__trades :global(.aside__icon) {
+		--sicon: 2.25rem;
+	}
+
+	.aside__trades :global(.icon),
+	.aside__docs :global(.icon) {
+		flex: none;
+		margin-left: auto;
+		color: var(--c-accent);
+		transition: translate 0.3s var(--ease);
+	}
+
+	.aside__trades a:hover,
+	.aside__docs a:hover {
+		background: var(--c-tint);
+	}
+
+	.aside__trades a:hover :global(.icon) {
+		translate: calc(var(--motion) * 0.1875rem) 0;
+	}
+
+	/* The page that is on screen. */
+	.aside__trades a[aria-current] {
+		box-shadow: inset 0 0 0 2px var(--c-accent);
+	}
+
+	/* The card that offers help: the footer's blue. */
+	.aside__help {
+		display: grid;
+		justify-items: start;
+		gap: 0.875rem;
+		padding: 1.75rem 1.5rem;
+		border-radius: var(--r-md);
+		background: var(--c-accent) var(--g-accent-deep);
+	}
+
+	.aside__help h2 {
+		margin-bottom: 0;
+	}
+
+	.aside__help .btn {
+		margin-top: 0.375rem;
+	}
+
+	.aside__more {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		color: var(--c-on-accent);
+		font-size: var(--fs-ui);
+		font-weight: 500;
+	}
+
+	.aside__more:hover {
+		text-decoration: underline;
+		text-underline-offset: 0.25em;
+	}
+</style>

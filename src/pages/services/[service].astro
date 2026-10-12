@@ -1,0 +1,76 @@
+---
+// The page of a service: its text, as on the current site, beside the column of the four
+// trades, then the three commitments.
+import { Image } from 'astro:assets';
+import Assurances from '../../components/Assurances.astro';
+import PageHead from '../../components/PageHead.astro';
+import Prose from '../../components/Prose.astro';
+import ServiceAside from '../../components/ServiceAside.astro';
+import Base from '../../layouts/Base.astro';
+import photoAerien from '../../assets/photos/slides/enlarged/aerien.jpg';
+import photoDouane from '../../assets/photos/slides/enlarged/douane.jpg';
+import photoMaritime from '../../assets/photos/slides/enlarged/maritime.jpg';
+import photoRoutier from '../../assets/photos/slides/enlarged/routier.jpg';
+import { site } from '../../data/site';
+import { route, useTranslations } from '../../i18n';
+import { excerpt } from '../../utils/text';
+
+// The last part of each service's address is its page here.
+export function getStaticPaths() {
+	return (['douane', 'routier', 'aerien', 'maritime'] as const).map((key) => ({
+		params: { service: route(key).split('/').filter(Boolean).at(-1) },
+		props: { key },
+	}));
+}
+
+interface Props {
+	key: 'douane' | 'routier' | 'aerien' | 'maritime';
+}
+
+// The photographs of the current site's slider.
+const photos = { douane: photoDouane, routier: photoRoutier, aerien: photoAerien, maritime: photoMaritime };
+
+const { key } = Astro.props;
+const t = useTranslations();
+const page = t.pages.services[key];
+const first = page.blocks.find((block) => 'p' in block);
+---
+
+<Base title={`${page.title.join(' ')} | ${site.name}`} description={first && 'p' in first ? excerpt(first.p) : undefined}>
+	<PageHead title={page.title} trail={[{ label: t.pages.ui.services }]} />
+
+	<section class="section page-body">
+		<div class="wrap">
+			<div class="wrap__in page-cols">
+				<div class="service">
+					<Image
+						class="service__photo"
+						src={photos[key]}
+						alt=""
+						widths={[640, 960, 1280, 1600]}
+						sizes="(min-width: 64em) 62vw, 100vw"
+						loading="eager"
+					/>
+					<Prose blocks={page.blocks} />
+				</div>
+				<ServiceAside current={key} />
+			</div>
+		</div>
+	</section>
+
+	<Assurances />
+</Base>
+
+<style>
+	.service {
+		display: grid;
+		gap: clamp(1.75rem, 1.25rem + 2vw, 3rem);
+	}
+
+	.service :global(.service__photo) {
+		width: 100%;
+		aspect-ratio: 16 / 8;
+		border-radius: var(--r-lg);
+		object-fit: cover;
+	}
+</style>

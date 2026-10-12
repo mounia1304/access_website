@@ -92,7 +92,7 @@ address {
 
 /* ── Type ──────────────────────────────────────────────────── */
 
-/* Titles are navy and medium; one half of each is set in a lighter indigo. */
+/* Titles are navy and medium; the second half of each is set in the logo's orange. */
 h1,
 h2,
 h3,
@@ -163,7 +163,7 @@ p {
 	width: clamp(1.5rem, 1.72cqw, 2.0625rem);
 	height: 2px;
 	border-radius: 2px;
-	background: color-mix(in srgb, var(--c-display) 55%, var(--c-shape-strong));
+	background: var(--c-stroke);
 }
 
 /* Letter-spacing leaves a space after the last letter: the same goes before the first. */
@@ -202,7 +202,7 @@ p {
 	margin-inline: auto;
 }
 
-/* Wider frame of the top bar and the menu. */
+/* Wider frame, for the head of the mobile menu. */
 .container--wide {
 	width: min(100% - 2 * var(--gutter-wide), var(--container-wide));
 }
@@ -339,13 +339,20 @@ p {
 	font-size: 0.8125rem;
 }
 
+/* The logo's blue, in a gradient. A gradient cannot fade into another one, so pointing at
+   the button lays a dark veil over it instead (an inset shadow, which can fade). */
 .btn--accent {
-	background: var(--c-accent);
+	background: var(--c-accent) var(--g-accent);
+	box-shadow: inset 0 0 0 10rem transparent;
 	color: var(--c-on-accent);
+	transition:
+		color 0.15s ease-in-out,
+		border-color 0.15s ease-in-out,
+		box-shadow 0.2s ease-in-out;
 }
 
 .btn--accent:hover {
-	background: var(--c-accent-hover);
+	box-shadow: inset 0 0 0 10rem rgb(0 0 0 / 0.16);
 }
 
 .btn--outline {
@@ -469,202 +476,225 @@ p {
 	}
 }
 
-/* ── Plates ────────────────────────────────────────────────── */
+/* ── Inner pages ───────────────────────────────────────────── */
 
-/* A plate is a white sheet that is tilted and leans, like a sheet dropped on a desk: it has
-   a thick edge, a pale slanted band in its top right corner and an icon tile (third and
-   fourth screens of the homepage). Markup:
-
-     .plate                 the holder: carries the variables below, and the layer
-       .plate__body         what tilts and leans; holds the content
-         .plate__sheet      the sheet, its edge and its corner band (decoration)
-           .plate__edge
-           .plate__window   a pale picture or figure goes in here
-         .plate__tile       the icon tile
-         h3, p…             texts get .plate__upright, so that they stand straight
-
-   While a plate is lifted (--lift: 1: it is pointed at, or a link in it has the keyboard's
-   focus) it grows by --grow and rises by --rise. While it is on (lifted, or --current: 1) its
-   edge is indigo. Everything that changes is written from those variables and eases with the
-   same curve; --motion (0 for visitors who asked for less movement) switches off what moves. */
-:root {
-	--motion: 1;
-}
-
-.plate {
-	--tilt: -1.4deg; /* slope of the lines of text */
-	--sheet-tilt: -2.2deg; /* slope of the sheet's top edge: a little more */
-	--lean: 4.5deg; /* how far the sides lean */
-	--tilt-by: 0.6; /* small screens use less of each: set both to 1 on large ones */
-	--lean-by: 0.5;
-	--pad: 1.75rem;
-	--radius: 1.375rem;
-	--tile: 3.25rem;
-	--title: 1.375rem;
-	--text: 0.9375rem;
-	--lift: 0;
-	--current: 0;
-	--on: max(var(--lift), var(--current));
-	--grow: 0.04;
-	--rise: 0.25rem;
-	--lift-time: 0.65s; /* coming back down; going up is a little quicker (below) */
+/* The block the inner pages are laid out in: as wide as the screens of the homepage (1921px at
+   most) and measured the same way (1cqw is a hundredth of its width), with their margins. */
+.wrap {
 	position: relative;
-	/* The lifted plate lies above its neighbours, and stays there until it has come back down. */
-	z-index: calc(var(--lift) * 2);
-	display: grid;
-	isolation: isolate;
-	transition: z-index 0s linear calc((1 - var(--lift)) * var(--lift-time));
+	container-type: inline-size;
+	width: min(100%, 120.0625rem);
+	margin-inline: auto;
 }
 
-.plate:has(a:focus-visible) {
-	--lift: 1;
-	--lift-time: 0.5s;
+.wrap__in {
+	padding-inline: var(--gutter);
 }
 
-@media (hover: hover) {
-	.plate:hover {
-		--lift: 1;
-		--lift-time: 0.5s;
+@media (min-width: 80em) {
+	.wrap__in {
+		padding-inline: 6.25cqw 4.2cqw;
 	}
 }
 
-/* Everything on a plate tilts and leans with it; texts and icons are then stood upright
-   again (.plate__upright), so that only their position follows the lean. */
-.plate__body {
+/* What comes under the head of an inner page (PageHead.astro has its own room above). */
+.page-body {
+	padding-top: 0;
+}
+
+/* Text and a side column (ServiceAside.astro), which stays in view on large screens. */
+.page-cols {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 2.5rem;
+}
+
+/* Text on one side, a form on the other, as in the contact block of the homepage. */
+.split {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 2.5rem;
+}
+
+@media (min-width: 64em) {
+	.page-cols {
+		grid-template-columns: minmax(0, 1fr) minmax(17rem, 22rem);
+		column-gap: clamp(2.5rem, 6cqw, 7rem);
+		align-items: start;
+	}
+
+	.page-cols > aside {
+		position: sticky;
+		top: calc(var(--header-h) + 1.5rem);
+	}
+
+	.split {
+		grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+		column-gap: clamp(2rem, 6cqw, 6rem);
+		align-items: start;
+	}
+}
+
+/* The sentence that opens a page. */
+.lead {
+	max-width: 44rem;
+	color: var(--c-ink);
+	font-size: var(--fs-h3);
+	line-height: 1.5;
+}
+
+/* Running text: paragraphs, lists whose items start with the site's thin orange stroke, and
+   lists of terms. */
+.prose {
+	display: grid;
+	gap: 1.15rem;
+	max-width: 46rem;
+	font-size: 1.0625rem;
+	line-height: 1.7;
+}
+
+.prose h2 {
+	margin-top: 0.75rem;
+	font-size: var(--fs-h3);
+	font-weight: 700;
+	letter-spacing: -0.01em;
+	line-height: 1.3;
+}
+
+.prose ul,
+.prose dl {
+	display: grid;
+	gap: 0.7rem;
+}
+
+.prose li,
+.prose dl > div {
 	position: relative;
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-	padding: var(--pad) var(--pad) calc(var(--pad) * 0.8);
-	border-radius: var(--radius);
-	transform: skewY(calc(var(--tilt) * var(--tilt-by))) skewX(calc(var(--lean) * var(--lean-by) * -1));
-	scale: calc(1 + var(--lift) * var(--grow) * var(--motion));
-	translate: 0 calc(var(--lift) * var(--rise) * var(--motion) * -1);
+	padding-left: 1.75rem;
+}
+
+.prose li::before,
+.prose dl > div::before {
+	content: '';
+	position: absolute;
+	top: 0.38em;
+	left: 0.5rem;
+	width: 2px;
+	height: 0.95em;
+	border-radius: 2px;
+	background: var(--g-bar);
+	rotate: calc(var(--slant) * -1);
+}
+
+.prose li {
+	color: var(--c-ink);
+}
+
+.prose dt {
+	color: var(--c-ink);
+	font-weight: 700;
+}
+
+/* ── Forms ─────────────────────────────────────────────────── */
+
+/* A white card; fields are drawn as a single line (RequestForm.astro). */
+.form {
+	display: grid;
+	gap: 1.75rem;
+	padding: clamp(1.5rem, 1rem + 2.5vw, 2.5rem);
+}
+
+.form__title {
+	font-size: var(--fs-h3);
+	font-weight: 700;
+	letter-spacing: -0.01em;
+}
+
+.form__row {
+	display: grid;
+	gap: 1.75rem;
+}
+
+.field {
+	display: grid;
+	gap: 0.15rem;
+}
+
+.field label {
+	color: var(--c-ink);
+	font-size: var(--fs-label);
+	font-weight: 500;
+}
+
+.field input,
+.field select,
+.field textarea {
+	width: 100%;
+	padding: 0.5rem 0 0.6rem;
+	border: 0;
+	border-bottom: 1px solid var(--c-field-line);
+	border-radius: 0;
+	background: none;
+	color: var(--c-ink);
 	transition:
-		scale var(--lift-time) var(--ease),
-		translate var(--lift-time) var(--ease);
+		border-color 0.15s ease-in-out,
+		box-shadow 0.15s ease-in-out;
 }
 
-/* The sheet under the text: it is tilted a little more than the lines it carries. Its
-   ::after is the sheet itself; its ::before is the edge (a second sheet, a few px lower and
-   to the right), with the plate's shadow. */
-.plate__sheet {
-	position: absolute;
-	inset: 0;
-	z-index: -1;
-	border-radius: inherit;
-	transform: skewY(calc((var(--sheet-tilt) - var(--tilt)) * var(--tilt-by)));
+.field textarea {
+	min-height: 6.5rem;
+	resize: vertical;
 }
 
-.plate__sheet::before,
-.plate__sheet::after,
-.plate__edge {
-	content: '';
-	position: absolute;
-	inset: 0;
-	border-radius: inherit;
-}
-
-.plate__sheet::before,
-.plate__edge {
-	translate: clamp(3px, 0.26cqw, 5px) clamp(4px, 0.31cqw, 6px);
-}
-
-.plate__sheet::before {
-	background: color-mix(in srgb, var(--c-tile-strong) 55%, var(--c-surface));
-	box-shadow: var(--shadow-pop);
-}
-
-/* The edge of a plate that is on: indigo, stronger towards the bottom right, with a tinted
-   shadow. It lies over the pale edge and fades in. */
-.plate__edge {
+/* A list to choose from: the browser's own arrow gives way to a small drawn one. */
+.field select {
+	appearance: none;
+	padding-right: 1.75rem;
 	background:
-		linear-gradient(to right, color-mix(in srgb, var(--c-surface) 45%, transparent), transparent 75%),
-		linear-gradient(to bottom, transparent 4%, color-mix(in srgb, var(--c-display) 75%, var(--c-shape-strong)) 30%);
-	box-shadow: 0 1.1rem 2.4rem color-mix(in srgb, var(--c-accent) 22%, transparent);
-	opacity: var(--on);
-	transition: opacity var(--lift-time) var(--ease);
+		linear-gradient(45deg, transparent 50%, var(--c-ink) 50%) calc(100% - 0.6rem) 55% / 0.35rem 0.35rem no-repeat,
+		linear-gradient(135deg, var(--c-ink) 50%, transparent 50%) calc(100% - 0.25rem) 55% / 0.35rem 0.35rem no-repeat;
+	cursor: pointer;
 }
 
-.plate__sheet::after {
-	background: var(--c-card);
-	box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c-card-line) 70%, transparent);
+.field :is(input, select, textarea):hover {
+	border-bottom-color: var(--c-ink);
 }
 
-.plate__upright {
-	display: block;
-	transform: skewX(calc(var(--lean) * var(--lean-by)));
+.field :is(input, select, textarea):focus-visible {
+	outline: 0;
+	border-bottom-color: var(--c-accent);
+	box-shadow: 0 1px 0 var(--c-accent);
 }
 
-/* A pale slanted band in the top right corner, which fades out towards the bottom left. */
-.plate__window {
-	--edge: clamp(0.5rem, 0.57cqw, 0.6875rem);
-	position: absolute;
-	top: var(--edge);
-	right: var(--edge);
-	z-index: 1;
-	width: 44%;
-	aspect-ratio: 170 / 125;
-	border-radius: 0 calc(var(--radius) - var(--edge)) 0 0;
-	overflow: hidden;
-	-webkit-mask-image: linear-gradient(to bottom left, #000 36%, transparent 86%);
-	mask-image: linear-gradient(to bottom left, #000 36%, transparent 86%);
-}
-
-/* Both sides of the band follow the slant of the logo (for a box of 170 by 125). */
-.plate__window::before {
-	content: '';
-	position: absolute;
-	inset: 0;
-	background: color-mix(in srgb, var(--c-shape-strong) 22%, var(--c-tint));
-	clip-path: polygon(52.3% 0, 100% 0, 100% 46%, 71.8% 100%, 0 100%);
-}
-
-/* What lies on the band (a picture, a figure) comes forward a little on a lifted plate. */
-.plate__window > * {
-	position: absolute;
-	color: var(--c-ghost);
-	translate: calc(var(--lift) * var(--motion) * -3%) calc(var(--lift) * var(--motion) * -3%);
-	transition: translate var(--lift-time) var(--ease);
-}
-
-.plate__window .icon {
-	height: auto;
-}
-
-/* Icon in a tile that leans with the plate. */
-.plate__tile {
+.form__status {
 	display: flex;
-	flex: none;
 	align-items: center;
-	justify-content: center;
-	width: var(--tile);
-	height: var(--tile);
-	border-radius: 27%;
+	gap: 0.6rem;
+	padding: 0.85rem 1rem;
+	border-radius: var(--r-sm);
 	background: var(--c-tint);
-	color: var(--c-accent);
+	color: var(--c-ink);
+	font-size: var(--fs-small);
 }
 
-.plate__tile .icon {
-	width: 66%;
-	height: auto;
-	transform: skewX(calc(var(--lean) * var(--lean-by)));
+.form__status[hidden] {
+	display: none;
 }
 
-.plate__body h3 {
-	margin-top: clamp(1rem, 1.04cqw, 1.25rem);
-	font-size: var(--title);
-	font-weight: 600;
-	line-height: 1.25;
-}
-
-.plate__body p {
-	margin-top: clamp(0.4rem, 0.42cqw, 0.5rem);
-	font-size: var(--text);
-	line-height: 1.75;
+@media (min-width: 36em) {
+	.form__row {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
 }
 
 /* ── Movement ──────────────────────────────────────────────── */
+
+/* --motion is 1, or 0 for visitors who asked their system for less movement. Whatever moves or
+   grows when something is pointed at is multiplied by it (the lanes of the services, the
+   containers of the fourth screen, the drawn icons): colours still change, nothing moves. */
+:root {
+	--motion: 1;
+}
 
 /* Cards fade in and rise as they enter the screen. The effect follows the scrolling itself
    (scroll back up and it plays backwards); browsers without the feature just show the cards. */

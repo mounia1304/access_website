@@ -1,9 +1,9 @@
 // Icons come from Phosphor (MIT), all in the "regular" weight, which matches the line icons
 // of the client's mockups. Only the ones listed here end up in the page.
 //
-// Two exceptions, both for the service plates (Services.astro): the four "ghost" pictures are
-// Phosphor's "fill" weight, shown large and pale in a corner of each plate; and "customs-file"
-// is drawn here after the client's mockup (a document with a badge), in Phosphor's proportions.
+// Exceptions: "play-solid" (fill weight) is the round button of the first screen, and
+// "customs-file" is drawn here after a mockup of the client (a document with a badge), in
+// Phosphor's proportions: it is the customs service's icon in the menus.
 
 import arrowLeft from '@phosphor-icons/core/assets/regular/arrow-left.svg?raw';
 import arrowRight from '@phosphor-icons/core/assets/regular/arrow-right.svg?raw';
@@ -19,16 +19,13 @@ import x from '@phosphor-icons/core/assets/regular/x.svg?raw';
 import check from '@phosphor-icons/core/assets/regular/check.svg?raw';
 import pause from '@phosphor-icons/core/assets/regular/pause.svg?raw';
 import play from '@phosphor-icons/core/assets/regular/play.svg?raw';
+import playSolid from '@phosphor-icons/core/assets/fill/play-fill.svg?raw';
 
 import stamp from '@phosphor-icons/core/assets/regular/stamp.svg?raw';
 import truck from '@phosphor-icons/core/assets/regular/truck.svg?raw';
 import airplane from '@phosphor-icons/core/assets/regular/airplane-tilt.svg?raw';
 import boat from '@phosphor-icons/core/assets/regular/boat.svg?raw';
 import shieldCheck from '@phosphor-icons/core/assets/regular/shield-check.svg?raw';
-import sealCheck from '@phosphor-icons/core/assets/regular/seal-check.svg?raw';
-import timer from '@phosphor-icons/core/assets/regular/timer.svg?raw';
-import scales from '@phosphor-icons/core/assets/regular/scales.svg?raw';
-import headset from '@phosphor-icons/core/assets/regular/headset.svg?raw';
 import calculator from '@phosphor-icons/core/assets/regular/calculator.svg?raw';
 import fileSearch from '@phosphor-icons/core/assets/regular/file-magnifying-glass.svg?raw';
 import chatText from '@phosphor-icons/core/assets/regular/chat-text.svg?raw';
@@ -37,12 +34,7 @@ import globe from '@phosphor-icons/core/assets/regular/globe-hemisphere-west.svg
 import handshake from '@phosphor-icons/core/assets/regular/handshake.svg?raw';
 import packageBox from '@phosphor-icons/core/assets/regular/package.svg?raw';
 import mapTrifold from '@phosphor-icons/core/assets/regular/map-trifold.svg?raw';
-import waves from '@phosphor-icons/core/assets/regular/waves.svg?raw';
 
-import ghostPen from '@phosphor-icons/core/assets/fill/pen-fill.svg?raw';
-import ghostTruck from '@phosphor-icons/core/assets/fill/truck-fill.svg?raw';
-import ghostPlane from '@phosphor-icons/core/assets/fill/airplane-tilt-fill.svg?raw';
-import ghostBoat from '@phosphor-icons/core/assets/fill/boat-fill.svg?raw';
 
 // A page with a folded corner and three lines, and a round badge that carries a figure.
 const line = 'fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"';
@@ -73,15 +65,12 @@ export const icons = {
 	check: inner(check),
 	pause: inner(pause),
 	play: inner(play),
+	'play-solid': inner(playSolid),
 	stamp: inner(stamp),
 	truck: inner(truck),
 	airplane: inner(airplane),
 	boat: inner(boat),
 	'shield-check': inner(shieldCheck),
-	'seal-check': inner(sealCheck),
-	timer: inner(timer),
-	scales: inner(scales),
-	headset: inner(headset),
 	calculator: inner(calculator),
 	'file-search': inner(fileSearch),
 	'chat-text': inner(chatText),
@@ -90,12 +79,7 @@ export const icons = {
 	handshake: inner(handshake),
 	package: inner(packageBox),
 	'map-trifold': inner(mapTrifold),
-	waves: inner(waves),
 	'customs-file': customsFile,
-	'ghost-pen': inner(ghostPen),
-	'ghost-truck': inner(ghostTruck),
-	'ghost-plane': inner(ghostPlane),
-	'ghost-boat': inner(ghostBoat),
 } as const;
 
 export type IconName = keyof typeof icons;

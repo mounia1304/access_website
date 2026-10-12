@@ -1,0 +1,60 @@
+---
+// Quote request: the visitor first says which quote is wanted, as on the current site. The
+// three choices are the large pills of the homepage's online services.
+import PageHead from '../../../components/PageHead.astro';
+import PillLink from '../../../components/PillLink.astro';
+import Base from '../../../layouts/Base.astro';
+import { site } from '../../../data/site';
+import { route, useTranslations } from '../../../i18n';
+
+const t = useTranslations();
+const { cotation, ui } = t.pages;
+---
+
+<Base title={`${cotation.title.join(' ')} | ${site.name}`} description={cotation.intro}>
+	<PageHead title={cotation.title} trail={[{ label: ui.eservices }]} />
+
+	<section class="section page-body">
+		<div class="wrap">
+			<div class="wrap__in quote">
+				<p class="lead">{cotation.intro}</p>
+				<ul class="quote__kinds" style={`--n: ${cotation.kinds.length}`}>
+					{
+						cotation.kinds.map((kind, index) => (
+							<PillLink href={route(kind.key)} name={kind.name} icon={kind.icon} index={index} heading="h2" />
+						))
+					}
+				</ul>
+			</div>
+		</div>
+	</section>
+</Base>
+
+<style>
+	.quote {
+		display: grid;
+		gap: clamp(1.75rem, 1.25rem + 2vw, 3rem);
+	}
+
+	/* The measures of the pills (PillLink.astro). */
+	.quote__kinds {
+		--h: 4.75rem;
+		--step: 0rem;
+		display: grid;
+		gap: 0.875rem;
+		max-width: 62rem;
+	}
+
+	@media (min-width: 48em) {
+		.quote__kinds {
+			--h: 5.5rem;
+			--step: 2.25rem;
+			--pill-gap: 1.25rem;
+			--pill-font: 1.4375rem;
+			--pill-go: 2.75rem;
+			--pill-go-margin: 0.375rem;
+			--pill-dots: block;
+			gap: 1.125rem;
+		}
+	}
+</style>

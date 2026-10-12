@@ -360,7 +360,7 @@ const slabShape = roundedShape(
 	.about__signature path,
 	.about__slogan path {
 		fill: none;
-		stroke: currentColor;
+		stroke: var(--c-stroke);
 		stroke-linecap: round;
 		stroke-width: 2.2;
 	}
@@ -456,11 +456,7 @@ const slabShape = roundedShape(
 	}
 
 	.about__pill--strong {
-		background: linear-gradient(
-			to bottom,
-			color-mix(in srgb, var(--c-display) 40%, var(--c-shape-strong)),
-			var(--c-shape-strong)
-		);
+		background: var(--g-bar);
 	}
 
 	.about__pill--strong-top {
@@ -475,11 +471,6 @@ const slabShape = roundedShape(
 		left: 88.1%;
 		width: 4.4%;
 		height: 37.28%;
-		background: linear-gradient(
-			to bottom,
-			color-mix(in srgb, var(--c-display) 40%, var(--c-shape-strong)),
-			color-mix(in srgb, var(--c-display) 18%, var(--c-shape-strong))
-		);
 	}
 
 	.about__pill--pale {
@@ -507,7 +498,7 @@ const slabShape = roundedShape(
 		position: absolute;
 		width: max(1.5px, 0.2cqw);
 		border-radius: 2px;
-		background: color-mix(in srgb, var(--c-display) 55%, var(--c-shape-strong));
+		background: var(--c-stroke);
 		transform: rotate(calc(-1 * var(--slant)));
 	}
 

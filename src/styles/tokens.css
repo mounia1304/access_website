@@ -1,77 +1,137 @@
 /*
  * Design tokens — the single place to change the look of the site.
  *
- * The look follows the client's own mockup of the first screen
- * (reference/maquette-premier-ecran-2.webp): a very pale blue-white page, navy titles with
- * one half in a lighter indigo, slate text, indigo pill buttons, white cards on pale
- * periwinkle panels, icons in rounded tiles, and slanted shapes that echo the logo.
- * One typeface, DM Sans (regular for text, medium for labels and titles, semi-bold for the
- * hero title), plus a handwritten face for the slogan.
+ * The layout follows the client's mockups (reference/): a very pale blue-white page, navy
+ * titles with their second half in colour, slate text, pill buttons, white cards on pale
+ * panels, icons in rounded tiles, and slanted shapes.
+ * One typeface, DM Sans (regular for text, medium for labels and titles, bold for the titles
+ * of the first four screens), plus a handwritten face for the slogan of the second screen.
  *
- * COLOURS. The "Palette" block holds every colour; nothing else in the project contains a
- * colour value. The "Roles" blocks say where each one is used; shades are color-mix() blends.
- * The values were measured on the mockup; the client asked not to change them.
+ * COLOURS. They are the two colours of the client's logo, which the client asked for across
+ * the whole site in place of the mockups' indigo: its blue ("Corporate Blue", #164b9a) and
+ * its orange ("Vibrant Orange", #f47721), with the gradients the logo draws them in.
+ * - Blue does what the indigo did: buttons, links, the footer, labels, icons; pale blues are
+ *   the tints (chips, tiles, panels, decorative bars).
+ * - Orange is the second colour: the second half of titles, and the small strokes and lights
+ *   (the line beside a label, the light on the chevrons, the stroke under the slogan), and
+ *   the strong slanted bars.
+ * - Gradients go on fills (buttons, footer, dark banner, the edge of a plate, the orange
+ *   bars), top to bottom from the lighter end to the deeper one, as in the logo.
+ * The "Palette" block holds every colour; nothing else in the project contains a colour
+ * value. The "Roles" blocks say where each one is used; shades are color-mix() blends.
  *
  * AFTER ANY CHANGE: run `npm run check:palette`. The accent has to carry white text and be
  * readable on white (4.5:1); paragraphs have to stay readable on the tinted surfaces.
+ * The logo's orange is too light to be read as text on the page (2.8:1): titles use a deeper
+ * shade of it (--c-display, 3:1 or more), and it never carries small text.
  */
 
 :root {
 	color-scheme: light;
 
 	/* ── Palette ───────────────────────────────────────────── */
-	--p-ink: #0a2246; /* navy: titles, menu, card labels */
+	--p-ink: #0a2246; /* navy: titles, menu, card labels (the logo's blue, much darker) */
 	--p-slate: #5f6980; /* paragraphs */
-	--p-accent: #371ee1; /* indigo: buttons, links, logo, footer */
-	--p-violet: #6259f7; /* lighter indigo: the coloured half of titles */
-	--p-tint: #e8effd; /* pale periwinkle: chips, selected card; lighter mixes give tiles, panels and the page */
-	--p-periwinkle: #c6cbfc; /* stronger tint: decorative bars, the disc of a selected card */
-	--p-sky: #73d7f4; /* sky blue: testimonial card, lanes of the dark banner */
+	--p-blue: #164b9a; /* the logo's blue: buttons, links, footer */
+	--p-blue-light: #005deb; /* top of the logo's blue gradient */
+	--p-blue-deep: #022c89; /* foot of the logo's blue gradient */
+	--p-orange: #f47721; /* the logo's orange: strokes, lights, slanted bars */
+	--p-orange-light: #fd9200; /* top of the logo's orange gradient */
+	--p-orange-deep: #fc4e00; /* foot of the logo's orange gradient */
+	--p-tint: #e8effd; /* very pale blue: chips, selected card; lighter mixes give tiles, panels and the page */
+	--p-blue-pale: #bfd5f7; /* pale blue, a stronger tint: decorative bars, the disc of a selected card */
+	--p-sky: #73d7f4; /* sky blue: lanes of the dark banner, a touch of it in the pale pictures of the plates */
 	--p-pale: #abe7f8; /* pale cyan: second button */
 	--p-navy: #0f2a46; /* the one dark banner */
 
 	/* ── Roles: text ───────────────────────────────────────── */
 	--c-ink: var(--p-ink); /* titles, names, menu */
 	--c-text: var(--p-slate); /* paragraphs */
-	--c-display: var(--p-violet); /* the coloured half of titles (large text only) */
-	--c-label: color-mix(in srgb, var(--p-accent) 65%, var(--p-ink)); /* small coloured text: chips, labels, icons */
-	--c-label-soft: color-mix(in srgb, var(--p-violet) 80%, var(--p-ink)); /* second screen: its tag, slogan and signature */
+	--c-text-strong: color-mix(in srgb, var(--p-slate) 72%, var(--p-ink)); /* paragraphs laid over the photograph of the first screen */
+	/* The coloured half of titles (large text only): the logo's orange, taken towards the foot
+	   of its gradient and a little darker, so that it reads on the page and on glows. */
+	--c-display: color-mix(in srgb, color-mix(in srgb, var(--p-orange) 50%, var(--p-orange-deep)) 90%, black);
+	--c-label: color-mix(in srgb, var(--p-blue) 65%, var(--p-ink)); /* small coloured text: chips, labels, icons */
+	--c-label-soft: color-mix(in srgb, var(--p-blue-light) 70%, var(--p-ink)); /* brighter blue text: the second screen's tag, slogan and signature; small numbers */
 
 	/* ── Roles: page, panels, cards ────────────────────────── */
 	--c-bg: color-mix(in srgb, var(--p-tint) 17%, white); /* the page */
 	--c-surface: #fff; /* menu bar, cards, round buttons */
-	--c-topbar: color-mix(in srgb, var(--p-tint) 32%, white); /* the thin bar above the menu */
 	--c-bar: rgb(255 255 255 / 0.94); /* menu bar once frosted, and its drop-downs */
 	--c-panel: color-mix(in srgb, var(--p-tint) 45%, white); /* large quiet blocks that hold cards */
 	--c-tint: var(--p-tint); /* chips, the selected card, notices */
 	--c-tile: color-mix(in srgb, var(--p-tint) 74%, white); /* icon tiles, arrow discs, quiet hovers */
-	--c-tile-strong: var(--p-periwinkle); /* the arrow disc of a selected or pointed-at card */
+	--c-tile-strong: var(--p-blue-pale); /* the arrow disc of a selected or pointed-at card */
 	--c-chip: var(--c-tile); /* small quiet fills: language pill, menu button */
 	--c-on-chip: var(--c-ink);
 	--c-card: #fff;
 	--c-card-hover: #fff;
 	--c-card-line: color-mix(in srgb, var(--p-tint) 80%, white); /* hairline round cards and panels */
-	--c-rule: color-mix(in srgb, var(--p-periwinkle) 75%, white); /* the short line after a label */
-	--c-ghost: color-mix(in srgb, var(--p-sky) 22%, var(--p-periwinkle)); /* the pale picture or figure in the corner of a plate */
+	--c-rule: color-mix(in srgb, var(--p-blue-pale) 75%, white); /* the short line after a label */
+	--c-ghost: color-mix(in srgb, var(--p-sky) 22%, var(--p-blue-pale)); /* the large pale numbers of the service lanes */
+	--c-print: color-mix(in srgb, var(--p-blue-pale) 72%, white); /* the pale second colour of the drawn icons (ServiceIcon.astro) */
 
-	/* ── Roles: the accent ─────────────────────────────────── */
-	--c-accent: var(--p-accent);
+	/* ── Roles: the accent (blue) ──────────────────────────── */
+	--c-accent: var(--p-blue);
 	--c-on-accent: #fff;
 	--c-on-accent-soft: rgb(255 255 255 / 0.84); /* paragraphs on an accent fill */
-	--c-accent-hover: color-mix(in srgb, var(--p-accent) 82%, black);
+	--c-accent-hover: color-mix(in srgb, var(--p-blue) 82%, black);
+	--c-accent-bright: color-mix(in srgb, var(--p-blue-light) 60%, var(--p-blue)); /* lighter blue for small marks: stops, the edge of a plate */
+	/* The gradient of a button: a little lighter at the top, a little deeper at the foot. */
+	--c-accent-top: color-mix(in srgb, var(--p-blue-light) 50%, var(--p-blue));
+	--c-accent-foot: color-mix(in srgb, var(--p-blue-deep) 45%, var(--p-blue));
+	--g-accent: linear-gradient(to bottom, var(--c-accent-top), var(--c-accent) 55%, var(--c-accent-foot));
+	/* The gradient of a large blue fill (the footer, the main tile of the e-services). */
+	--c-accent-floor: color-mix(in srgb, var(--p-blue-deep) 72%, var(--p-blue));
+	--g-accent-deep: linear-gradient(to bottom, var(--c-accent), var(--c-accent-floor));
+	/* The key figures of the fourth screen (very large numerals only): the logo's own blue
+	   gradient, from the top of its lettering to its foot. */
+	--c-figure-top: var(--p-blue-light);
+	--g-figure: linear-gradient(to bottom, var(--c-figure-top) 18%, var(--c-accent) 55%, var(--p-blue-deep) 88%);
+
+	/* ── Roles: the second colour (orange) ─────────────────── */
+	--c-stroke: var(--p-orange); /* thin strokes: beside a label, under the slogan and the signature, under the current page */
+	--g-bar: linear-gradient(to bottom, var(--p-orange-light), var(--p-orange) 45%, var(--p-orange-deep)); /* the strong slanted bars */
+	/* The second word of the first screen's title: lighter at the top of the letters, deeper at
+	   their foot, like the logo's lettering. It lies over the photograph: its lightest stop is
+	   the lightest orange that still reads there (3:1, measured on the rendered pixels). */
+	--g-display: linear-gradient(
+		to bottom,
+		color-mix(in srgb, var(--c-display) 80%, var(--p-orange)) 30%,
+		color-mix(in srgb, var(--c-display) 90%, black)
+	);
 
 	/* ── Roles: fills that carry the ink colour ────────────── */
-	--c-feature: var(--p-sky); /* the testimonial card */
-	--c-on-feature: var(--c-ink);
-	--c-on-feature-soft: color-mix(in srgb, var(--c-ink) 78%, var(--p-sky)); /* secondary text on it */
 	--c-soft: var(--p-pale); /* second button, on dark and accent fills */
 	--c-on-soft: var(--c-ink);
 	--c-soft-hover: color-mix(in srgb, var(--p-pale) 78%, white);
 
 	/* ── Roles: the dark banner ────────────────────────────── */
 	--c-dark: var(--p-navy);
+	--c-dark-end: color-mix(in srgb, var(--p-blue-deep) 80%, var(--p-navy)); /* the far corner of its gradient */
+	--g-dark: linear-gradient(120deg, var(--c-dark) 30%, var(--c-dark-end));
 	--c-on-dark: rgb(255 255 255 / 0.84); /* paragraphs; titles there are plain white */
-	--c-dark-lane: var(--p-sky); /* decorative lanes drawn on it */
+	--c-dark-lane: var(--p-sky); /* decorative lanes drawn on it, and the lights of two of them */
+	--c-dark-light: var(--p-orange); /* the lights that run along the other lanes, and their tails */
+	--c-dark-light-head: color-mix(in srgb, var(--p-orange-light) 45%, white); /* the head of such a light */
+	--c-dark-glow: color-mix(in srgb, var(--p-blue-light) 34%, transparent); /* the glow in the hollow of the lanes' bend */
+	--c-dark-print: color-mix(in srgb, var(--p-blue-light) 38%, var(--p-navy)); /* the print set a little off its figure */
+	--g-dark-figure: linear-gradient(to bottom, white 45%, var(--p-blue-pale) 92%); /* its figure: white, a little bluer at the foot */
+
+	/* ── Roles: the four containers of the fourth screen ───── */
+	/* Each has a front (which carries text), a top (lighter) and an end (darker). The blue one's
+	   front and top are shades of the accent, the navy one's front is the dark banner's. */
+	--c-box-blue-end: color-mix(in srgb, var(--p-blue-deep) 80%, black);
+	--c-box-pale: var(--p-blue-pale);
+	--c-box-pale-top: color-mix(in srgb, var(--p-blue-pale) 45%, white);
+	--c-box-pale-end: color-mix(in srgb, var(--p-blue) 26%, var(--p-blue-pale));
+	--c-box-warm: var(--p-orange);
+	--c-box-warm-top: color-mix(in srgb, var(--p-orange-light) 70%, var(--p-orange));
+	--c-box-warm-end: color-mix(in srgb, var(--p-orange-deep) 78%, black);
+	--c-box-dark-top: color-mix(in srgb, var(--p-blue) 42%, var(--p-navy));
+	--c-box-dark-end: color-mix(in srgb, var(--p-navy) 62%, black);
+	--c-on-box-soft: color-mix(in srgb, var(--p-ink) 84%, transparent); /* paragraphs on the pale container */
+	--c-crane: color-mix(in srgb, var(--p-ink) 55%, var(--p-blue-pale)); /* the cables of the crane above them */
 
 	/* ── Roles: lines ──────────────────────────────────────── */
 	--c-line: color-mix(in srgb, var(--p-ink) 9%, transparent);
@@ -81,16 +141,15 @@
 
 	/* ── Roles: glows, slanted shapes, the trail of chevrons ─ */
 	/* Paragraphs sit on glows: this is the darkest it can be with the slate text. */
-	--c-glow: color-mix(in srgb, var(--p-periwinkle) 14%, var(--p-tint));
-	--c-shape: color-mix(in srgb, var(--p-periwinkle) 12%, var(--p-tint)); /* pale slanted bar */
-	--c-shape-strong: var(--p-periwinkle); /* stronger slanted bar */
-	--c-wave: color-mix(in srgb, var(--p-pale) 22%, var(--c-shape)); /* large shape in a corner of the first screen */
-	--c-trail: var(--p-periwinkle); /* the chevrons that run between sections */
-	--c-trail-light: var(--p-accent); /* the light that travels along them */
+	--c-glow: color-mix(in srgb, var(--p-blue-pale) 14%, var(--p-tint));
+	--c-shape: color-mix(in srgb, var(--p-blue-pale) 12%, var(--p-tint)); /* pale slanted bar */
+	--c-shape-strong: var(--p-blue-pale); /* stronger slanted bar */
+	--c-trail: var(--p-blue-pale); /* the chevrons that run between sections, and down the rail of the fourth screen */
+	--c-trail-light: var(--p-orange); /* the light that travels along them */
 
 	/* Soft shadows, tinted with the palette's blue. */
-	--shadow-soft: 0 1px 2px rgb(22 40 120 / 0.04), 0 12px 32px rgb(22 40 120 / 0.06);
-	--shadow-pop: 0 2px 6px rgb(22 40 120 / 0.05), 0 22px 44px rgb(22 40 120 / 0.13);
+	--shadow-soft: 0 1px 2px rgb(22 60 130 / 0.04), 0 12px 32px rgb(22 60 130 / 0.06);
+	--shadow-pop: 0 2px 6px rgb(22 60 130 / 0.05), 0 22px 44px rgb(22 60 130 / 0.13);
 
 	/* ── Typography ────────────────────────────────────────── */
 	--font-sans: 'DM Sans Variable', 'DM Sans', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
@@ -98,8 +157,6 @@
 	--font-script: 'La Belle Aurore', 'Segoe Script', 'Bradley Hand', cursive; /* the slogan only */
 
 	--fs-display: clamp(4rem, 2.4rem + 7.2vw, 7rem); /* giant figures */
-	/* The hero title follows the screen's width and its height, so the first screen always fits. */
-	--fs-hero: clamp(2.5rem, min(4.26vw, 8.6svh), 5.25rem);
 	--fs-h2: clamp(2rem, 1.6rem + 1.7vw, 2.875rem);
 	--fs-quote: clamp(1.4375rem, 1.2rem + 1.05vw, 2rem); /* large quotes and statements */
 	--fs-h3: clamp(1.1875rem, 1.1rem + 0.4vw, 1.375rem); /* card titles */
@@ -115,17 +172,16 @@
 	--gutter: clamp(1rem, 4vw, 3rem);
 	--space-section: clamp(4.5rem, 3rem + 6vw, 8.5rem);
 
-	/* The top bar and the menu run almost edge to edge. */
+	/* The head of the mobile menu runs almost edge to edge. */
 	--container-wide: 116rem;
 	--gutter-wide: clamp(1rem, 3.25vw, 4rem);
 
-	/* The first screen is wider than the sections below it. */
-	--container-hero: 100rem;
-	--gutter-hero: clamp(1rem, 5.27vw, 6.25rem);
-
-	--topbar-h: 2.625rem;
-	--header-h: 4rem; /* menu bar once the page has scrolled */
-	--header-h-top: 4.5rem; /* menu bar at the top of the page */
+	/* The menu is a bar that floats a little below the top of the screen (Header.astro). */
+	--header-gap: clamp(0.5rem, 1.165vw, 1.5rem); /* from the top of the screen to the bar */
+	--bar-h: clamp(3.5rem, 4.776vw, 6rem); /* the bar at the top of the page */
+	--bar-h-low: 3.75rem; /* the bar once the page has scrolled */
+	--header-h: calc(var(--header-gap) + var(--bar-h-low)); /* what the bar hides at the top of the screen then */
+	--header-h-top: calc(var(--header-gap) + var(--bar-h)); /* the same at the top of the page */
 
 	/* ── Shapes ────────────────────────────────────────────── */
 	--r-xs: 6px; /* language pill */
@@ -135,15 +191,8 @@
 	--r-lg: 28px; /* panels, photos */
 	--r-pill: 999px; /* buttons, chips */
 
-	/* The slant of the logo, shared by the hero's frame and bars. */
+	/* The slant shared by the bars and strokes of the second, third and fourth screens. */
 	--slant: -35.4deg;
 
 	--ease: cubic-bezier(0.2, 0.7, 0.2, 1);
-}
-
-/* Large screens that are also tall enough: a taller menu bar at the top of the page. */
-@media (min-width: 60em) and (min-height: 46em) {
-	:root {
-		--header-h-top: 5.1875rem;
-	}
 }

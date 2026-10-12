@@ -1,0 +1,28 @@
+---
+// Complaints: the form of the current site, and the text that introduces it.
+import PageHead from '../../components/PageHead.astro';
+import RequestForm from '../../components/RequestForm.astro';
+import Base from '../../layouts/Base.astro';
+import { site } from '../../data/site';
+import { useTranslations } from '../../i18n';
+import { excerpt } from '../../utils/text';
+
+const t = useTranslations();
+const { reclamation, ui } = t.pages;
+---
+
+<Base title={`${reclamation.title} | ${site.name}`} description={excerpt(reclamation.intro)}>
+	<PageHead title={reclamation.title} trail={[{ label: ui.eservices }]} />
+
+	<section class="section page-body">
+		<div class="wrap">
+			<div class="wrap__in split">
+				<div class="prose">
+					<p>{reclamation.intro}</p>
+					<p><strong>{reclamation.lead}</strong></p>
+				</div>
+				<RequestForm id="reclamation" fields={reclamation.fields} submit={reclamation.submit} />
+			</div>
+		</div>
+	</section>
+</Base>

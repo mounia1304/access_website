@@ -1,0 +1,80 @@
+---
+// A form drawn from a list of fields (texts file): the quote requests, the tracking and
+// complaint forms, and the contact form of the homepage. Its look is the .form block of
+// global.css.
+//
+// DEMO ONLY FOR NOW: nothing is sent. Pressing its button shows a notice saying so; the forms
+// are wired to e-mail delivery in phase 4.
+import Icon from './Icon.astro';
+import { useTranslations } from '../i18n';
+import type { FormField } from '../i18n/fr.pages';
+
+interface Props {
+	/** Starts the id of each field, which must be unique on the page. */
+	id: string;
+	fields: readonly FormField[];
+	submit: string;
+	title?: string;
+}
+
+const t = useTranslations();
+const { id, fields, submit, title } = Astro.props;
+
+// Two "half" fields in a row share a line.
+const rows: FormField[][] = [];
+for (const field of fields) {
+	const last = rows.at(-1);
+	if (field.half && last?.length === 1 && last[0].half) last.push(field);
+	else rows.push([field]);
+}
+---
+
+<form class="card form" data-demo-form>
+	{title && <h2 class="form__title">{title}</h2>}
+	{
+		rows.map((row) => (
+			<div class:list={{ form__row: row.length === 2 }}>
+				{row.map((field) => (
+					<div class="field">
+						<label for={`${id}-${field.name}`}>{field.label}</label>
+						{field.type === 'textarea' ? (
+							<textarea id={`${id}-${field.name}`} name={field.name} rows="4" required={field.required} />
+						) : field.type === 'select' ? (
+							<select id={`${id}-${field.name}`} name={field.name} required={field.required}>
+								<option value="">{t.pages.ui.selectPlaceholder}</option>
+								{field.options?.map((option) => (
+									<option>{option}</option>
+								))}
+							</select>
+						) : (
+							<input
+								id={`${id}-${field.name}`}
+								name={field.name}
+								type={field.type}
+								min={field.type === 'number' ? 1 : undefined}
+								autocomplete={field.autocomplete}
+								required={field.required}
+							/>
+						)}
+					</div>
+				))}
+			</div>
+		))
+	}
+	<div>
+		<button class="btn btn--accent" type="submit">{submit}</button>
+	</div>
+	<p class="form__status" role="status" data-demo-status hidden>
+		<Icon name="check" size={18} />
+		{t.contact.form.demo}
+	</p>
+</form>
+
+<script>
+	for (const form of document.querySelectorAll<HTMLFormElement>('[data-demo-form]')) {
+		form.addEventListener('submit', (event) => {
+			event.preventDefault();
+			form.querySelector<HTMLElement>('[data-demo-status]')?.removeAttribute('hidden');
+		});
+	}
+</script>

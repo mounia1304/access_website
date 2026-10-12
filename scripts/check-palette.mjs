@@ -3,7 +3,8 @@
 //
 // It reads the tokens, works out every blended shade, and computes the contrast of each
 // pair that appears on the site (WCAG: 4.5:1 for text, 3:1 for very large text and icons).
-// No text sits on a photo any more, so nothing escapes this check.
+// The texts of the first screen lie over a photograph, which this check cannot see: measure
+// those on rendered pixels (see "Header and first screen" in CLAUDE.md).
 
 import { readFileSync } from 'node:fs';
 
@@ -84,19 +85,32 @@ const white = [255, 255, 255, 1];
 const pairs = [
 	['button label', colour('c-on-accent'), colour('c-accent'), TEXT],
 	['button label, hover', colour('c-on-accent'), colour('c-accent-hover'), TEXT],
+	['button label, top of the gradient', colour('c-on-accent'), colour('c-accent-top'), TEXT],
+	['button label, foot of the gradient', colour('c-on-accent'), colour('c-accent-foot'), TEXT],
+	['paragraphs at the foot of the footer', colour('c-on-accent-soft'), colour('c-accent-floor'), TEXT],
+	['text at the far corner of the dark banner', colour('c-on-dark'), colour('c-dark-end'), TEXT],
+	['lighter blue marks on the page', colour('c-accent-bright'), colour('c-bg'), LARGE],
 	['links and names on the footer', colour('c-on-accent'), colour('c-accent'), TEXT],
 	['paragraphs on the footer', colour('c-on-accent-soft'), colour('c-accent'), TEXT],
 	['figure on the dark banner', white, colour('c-dark'), TEXT],
 	['text on the dark banner', colour('c-on-dark'), colour('c-dark'), TEXT],
-	['quote on the testimonial card', colour('c-on-feature'), colour('c-feature'), TEXT],
-	['name under the quote', colour('c-on-feature-soft'), colour('c-feature'), TEXT],
+	['text on the glow of the dark banner', colour('c-on-dark'), over(colour('c-dark-glow'), colour('c-dark-end')), TEXT],
+	['print behind the figure of the dark banner', white, colour('c-dark-print'), LARGE],
+	['initials of the testimonial on screen', colour('c-on-accent'), colour('c-accent-top'), TEXT],
+	['initials of the other testimonials', colour('c-accent'), colour('c-tint'), TEXT],
 	['second button label', colour('c-on-soft'), colour('c-soft'), TEXT],
 	['second button label, hover', colour('c-on-soft'), colour('c-soft-hover'), TEXT],
+	['title on the pale container', colour('c-ink'), colour('c-box-pale'), TEXT],
+	['paragraph on the pale container', colour('c-on-box-soft'), colour('c-box-pale'), TEXT],
+	['title and paragraph on the orange container', colour('c-ink'), colour('c-box-warm'), TEXT],
+	['paragraph at the top of the blue container', colour('c-on-accent-soft'), colour('c-accent-top'), TEXT],
+	['paragraph at the top of the navy container', colour('c-on-dark'), colour('c-box-dark-top'), TEXT],
+	['name on a pale pill of the online services', colour('c-ink'), colour('c-tint'), TEXT],
+	['name on a full pill of the online services', colour('c-on-accent'), colour('c-accent-floor'), TEXT],
 	['tagline chip', colour('c-label'), colour('c-tint'), TEXT],
 	['tag of the second screen', colour('c-label-soft'), colour('c-tint'), TEXT],
 	['slogan and signature of the second screen', colour('c-label-soft'), colour('c-bg'), TEXT],
 	['language pill', colour('c-on-chip'), colour('c-tint'), TEXT],
-	['top bar text', colour('c-text'), colour('c-topbar'), TEXT],
 	['icon in its tile', colour('c-label'), colour('c-tile'), LARGE],
 	['arrow in its disc', colour('c-accent'), colour('c-tile'), LARGE],
 	['arrow in the disc of a selected card', colour('c-accent'), colour('c-tile-strong'), LARGE],
@@ -125,9 +139,12 @@ for (const [name, surface] of surfaces) {
 		[`accent text on ${name}`, colour('c-accent'), surface, TEXT],
 	);
 }
-// The lighter indigo is for the large half of titles only.
+// The orange is for the large half of titles only.
 pairs.push(['coloured half of a title on the page', colour('c-display'), colour('c-bg'), LARGE]);
 pairs.push(['coloured half of a title on a glow', colour('c-display'), glow, LARGE]);
+// The key figures are very large too; the top of their gradient is its lightest point.
+pairs.push(['top of a key figure on the page', colour('c-figure-top'), colour('c-bg'), LARGE]);
+pairs.push(['top of a key figure on a glow', colour('c-figure-top'), glow, LARGE]);
 
 let failures = 0;
 console.log('Palette:', Object.entries(tokens).filter(([name]) => name.startsWith('--p-')).map(([name, value]) => `${name.slice(4)} ${value}`).join('  '));

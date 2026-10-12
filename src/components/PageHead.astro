@@ -1,0 +1,176 @@
+---
+// The head of an inner page: where the page is in the site (the trail), an optional label,
+// and its title, set like the titles of the homepage (navy, then orange; a title given as a
+// single string is all orange). Behind it, the pale slanted bar and the thin stroke of the
+// homepage's screens.
+import { route, useTranslations } from '../i18n';
+
+interface Crumb {
+	label: string;
+	href?: string;
+}
+
+interface Props {
+	title: string | readonly string[];
+	/** Small label above the title. */
+	eyebrow?: string;
+	/** The pages between the homepage and this one. */
+	trail?: readonly Crumb[];
+	/** Sets the title smaller, for a long one (an article). */
+	long?: boolean;
+}
+
+const t = useTranslations();
+const { ui } = t.pages;
+const { title, eyebrow, trail = [], long = false } = Astro.props;
+const [lead, mark] = typeof title === 'string' ? ['', title] : title;
+const plain = typeof title === 'string' ? title : title.join(' ');
+const crumbs: Crumb[] = [{ label: ui.root, href: route('home') }, ...trail, { label: plain }];
+---
+
+<section class:list={['phead', 'glow', { 'phead--long': long }]}>
+	<div class="wrap">
+		<svg class="phead__decor" viewBox="0 0 1921 330" aria-hidden="true" focusable="false">
+			<defs>
+				<linearGradient id="phead-bar" gradientUnits="userSpaceOnUse" x1="1700" y1="380" x2="1990" y2="-30">
+					<stop offset="0" stop-opacity="0"></stop>
+					<stop offset="0.45" stop-opacity="0.85"></stop>
+					<stop offset="1"></stop>
+				</linearGradient>
+			</defs>
+			<!-- A round-ended bar going up out of the top right corner, and a thin stroke. -->
+			<line x1="1700" y1="380" x2="1990" y2="-30" stroke="url(#phead-bar)" stroke-width="120" stroke-linecap="round"></line>
+			<path class="phead__stroke" d="M1612 96L1550 183"></path>
+		</svg>
+
+		<div class="wrap__in phead__in">
+			<nav class="crumbs" aria-label={ui.breadcrumb}>
+				<ol>
+					{
+						crumbs.map((crumb, index) => (
+							<li aria-current={index === crumbs.length - 1 ? 'page' : undefined}>
+								{crumb.href ? <a href={crumb.href}>{crumb.label}</a> : crumb.label}
+							</li>
+						))
+					}
+				</ol>
+			</nav>
+			{eyebrow && <p class="eyebrow eyebrow--lines">{eyebrow}</p>}
+			<h1>
+				{lead}{lead && ' '}<span class="mark">{mark}</span>
+			</h1>
+			<slot />
+		</div>
+	</div>
+</section>
+
+<style>
+	.phead {
+		--glow-x: 30%;
+		--glow-height: 150%;
+		padding-block: clamp(2.25rem, 1.5rem + 3vw, 4.5rem) clamp(2rem, 1.25rem + 2.5vw, 3.5rem);
+	}
+
+	.phead__decor {
+		display: none;
+		position: absolute;
+		top: calc(-1 * clamp(2.25rem, 1.5rem + 3vw, 4.5rem));
+		left: 0;
+		z-index: -1;
+		width: 100%;
+		height: auto;
+		overflow: visible;
+		pointer-events: none;
+	}
+
+	.phead__decor stop {
+		stop-color: var(--c-shape);
+	}
+
+	.phead__stroke {
+		fill: none;
+		stroke: var(--c-stroke);
+		stroke-linecap: round;
+		stroke-width: 1.6;
+	}
+
+	.phead__in {
+		display: grid;
+		justify-items: start;
+		gap: clamp(0.75rem, 0.83cqw, 1rem);
+	}
+
+	/* The trail: each page after the first starts with the site's thin stroke. */
+	.crumbs {
+		margin-bottom: clamp(0.5rem, 1cqw, 1.25rem);
+	}
+
+	.crumbs ol {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.375rem 0.875rem;
+		font-size: var(--fs-small);
+	}
+
+	.crumbs li {
+		display: flex;
+		align-items: center;
+		gap: 0.875rem;
+	}
+
+	.crumbs li + li::before {
+		content: '';
+		flex: none;
+		width: 1.5px;
+		height: 0.9em;
+		border-radius: 2px;
+		background: var(--c-stroke);
+		rotate: calc(var(--slant) * -1);
+	}
+
+	.crumbs a {
+		transition: color 0.15s ease-in-out;
+	}
+
+	.crumbs a:hover {
+		color: var(--c-accent);
+	}
+
+	/* The page itself: its name is cut short if it is long (an article's title). */
+	.crumbs [aria-current] {
+		display: flex;
+		min-width: 0;
+		color: var(--c-ink);
+		font-weight: 500;
+	}
+
+	.phead--long .crumbs [aria-current] {
+		display: none;
+	}
+
+	.phead h1 {
+		max-width: 18em;
+		font-size: clamp(2.5rem, 3.98cqw, 4.78rem);
+		font-weight: 700;
+		letter-spacing: -0.035em;
+		line-height: 1.04;
+	}
+
+	.phead--long h1 {
+		max-width: 24em;
+		font-size: clamp(1.75rem, 2.3cqw, 2.75rem);
+		letter-spacing: -0.025em;
+		line-height: 1.16;
+	}
+
+	@media (min-width: 64em) {
+		.phead::before {
+			content: none;
+		}
+
+		.phead__decor {
+			display: block;
+		}
+	}
+</style>

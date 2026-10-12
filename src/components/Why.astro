@@ -1,37 +1,58 @@
 ---
-// Fourth screen: why choose Access Transit. It has no mockup of its own: the client asked for
-// the design of the third screen (the plates of the services), with the four reasons kept one
-// above the other, and for it to be animated.
+// Fourth screen: why choose Access Transit. It has no mockup. After the testimonials and the
+// services were redesigned around one idea each, the client asked for the same here ("as an
+// expert UI"), keeping their icons. The idea comes from the trade once more:
 //
-// On the left, the title stays in view, with an index of the four reasons. On the right, the
-// reasons are four plates down a rail of the logo's chevrons, with a stop at each plate.
-// As the page scrolls:
-// - the rail lights up down to a line across the screen (--focus), stop after stop;
-// - the plate at that line takes the indigo edge of a lifted plate, and its line of the index
-//   is marked (the script at the foot of the markup);
-// - each plate lands as it enters the screen: it slides in from the right and settles.
-// A plate that is pointed at lifts like those of the third screen, and takes the indigo edge
-// for itself. Below, the band of figures is as it was.
+// - The four reasons are four containers on a quay, stacked one on the other, each in a colour
+//   of the palette (blue, pale blue, the logo's orange, navy). They are drawn as boxes: a front
+//   that carries the text, a lighter top and a darker end, with the ribs, rails and corner
+//   posts of a container. They do not sit quite flush, as in a real stack.
+// - A crane's spreader holds the top one, its cables running up out of the block.
+// - Pointing at a container pulls it out of the stack a little: the top of the one under it shows.
+// - Each container is pushed into place as it enters the screen.
+//
+// The title stands on the left, level with the stack.
+//
+// THE KEY FIGURES were a band of giant numbers gliding by. The client asked for them to stand
+// still, all four in view at once. A first answer painted them on the hull of a ship lying at
+// the quay; the client did not like the boat: "i wanted just the numbers". So they are just
+// that: four large numbers in a row, in the blue gradient of the logo's lettering, each
+// starting with a thin orange stroke on the slant of the site, its label under it.
+//
+// THE ICONS are the client's own (assets/reasons/, cut out of the picture they supplied by
+// scripts/make-reason-icons.mjs): a rounded tile of glass with its icon. They are only right
+// over white: each sits on a white label stuck on its container.
+import { Image } from 'astro:assets';
 import Icon from './Icon.astro';
-import Marquee from './Marquee.astro';
-import MotionToggle from './MotionToggle.astro';
 import Title from './Title.astro';
+import iconQualite from '../assets/reasons/qualite.png';
+import iconDelais from '../assets/reasons/delais.png';
+import iconPrix from '../assets/reasons/prix.png';
+import iconSupport from '../assets/reasons/support.png';
 import { useTranslations } from '../i18n';
 
 const t = useTranslations();
 const { why } = t;
 
+// The client's icons, in the order of the four reasons.
+const pictures = [iconQualite, iconDelais, iconPrix, iconSupport];
+// The colour of each container, from the top of the stack down (see .box--… in the styles).
+const colours = ['blue', 'pale', 'warm', 'dark'];
+
 const items = why.items.map((item, index) => ({
 	...item,
-	id: `engagement-${index + 1}`,
+	picture: pictures[index],
+	colour: colours[index % colours.length],
 	number: String(index + 1).padStart(2, '0'),
-	last: index === why.items.length - 1,
+	top: index === 0,
+	style: `--i: ${index}`,
 }));
+
 ---
 
-<section class="section why glow" id="engagements" data-why>
+<section class="section why glow" id="engagements">
 	<div class="why__wrap">
-		<!-- Background shapes on the slant of the logo, drawn for a block 1921px wide. -->
+		<!-- Background shapes on the slant of the other screens, drawn for a block 1921px wide. -->
 		<svg class="why__decor" viewBox="0 0 1921 900" aria-hidden="true" focusable="false">
 			<defs>
 				<linearGradient id="why-bar-left" gradientUnits="userSpaceOnUse" x1="36" y1="84" x2="-420" y2="726">
@@ -39,159 +60,72 @@ const items = why.items.map((item, index) => ({
 					<stop offset="0.4" stop-opacity="0.85"></stop>
 					<stop offset="1" stop-opacity="0"></stop>
 				</linearGradient>
-				<linearGradient id="why-bar-right" gradientUnits="userSpaceOnUse" x1="1660" y1="330" x2="1984" y2="-126">
-					<stop class="why__soft" offset="0" stop-opacity="0.95"></stop>
-					<stop class="why__soft" offset="0.5" stop-opacity="0.7"></stop>
-					<stop class="why__soft" offset="1" stop-opacity="0"></stop>
-				</linearGradient>
 			</defs>
-			<!-- A round-ended bar coming in from the left edge, a wider one coming down from the right corner. -->
+			<!-- A round-ended bar coming in from the left edge, and a thin stroke. -->
 			<line x1="36" y1="84" x2="-420" y2="726" stroke="url(#why-bar-left)" stroke-width="118" stroke-linecap="round"></line>
-			<line x1="1660" y1="330" x2="1984" y2="-126" stroke="url(#why-bar-right)" stroke-width="170" stroke-linecap="round"
-			></line>
-			<!-- Thin strokes, on the same slant. -->
-			<path class="why__strokes" d="M880 96L818 183M1880 520L1833 586"></path>
+			<path class="why__strokes" d="M742 96L680 183"></path>
 		</svg>
 
 		<div class="why__grid">
 			<header class="why__head">
 				<p class="eyebrow eyebrow--lines">{why.eyebrow}</p>
 				<Title parts={why.title} stack />
-
-				<!-- The four reasons at a glance: each line leads to its plate, and the script marks
-				     the one the page has reached. -->
-				<ol class="why__index">
-					{
-						items.map((item) => (
-							<li>
-								<a class="why__index-link" href={`#${item.id}`} data-why-link>
-									<span class="why__index-number" aria-hidden="true">
-										{item.number}
-									</span>
-									<span class="why__index-mark" aria-hidden="true" />
-									{item.title}
-								</a>
-							</li>
-						))
-					}
-				</ol>
 			</header>
 
-			<ul class="why__list">
+			<ul class="why__stack">
 				{
 					items.map((item) => (
-						<li class="why__item plate" id={item.id} data-why-item>
-							{!item.last && <span class="why__rail" aria-hidden="true" />}
-							<span class="why__stop" aria-hidden="true" data-why-stop />
-							<div class="why__land">
-								<div class="plate__body">
-									<span class="plate__sheet" aria-hidden="true">
-										<span class="plate__edge" />
-										<span class="plate__window">
-											<span class="why__number">{item.number}</span>
-										</span>
-									</span>
-									<span class="plate__tile">
-										<Icon name={item.icon} />
-									</span>
-									<h3 class="plate__upright">{item.title}</h3>
-									<p class="plate__upright">{item.text}</p>
-								</div>
+						<li class:list={['box', `box--${item.colour}`]} style={item.style}>
+							{item.top && (
+								<span class="box__crane" aria-hidden="true">
+									<svg viewBox="0 0 200 100" preserveAspectRatio="none" focusable="false">
+										<path d="M27 0V100M33 0V100M167 0V100M173 0V100" />
+									</svg>
+								</span>
+							)}
+							<span class="box__label" aria-hidden="true">
+								<Image src={item.picture} alt="" width={item.picture.width} quality={90} loading="lazy" />
+							</span>
+							<div class="box__text">
+								<h3>{item.title}</h3>
+								<p>{item.text}</p>
 							</div>
+							<span class="box__number" aria-hidden="true">
+								{item.number}
+							</span>
 						</li>
 					))
 				}
 			</ul>
 		</div>
-	</div>
 
-	<!-- Key figures: a band of giant numbers gliding by. -->
-	<div class="why__figures">
-		<Marquee speed={90}>
-			<dl class="figures">
-				{
-					why.stats.map((stat) => (
-						<div class="figure">
-							<dt>{stat.label}</dt>
-							<dd>
-								<Icon name={stat.icon} size={64} />
-								{stat.value}
-							</dd>
-						</div>
-					))
-				}
-			</dl>
-		</Marquee>
-		<div class="container why__pause">
-			<MotionToggle />
-		</div>
+		<!-- Key figures: just the numbers, standing still. -->
+		<dl class="figures">
+			{
+				why.stats.map((stat, index) => (
+					<div class="figure" style={`--i: ${index}`}>
+						<dt>
+							<Icon name={stat.icon} size={24} />
+							<span>{stat.label}</span>
+						</dt>
+						<dd>
+							<span class="figure__n">{stat.value}</span>
+						</dd>
+					</div>
+				))
+			}
+		</dl>
 	</div>
 </section>
 
-<script>
-	// Follows the scrolling: lights each stretch of the rail down to a line across the screen,
-	// and marks the stops it has passed, the plate it is at and that plate's line of the index.
-	for (const root of document.querySelectorAll<HTMLElement>('[data-why]')) {
-		const items = [...root.querySelectorAll<HTMLElement>('[data-why-item]')];
-		const stops = items.map((item) => item.querySelector<HTMLElement>('[data-why-stop]'));
-		const links = [...root.querySelectorAll<HTMLElement>('[data-why-link]')];
-		if (!items.length) continue;
-		// The line, as a share of the screen's height (shared with the styles).
-		const share = parseFloat(getComputedStyle(root).getPropertyValue('--focus')) || 0.58;
-		let queued = false;
-
-		const update = () => {
-			queued = false;
-			const line = window.innerHeight * share;
-			const tops = stops.map((stop) => {
-				const box = stop?.getBoundingClientRect();
-				return box ? box.top + box.height / 2 : Infinity;
-			});
-			let current = -1;
-			items.forEach((item, i) => {
-				const reached = tops[i] <= line;
-				if (reached) current = i;
-				// How much of the stretch from this stop to the next lies above the line.
-				const next = tops[i + 1];
-				const fill = next === undefined ? 0 : Math.min(1, Math.max(0, (line - tops[i]) / (next - tops[i])));
-				item.style.setProperty('--fill', fill.toFixed(3));
-				item.toggleAttribute('data-reached', reached);
-			});
-			items.forEach((item, i) => item.toggleAttribute('data-current', i === current));
-			links.forEach((link, i) => link.toggleAttribute('data-current', i === current));
-		};
-
-		const queue = () => {
-			if (queued) return;
-			queued = true;
-			requestAnimationFrame(update);
-		};
-
-		// Only while the block is on screen.
-		new IntersectionObserver(([entry]) => {
-			if (entry.isIntersecting) {
-				window.addEventListener('scroll', queue, { passive: true });
-				window.addEventListener('resize', queue);
-				queue();
-			} else {
-				window.removeEventListener('scroll', queue);
-				window.removeEventListener('resize', queue);
-			}
-		}).observe(root);
-	}
-</script>
-
 <style>
 	/*
-	 * Sizes are in hundredths of the block's width (cqw), like the third screen's, so that the
-	 * two read as one design: 1cqw is 19.21px on a block 1921px wide.
+	 * Sizes are in hundredths of the block's width (cqw), like the third and fifth screens',
+	 * so that they read as one design: 1cqw is 19.21px on a block 1921px wide.
 	 */
 	.why {
 		--glow-x: 36%;
 		--glow-height: 60rem;
-		/* The line across the screen that the rail lights up to, as a share of the screen's
-		   height. The script reads it. */
-		--focus: 0.58;
 	}
 
 	.why__wrap {
@@ -218,21 +152,22 @@ const items = why.items.map((item, index) => ({
 		stop-color: var(--c-shape);
 	}
 
-	.why__decor .why__soft {
-		stop-color: var(--c-tint);
-	}
-
 	.why__strokes {
 		fill: none;
-		stroke: var(--c-label-soft);
+		stroke: var(--c-stroke);
 		stroke-linecap: round;
 		stroke-width: 1.6;
 	}
 
-	/* ── Label, title, index ────────────────────────────── */
+	/* ── Label and title ────────────────────────────────── */
+	/* --d is the depth of the boxes as drawn, --crane the height of the crane above them, and
+	   --loose how far out of line the boxes sit (less on small screens). */
 	.why__grid {
+		--d: clamp(0.9375rem, 1.3cqw, 1.5625rem);
+		--crane: clamp(3.25rem, 5cqw, 6.5rem);
+		--loose: 0.4;
 		display: grid;
-		gap: 2.25rem;
+		gap: 1.5rem;
 		padding-inline: var(--gutter);
 	}
 
@@ -243,279 +178,483 @@ const items = why.items.map((item, index) => ({
 	}
 
 	.why__head :global(h2) {
-		font-size: clamp(2.25rem, 3.3cqw, 4rem);
+		font-size: clamp(2.25rem, 3.4cqw, 4.125rem);
 		font-weight: 700;
 		letter-spacing: -0.035em;
 		line-height: 1.04;
 	}
 
-	/* The index only shows beside the plates, on large screens. */
-	.why__index {
-		display: none;
-	}
+	/* ── The stack of containers ────────────────────────── */
 
-	.why__index-link {
-		display: flex;
-		align-items: center;
-		gap: 0.85rem;
-		padding-block: 0.5rem;
-		color: var(--c-text);
-		font-size: clamp(0.9375rem, 0.94cqw, 1.125rem);
-		font-weight: 500;
-		line-height: 1.3;
-		transition: color 0.4s var(--ease);
-	}
-
-	.why__index-number {
-		color: var(--c-label-soft);
-		font-size: 0.8em;
-		font-weight: 700;
-		letter-spacing: 0.12em;
-	}
-
-	/* A short line that grows, and turns indigo, on the line of the plate the page is at. */
-	.why__index-mark {
-		flex: none;
-		width: 1rem;
-		height: 2px;
-		border-radius: 2px;
-		background: var(--c-rule);
-		transition:
-			width 0.5s var(--ease),
-			background-color 0.5s var(--ease);
-	}
-
-	.why__index-link:hover,
-	.why__index-link[data-current] {
-		color: var(--c-ink);
-	}
-
-	.why__index-link:hover .why__index-mark {
-		background: var(--c-display);
-	}
-
-	.why__index-link[data-current] .why__index-mark {
-		width: 2.75rem;
-		background: var(--c-accent);
-	}
-
-	/* ── The rail and the plates ────────────────────────── */
-
-	/* The plates are the shared .plate of global.css. The rail runs in a gutter on their left. */
-	.why__list {
-		--rail: 2rem; /* width of the gutter */
-		--gap: 1.75rem; /* between two plates */
+	/* The boxes are drawn in an oblique view: the front is seen flat, and the depth goes up and
+	   to the right at 45 degrees. So the stack needs room for it above and on its right, and
+	   above that for the crane. */
+	.why__stack {
+		position: relative;
 		display: grid;
-		gap: var(--gap);
-		padding-left: var(--rail);
+		padding: calc(var(--crane) + var(--d) + 0.25rem) calc(var(--d) + 1.75rem * var(--loose)) 0 0;
 	}
 
-	.why__item {
-		--tilt: -1deg;
-		--sheet-tilt: -1.6deg;
-		--grow: 0.025;
-		--fill: 0; /* share of the stretch of rail under this plate's stop that is lit */
-		/* The stop sits level with the icon tile, in the middle of the gutter. */
-		--stop-y: calc(var(--pad) + var(--tile) / 2 + 0.25rem);
-		--stop-x: calc(var(--rail) * -0.56);
-		/* A line of the index brings its plate to the line across the screen, stop just above it. */
-		scroll-margin-top: max(
-			1.5rem,
-			calc(var(--focus) * 100svh - var(--header-h) - 1rem - var(--stop-y) - 2.5rem)
-		);
-	}
-
-	/* The plate the page has reached takes the indigo edge… */
-	.why__item[data-current] {
-		--current: 1;
-	}
-
-	/* …unless another one is pointed at: the pointer comes first. */
-	@media (hover: hover) {
-		.why__list:has(.why__item:hover) .why__item:not(:hover) {
-			--current: 0;
-		}
-	}
-
-	/* A stretch of rail: pairs of the logo's chevron, pointing down, from this plate's stop to
-	   just above the next one. Pale; the part above the line is lit. */
-	.why__rail {
+	/* The quay under the stack: a line, and the stack's shadow on it. */
+	.why__stack::before {
+		content: '';
 		position: absolute;
-		top: var(--stop-y);
-		left: calc(var(--stop-x) - 7px);
-		width: 14px;
-		height: calc(100% + var(--gap) - 1.5rem);
-		background: var(--c-trail);
-		/* Two stencils, of which only what both let through shows: the chevrons, and a fade at
-		   the foot so that the last pair dissolves instead of being cut. */
-		-webkit-mask:
-			url('../assets/decor/chevron-pair-down.svg') center 0.25rem / 14px 40px repeat-y,
-			linear-gradient(to top, transparent 0.25rem, #000 2.25rem);
-		mask:
-			url('../assets/decor/chevron-pair-down.svg') center 0.25rem / 14px 40px repeat-y,
-			linear-gradient(to top, transparent 0.25rem, #000 2.25rem);
-		-webkit-mask-composite: source-in;
-		mask-composite: intersect;
+		right: 0;
+		bottom: -0.9rem;
+		left: 2%;
+		z-index: -1;
+		height: 1.9rem;
+		background: radial-gradient(50% 50% at 50% 50%, color-mix(in srgb, var(--c-accent) 26%, transparent), transparent);
+		filter: blur(7px);
 		pointer-events: none;
 	}
 
-	.why__rail::after {
+	.why__stack::after {
 		content: '';
 		position: absolute;
-		inset: 0;
-		background: var(--c-display);
-		clip-path: inset(0 0 calc((1 - var(--fill)) * 100%) 0);
+		right: -1.5rem;
+		bottom: -1px;
+		left: -1.5rem;
+		height: 1px;
+		background: linear-gradient(90deg, transparent, var(--c-line-strong) 12%, var(--c-line-strong) 88%, transparent);
+		pointer-events: none;
 	}
 
-	/* A stop: a ring, filled once the line has passed it, with a halo while the page is at it.
-	   A short line ties it to its plate. */
-	.why__stop {
-		position: absolute;
-		top: calc(var(--stop-y) - 0.5rem);
-		left: calc(var(--stop-x) - 0.5rem);
-		width: 1rem;
-		height: 1rem;
-		border: 2px solid var(--c-tile-strong);
-		border-radius: 50%;
-		background: var(--c-surface);
-		box-shadow: 0 0 0 0 color-mix(in srgb, var(--c-accent) 14%, transparent);
-		transition:
-			background-color 0.45s var(--ease),
-			border-color 0.45s var(--ease),
-			box-shadow 0.45s var(--ease);
-	}
-
-	.why__stop::after {
-		content: '';
-		position: absolute;
-		top: calc(50% - 1px);
-		left: calc(100% + 2px);
-		width: calc(var(--rail) * 0.56);
-		height: 2px;
-		border-radius: 2px;
-		background: var(--c-rule);
-	}
-
-	.why__item[data-reached] .why__stop {
-		border-color: var(--c-display);
-		background: var(--c-display);
-	}
-
-	.why__item[data-current] .why__stop {
-		border-color: var(--c-accent);
-		background: var(--c-accent);
-		box-shadow: 0 0 0 0.4rem color-mix(in srgb, var(--c-accent) 14%, transparent);
-	}
-
-	/* What lands when the plate enters the screen (the stop and the rail stay put). */
-	.why__land {
+	/* A container. Its front is the element itself; ::before is its top and ::after its end.
+	   --shift puts it a little out of line with the others; --pull is how far it is pulled
+	   out while it is pointed at. Higher boxes are painted over lower ones, which hides the
+	   top of a box under the box that stands on it, except where the two are out of line. */
+	.box {
+		--shift: 0rem;
+		--pull: 0rem;
+		--rail: rgb(0 0 0 / 0.14);
+		position: relative;
+		z-index: calc(10 - var(--i));
 		display: grid;
+		grid-template-columns: auto minmax(0, 1fr);
+		align-items: center;
+		gap: 0.75rem 1rem;
+		padding: 1.25rem 1.25rem 1.375rem 1.375rem;
+		border-radius: 2px 0 0 2px;
+		background:
+			/* the ribs of its side: a light line then a dark one, over and over */
+			repeating-linear-gradient(
+				90deg,
+				rgb(255 255 255 / 0.08) 0 1px,
+				transparent 1px 0.6875rem,
+				rgb(0 0 0 / 0.09) 0.6875rem calc(0.6875rem + 1px),
+				transparent calc(0.6875rem + 1px) 1.375rem
+			),
+			/* its top and bottom rails */
+			linear-gradient(
+				to bottom,
+				rgb(255 255 255 / 0.16) 0 0.3125rem,
+				transparent 0.3125rem calc(100% - 0.375rem),
+				var(--rail) calc(100% - 0.375rem)
+			),
+			/* its two corner posts */
+			linear-gradient(90deg, var(--rail) 0 0.5rem, transparent 0.5rem calc(100% - 0.5rem), var(--rail) calc(100% - 0.5rem)),
+			var(--face);
+		color: var(--ink);
+		translate: calc(var(--shift) * var(--loose) + var(--pull)) 0;
+		transition: translate 0.6s var(--ease);
 	}
 
-	@keyframes why-land {
-		from {
-			opacity: 0;
-			translate: 3rem 1.25rem;
-			rotate: 2deg;
+	.box::before,
+	.box::after {
+		content: '';
+		position: absolute;
+		pointer-events: none;
+	}
+
+	/* The top: a strip as deep as the box, leaning to the right. */
+	.box::before {
+		right: 0;
+		bottom: 100%;
+		left: 0;
+		height: var(--d);
+		background:
+			repeating-linear-gradient(
+				90deg,
+				rgb(255 255 255 / 0.1) 0 1px,
+				transparent 1px 0.6875rem,
+				rgb(0 0 0 / 0.07) 0.6875rem calc(0.6875rem + 1px),
+				transparent calc(0.6875rem + 1px) 1.375rem
+			),
+			var(--top);
+		transform: skewX(-45deg);
+		transform-origin: 0 100%;
+	}
+
+	/* The end, with the two bars that lock its doors. */
+	.box::after {
+		top: 0;
+		bottom: 0;
+		left: 100%;
+		width: var(--d);
+		background:
+			linear-gradient(
+				90deg,
+				transparent 26%,
+				rgb(0 0 0 / 0.22) 26% 36%,
+				transparent 36% 64%,
+				rgb(0 0 0 / 0.22) 64% 74%,
+				transparent 74%
+			),
+			var(--end);
+		transform: skewY(-45deg);
+		transform-origin: 0 0;
+	}
+
+	/* The four colours: the front (lighter at its top), the top, the end, and the texts. */
+	.box--blue {
+		--face: linear-gradient(to bottom, var(--c-accent-top), var(--c-accent) 45%, var(--c-accent-floor));
+		--top: var(--c-accent-bright);
+		--end: var(--c-box-blue-end);
+		--ink: var(--c-on-accent);
+		--soft: var(--c-on-accent-soft);
+	}
+
+	.box--pale {
+		--face: linear-gradient(to bottom, var(--c-box-pale-top), var(--c-box-pale) 60%);
+		--top: var(--c-box-pale-top);
+		--end: var(--c-box-pale-end);
+		--ink: var(--c-ink);
+		--soft: var(--c-on-box-soft);
+		--rail: rgb(0 0 0 / 0.07);
+	}
+
+	.box--warm {
+		--face: linear-gradient(to bottom, var(--c-box-warm-top), var(--c-box-warm) 70%);
+		--top: var(--c-box-warm-top);
+		--end: var(--c-box-warm-end);
+		--ink: var(--c-ink);
+		--soft: var(--c-ink);
+		--rail: rgb(0 0 0 / 0.1);
+	}
+
+	.box--dark {
+		--face: linear-gradient(to bottom, var(--c-box-dark-top), var(--c-dark) 55%);
+		--top: var(--c-box-dark-top);
+		--end: var(--c-box-dark-end);
+		--ink: var(--c-on-accent);
+		--soft: var(--c-on-dark);
+		--rail: rgb(0 0 0 / 0.22);
+	}
+
+	/* They do not sit quite flush. */
+	.box:nth-child(1) {
+		--shift: 1.75rem;
+	}
+
+	.box:nth-child(2) {
+		--shift: 0.25rem;
+	}
+
+	.box:nth-child(3) {
+		--shift: 1.1rem;
+	}
+
+	/* Pointed at, a box is pulled out towards the title. */
+	@media (hover: hover) {
+		.box:hover {
+			--pull: calc(var(--motion) * -1.375rem);
 		}
 	}
 
-	/* The landing follows the scrolling itself (scroll back up and it plays backwards);
-	   browsers without the feature just show the plates. */
+	/* The client's icon, on a white label. The picture is 250 by 268; its glass tile (168 by
+	   168) starts 21 from the left and 54 from the top, and is centred in the label. */
+	.box__label {
+		--label: 3.75rem;
+		grid-area: 1 / 1;
+		--scale: calc(var(--label) * 0.82 / 168);
+		position: relative;
+		width: var(--label);
+		height: var(--label);
+		border-radius: 0.875rem;
+		background: var(--c-surface);
+		box-shadow: 0 1px 2px rgb(0 0 0 / 0.14);
+		overflow: hidden;
+	}
+
+	.box__label :global(img) {
+		position: absolute;
+		top: calc((var(--label) - 168 * var(--scale)) / 2 - 54 * var(--scale));
+		left: calc((var(--label) - 168 * var(--scale)) / 2 - 21 * var(--scale));
+		width: calc(250 * var(--scale));
+		max-width: none;
+		height: auto;
+	}
+
+	/* Its number, painted large on the side, a shade darker (or lighter) than the box. */
+	.box__number {
+		grid-area: 1 / 2;
+		justify-self: end;
+		color: color-mix(in srgb, currentColor 18%, transparent);
+		font-size: clamp(2.75rem, 4.3cqw, 5.125rem);
+		font-weight: 800;
+		letter-spacing: -0.05em;
+		line-height: 0.8;
+		transition: color 0.4s;
+	}
+
+	.box:hover .box__number {
+		color: color-mix(in srgb, currentColor 36%, transparent);
+	}
+
+	.box__text {
+		grid-area: 2 / 1 / auto / -1;
+	}
+
+	.box h3 {
+		color: inherit;
+		font-size: clamp(1.3125rem, 1.46cqw, 1.75rem);
+		font-weight: 700;
+		letter-spacing: -0.015em;
+		line-height: 1.2;
+	}
+
+	.box p {
+		max-width: 44em;
+		margin-top: 0.4rem;
+		color: var(--soft);
+		font-size: clamp(0.9375rem, 0.83cqw, 1rem);
+		line-height: 1.55;
+	}
+
+	/* The crane: four wire ropes that hang straight, two at each end (the drawing stretches with
+	   the box), and under them the spreader: a bar with its housing in the middle and a foot at
+	   each end, which rests on the top of the box. */
+	.box__crane {
+		position: absolute;
+		right: calc(16% - var(--d) / 2);
+		bottom: calc(100% + var(--d) / 2);
+		left: calc(16% + var(--d) / 2);
+		height: var(--crane);
+		pointer-events: none;
+	}
+
+	.box__crane svg {
+		position: absolute;
+		inset: 0 0 0.875rem;
+		width: 100%;
+		height: calc(100% - 0.875rem);
+		overflow: visible;
+		fill: none;
+		stroke: var(--c-crane);
+		stroke-width: 1.25;
+		/* The ropes fade out as they leave the block. */
+		-webkit-mask-image: linear-gradient(to bottom, transparent, #000 70%);
+		mask-image: linear-gradient(to bottom, transparent, #000 70%);
+	}
+
+	.box__crane :global(path) {
+		vector-effect: non-scaling-stroke;
+	}
+
+	.box__crane::before,
+	.box__crane::after {
+		content: '';
+		position: absolute;
+		right: 0;
+		left: 0;
+	}
+
+	/* the bar, and the housing on it */
+	.box__crane::before {
+		bottom: 0.25rem;
+		height: 0.9375rem;
+		background:
+			var(--g-bar) 50% 0 / 22% 0.5625rem no-repeat,
+			var(--g-bar) 0 100% / 100% 0.4375rem no-repeat;
+	}
+
+	/* its two feet */
+	.box__crane::after {
+		bottom: 0;
+		height: 0.25rem;
+		background:
+			linear-gradient(var(--c-crane), var(--c-crane)) 0 0 / 0.625rem 100% no-repeat,
+			linear-gradient(var(--c-crane), var(--c-crane)) 100% 0 / 0.625rem 100% no-repeat;
+	}
+
+	/* Each box is pushed into place from the right as it enters the screen (the push follows
+	   the scrolling itself; browsers without the feature just show the stack). */
+	@keyframes box-arrive {
+		from {
+			opacity: 0;
+			transform: translateX(4.5rem);
+		}
+	}
+
 	@media (prefers-reduced-motion: no-preference) {
 		@supports (animation-timeline: view()) {
-			.why__land {
-				transform-origin: 0 100%;
-				animation: why-land var(--ease) both;
+			.box {
+				animation: box-arrive var(--ease) both;
 				animation-timeline: view();
-				animation-range: entry 0% cover 28%;
+				animation-range: entry 0% cover 26%;
 			}
 		}
 	}
 
-	/* The corner band is narrower than on the third screen (these plates are wider), and
-	   carries the plate's number. */
-	.why__item .plate__window {
-		width: clamp(8.5rem, 10.5cqw, 12.5rem);
-	}
-
-	.why__number {
-		top: 9%;
-		right: 10%;
-		font-size: clamp(2.75rem, 3.4cqw, 4rem);
-		font-weight: 700;
-		letter-spacing: -0.04em;
-		line-height: 1;
-		opacity: 0.8;
-		transform: skewX(calc(var(--lean) * var(--lean-by)));
-	}
-
-	.why__item p {
-		max-width: 42em;
-	}
-
 	/* ── Key figures ────────────────────────────────────── */
-	.why__figures {
-		margin-top: clamp(4rem, 2.5rem + 6vw, 8rem);
-	}
 
+	/* Just the numbers, four at once, standing still. --size is the size of the numerals. */
 	.figures {
-		display: flex;
+		--size: clamp(2.875rem, 12.5cqw, 4.5rem);
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 2.5rem 1rem;
+		margin-top: clamp(4rem, 6.5cqw, 7.75rem);
+		padding-inline: var(--gutter);
 	}
 
-	/* The label comes first in the markup, the figure first on screen. */
+	/* The label comes first in the markup, the number first on screen. */
 	.figure {
 		display: flex;
-		flex: none;
 		flex-direction: column-reverse;
-		align-items: center;
-		gap: 0.25rem;
-		padding-right: clamp(4rem, 2rem + 8vw, 10rem);
+		justify-content: flex-end;
+		gap: clamp(0.625rem, 0.95cqw, 1.125rem);
 	}
 
 	.figure dd {
 		display: flex;
 		align-items: center;
-		gap: 0.2em;
-		color: var(--c-ink);
-		font-size: var(--fs-display);
-		letter-spacing: -0.02em;
-		line-height: 1.16;
+		color: var(--c-accent);
+		font-size: var(--size);
+		font-weight: 700;
+		letter-spacing: -0.04em;
+		line-height: 1;
 		white-space: nowrap;
 	}
 
-	.figure dd :global(.icon) {
+	/* Each number starts with a thin stroke on the slant of the site, as high as its numerals.
+	   The stroke is turned, which does not move what is beside it: its margins make its room. */
+	.figure dd::before {
+		content: '';
 		flex: none;
-		width: 0.56em;
-		height: 0.56em;
-		color: var(--c-accent);
+		width: max(2px, 0.024em);
+		height: 0.86em;
+		margin-inline: 0.25em 0.36em;
+		border-radius: 2px;
+		background: var(--g-bar);
+		rotate: calc(var(--slant) * -1);
+	}
+
+	/* The numerals, in the gradient of the logo's lettering, over a pale print of themselves
+	   set a little off, like the drawn icons of the services. Pointed at, the print slips a
+	   little further out, as theirs does; the number itself stays where it is. */
+	.figure__n {
+		--off: 0.04em;
+		filter: drop-shadow(var(--off) var(--off) 0 var(--c-print));
+		transition: filter 0.45s var(--ease);
+	}
+
+	@media (hover: hover) {
+		.figure:hover .figure__n {
+			--off: calc(0.04em + var(--motion) * 0.035em);
+		}
+	}
+
+	@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+		.figure__n {
+			background: var(--g-figure);
+			-webkit-background-clip: text;
+			background-clip: text;
+			color: transparent;
+		}
 	}
 
 	.figure dt {
-		white-space: nowrap;
-	}
-
-	.why__pause {
 		display: flex;
-		justify-content: flex-end;
-		margin-top: 1.5rem;
+		align-items: flex-start;
+		gap: 0.5625rem;
+		color: var(--c-ink);
+		font-size: clamp(0.9375rem, 1cqw, 1.1875rem);
+		font-weight: 500;
+		line-height: 1.3;
 	}
 
-	/* Less movement asked for: the four figures at once, on as many lines as needed. */
-	@media (prefers-reduced-motion: reduce) {
+	.figure dt :global(.icon) {
+		flex: none;
+		width: 1.3em;
+		height: 1.3em;
+		color: var(--c-label);
+	}
+
+	/* The strokes are drawn from their foot up as the row enters the screen, one after the other
+	   (tied to the scrolling; the numbers do not move). */
+	@keyframes figure-stroke {
+		from {
+			clip-path: inset(100% -1px 0);
+		}
+
+		to {
+			clip-path: inset(0 -1px);
+		}
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		@supports (animation-timeline: view()) {
+			.figure dd::before {
+				animation: figure-stroke linear both;
+				animation-timeline: view();
+				animation-range: cover calc(4% + var(--i) * 3%) cover calc(18% + var(--i) * 4%);
+			}
+		}
+	}
+
+	/* ── From tablets up: the icon, the text and the number side by side ── */
+	@media (min-width: 40em) {
+		.box {
+			grid-template-columns: auto minmax(0, 1fr) auto;
+			column-gap: clamp(1.1rem, 1.6cqw, 1.9rem);
+			min-height: clamp(6.75rem, 7.3cqw, 8.75rem);
+			padding: clamp(1.1rem, 1.3cqw, 1.5rem) clamp(1.25rem, 1.7cqw, 2rem) clamp(1.2rem, 1.4cqw, 1.625rem)
+				clamp(1.375rem, 1.8cqw, 2.125rem);
+		}
+
+		.box__label {
+			--label: clamp(4rem, 4.6cqw, 5.5rem);
+		}
+
+		.box__text {
+			grid-area: 1 / 2;
+		}
+
+		.box__number {
+			grid-area: 1 / 3;
+		}
+	}
+
+	/* ── From tablets up: the four figures in one row ── */
+	@media (min-width: 48em) {
+		/* Each is as wide as its number, and the room left is shared between them. */
 		.figures {
-			flex-wrap: wrap;
-			justify-content: center;
-			row-gap: 2.5rem;
+			--size: clamp(3rem, 6.2cqw, 7.5rem);
+			display: flex;
+			justify-content: space-between;
+			gap: 1rem;
 		}
 
 		.figure {
-			padding-inline: clamp(1rem, 4vw, 3rem);
+			flex: none;
+		}
+
+		/* A label never makes its figure wider than its number: it runs on under it. */
+		.figure dt {
+			width: 0;
+			min-width: 100%;
 		}
 	}
 
-	/* ── Large screens: the title on the left, the plates on the right ── */
-	@media (min-width: 64em) {
+	/* ── Large screens: the title on the left, the stack on the right ── */
+	@media (min-width: 80em) {
+		/* The figures start under the title and end under the stack. */
+		.figures {
+			padding-inline: 6.25cqw 4.2cqw;
+		}
+
 		/* The background shapes take the place of the glow. */
 		.why::before {
 			content: none;
@@ -526,37 +665,39 @@ const items = why.items.map((item, index) => ({
 		}
 
 		.why__grid {
-			grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr);
-			column-gap: clamp(2.5rem, 4.6cqw, 5.5rem);
+			--loose: 1;
+			grid-template-columns: minmax(18rem, 0.52fr) minmax(0, 1fr);
+			column-gap: clamp(2.5rem, 5.4cqw, 6.5rem);
 			align-items: start;
-			padding-inline: 6.25cqw;
+			padding-inline: 6.25cqw 4.2cqw;
 		}
 
-		/* The title and the index stay in view while the plates scroll by. */
+		/* The title starts level with the top container, and stays in view while the stack
+		   scrolls by on screens too short to show it whole. */
 		.why__head {
 			position: sticky;
 			top: calc(var(--header-h) + 2.5rem);
+			margin-top: calc(var(--crane) + var(--d) + 0.5rem);
 		}
 
-		.why__index {
-			display: grid;
-			margin-top: clamp(1.25rem, 1.9cqw, 2.25rem);
+		/* Never wider than a container would look right: the title's column takes the rest. */
+		.why__stack {
+			justify-self: end;
+			width: 100%;
+			max-width: 58rem;
+		}
+	}
+
+	/* Screens that are also tall enough to show the whole stack: the title is level with its
+	   middle instead. */
+	@media (min-width: 80em) and (min-height: 54em) {
+		.why__grid {
+			align-items: center;
 		}
 
-		.why__list {
-			--rail: clamp(2.5rem, 3.4cqw, 4rem);
-			--gap: clamp(1.75rem, 2.1cqw, 2.5rem);
-		}
-
-		.why__item {
-			--tilt-by: 1;
-			--lean-by: 1;
-			--rise: 0.375rem;
-			--pad: clamp(1.35rem, 1.82cqw, 2.1875rem);
-			--radius: clamp(1.25rem, 1.46cqw, 1.75rem);
-			--tile: clamp(3.25rem, 3.75cqw, 4.5rem);
-			--title: clamp(1.25rem, 1.364cqw, 1.6375rem);
-			--text: clamp(0.9375rem, 0.807cqw, 0.96875rem);
+		.why__head {
+			position: static;
+			margin-top: calc(var(--crane) + var(--d));
 		}
 	}
 </style>

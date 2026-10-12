@@ -1,9 +1,0 @@
-<!-- Provisional icon until the new logo is ready: the stand-in mark on the site's accent colour (--p-accent in tokens.css). -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-	<rect width="48" height="48" rx="12" fill="#371ee1" />
-	<g fill="#fff" transform="translate(5 8.5) scale(.8)">
-		<path opacity=".5" d="M2 20 15 8l11 12z" />
-		<path d="M2 20h24L15 32z" />
-		<path d="M19 2h12l16 18-16 18H19l16-18z" />
-	</g>
-</svg>

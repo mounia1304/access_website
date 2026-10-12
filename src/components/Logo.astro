@@ -1,0 +1,49 @@
+---
+// The company's logo, as supplied by the client (assets/brand/logo.png, prepared by
+// scripts/make-logo.mjs). The header, the mobile menu and the footer all use this component.
+//
+// The logo is a picture in navy and orange on a transparent background: it is sized by its
+// height (--logo-h, which the place that shows it may set). On the footer's blue its own blue
+// would not show, so there it sits on a white plate (plate).
+import { Image } from 'astro:assets';
+import logo from '../assets/brand/logo.png';
+import { site } from '../data/site';
+
+interface Props {
+	/** Puts the logo on a white plate, for coloured backgrounds. */
+	plate?: boolean;
+	/** For a logo that is not on the first screen: it is fetched when it comes near. */
+	lazy?: boolean;
+}
+
+const { plate = false, lazy = false } = Astro.props;
+---
+
+<span class:list={['logo', { 'logo--plate': plate }]}>
+	<Image src={logo} alt={site.name} height={56} densities={[1, 2, 3]} loading={lazy ? 'lazy' : 'eager'} />
+</span>
+
+<style>
+	.logo {
+		display: inline-flex;
+		flex: none;
+	}
+
+	.logo :global(img) {
+		width: auto;
+		height: var(--logo-h, 2.75rem);
+		max-width: none;
+	}
+
+	.logo--plate {
+		padding: 0.6rem 0.95rem 0.65rem;
+		border-radius: var(--r-sm);
+		background: var(--c-surface);
+	}
+
+	@media (min-width: 60em) {
+		.logo :global(img) {
+			height: var(--logo-h, 3.125rem);
+		}
+	}
+</style>

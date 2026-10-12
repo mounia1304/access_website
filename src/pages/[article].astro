@@ -1,0 +1,60 @@
+---
+// An article of the blog. On the current site articles live at the root of the site
+// (access-transit.com/<title-of-the-article>/): they keep that address here.
+import Icon from '../components/Icon.astro';
+import PageHead from '../components/PageHead.astro';
+import Base from '../layouts/Base.astro';
+import { site } from '../data/site';
+import { route, useTranslations } from '../i18n';
+import { excerpt } from '../utils/text';
+
+export function getStaticPaths() {
+	return useTranslations().pages.blog.posts.map((post) => ({ params: { article: post.slug }, props: { slug: post.slug } }));
+}
+
+interface Props {
+	slug: string;
+}
+
+const t = useTranslations();
+const { blog } = t.pages;
+const post = blog.posts.find((item) => item.slug === Astro.props.slug)!;
+---
+
+<Base title={`${post.title} | ${site.name}`} description={excerpt(post.paragraphs[0])}>
+	<PageHead title={post.title} eyebrow={post.category} trail={[{ label: blog.title, href: route('blog') }]} long>
+		<time class="article__date" datetime={post.date}>{post.dateText}</time>
+	</PageHead>
+
+	<section class="section page-body">
+		<div class="wrap">
+			<div class="wrap__in article">
+				<div class="prose">
+					<h2>{post.subtitle}</h2>
+					{post.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+				</div>
+				<a class="btn btn--outline" href={route('blog')}>
+					<Icon name="arrow-left" size={14} />
+					{blog.back}
+				</a>
+			</div>
+		</div>
+	</section>
+</Base>
+
+<style>
+	.article__date {
+		font-size: var(--fs-small);
+	}
+
+	.article {
+		display: grid;
+		justify-items: start;
+		gap: 2.5rem;
+	}
+
+	/* The arrow of this button points back: it slides the other way. */
+	.article .btn:hover :global(.icon) {
+		transform: translateX(-3px);
+	}
+</style>

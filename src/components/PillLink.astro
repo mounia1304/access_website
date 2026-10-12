@@ -1,0 +1,195 @@
+---
+// A very large pill that leads to a page: the site's own button, made big. It is a long
+// round-ended bar with a white knob at its start, which carries a drawn icon, then its name,
+// a dotted line and an arrow. The online services of the homepage (EServices.astro) are three
+// of them; the page that asks which quote is wanted shows three more.
+//
+// A "main" pill is full (blue) from the start. The others are pale: pointing at one fills it
+// from its knob to its end, as a bar that loads, and its icon's orange mark is drawn again.
+//
+// The list that holds the pills sets their measures (all have a value here for phones):
+//   --h            height of a pill
+//   --step         how far each one is set back from the one above it (with --i, its rank,
+//                  and --n, how many there are); --pill-lean-left: 0 keeps their left edges free
+//   --pill-pad, --pill-gap, --pill-font, --pill-go (the arrow's disc), --pill-go-margin
+//   --pill-width   their width (the list's, unless told otherwise)
+//   --pill-dots    block to show the dotted line
+import Icon from './Icon.astro';
+import ServiceIcon from './ServiceIcon.astro';
+import type { ServiceIconName } from './serviceIcons';
+
+interface Props {
+	href: string;
+	name: string;
+	icon: ServiceIconName;
+	main?: boolean;
+	/** Rank in its list, from 0. */
+	index?: number;
+	/** The level of the title that holds its link. */
+	heading?: 'h2' | 'h3';
+}
+
+const { href, name, icon, main = false, index = 0, heading: Heading = 'h3' } = Astro.props;
+---
+
+<li class:list={['pill', { 'pill--main': main }]} style={`--i: ${index}`}>
+	<span class="pill__fill" aria-hidden="true"></span>
+	<span class="pill__knob">
+		<ServiceIcon name={icon} class="pill__icon" />
+	</span>
+	<Heading class="pill__name">
+		<a class="card__link" href={href}>
+			{name}
+		</a>
+	</Heading>
+	<span class="pill__dots" aria-hidden="true"></span>
+	<span class="pill__go" aria-hidden="true">
+		<Icon name="arrow-right" />
+	</span>
+</li>
+
+<style>
+	/* --on is 1 while the pill is pointed at, or its link has the keyboard's focus; --lit is 1
+	   while it is full, which the main one always is: movement is written from the first,
+	   colours from the second. */
+	.pill {
+		--on: 0;
+		--lit: var(--on);
+		--height: var(--h, 4.75rem);
+		--pad: var(--pill-pad, 0.4375rem);
+		--time: 0.6s;
+		position: relative;
+		isolation: isolate;
+		display: flex;
+		align-items: center;
+		gap: var(--pill-gap, 0.875rem);
+		width: var(--pill-width, auto);
+		min-height: var(--height);
+		margin-left: calc((var(--n, 1) - 1 - var(--i)) * var(--step, 0rem) * var(--pill-lean-left, 1));
+		margin-right: calc(var(--i) * var(--step, 0rem));
+		padding: var(--pad) calc(var(--pad) + 0.375rem) var(--pad) var(--pad);
+		border-radius: var(--height);
+		background: var(--c-tint);
+		box-shadow: 0 1.25rem 2.5rem color-mix(in srgb, var(--c-accent) calc(var(--on) * 24%), transparent);
+		translate: calc(var(--on) * var(--motion) * 0.5rem) 0;
+		transition:
+			translate var(--time) var(--ease),
+			box-shadow var(--time);
+	}
+
+	.pill--main {
+		--lit: 1;
+	}
+
+	.pill:has(:global(.card__link:focus-visible)) {
+		--on: 1;
+		outline: 2px solid var(--c-accent);
+		outline-offset: 3px;
+	}
+
+	@media (hover: hover) {
+		.pill:hover {
+			--on: 1;
+		}
+	}
+
+	/* What fills it: at rest it is cut down to a disc behind the knob, which shows as a ring
+	   round it; pointed at, the cut runs to the end of the pill. On the main pill, which is
+	   full already, a light veil comes over it instead (a gradient cannot fade into another). */
+	.pill__fill {
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		border-radius: inherit;
+		background: var(--c-accent) var(--g-accent-deep);
+		box-shadow: inset 0 0 0 100vmax rgb(255 255 255 / calc(var(--on) * 0.07));
+		clip-path: inset(0 calc((1 - var(--lit)) * (100% - var(--height))) 0 0 round var(--height));
+		transition:
+			clip-path var(--time) var(--ease),
+			box-shadow var(--time);
+	}
+
+	/* The knob, and the icon on it. */
+	.pill__knob {
+		flex: none;
+		display: grid;
+		place-items: center;
+		width: calc(var(--height) - 2 * var(--pad));
+		height: calc(var(--height) - 2 * var(--pad));
+		border-radius: 50%;
+		background: var(--c-surface);
+		box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+	}
+
+	.pill :global(.pill__icon) {
+		--sicon: calc((var(--height) - 2 * var(--pad)) * 0.74);
+		pointer-events: none;
+	}
+
+	.pill__name {
+		min-width: 0;
+		color: color-mix(in srgb, var(--c-on-accent) calc(var(--lit) * 100%), var(--c-ink));
+		font-size: var(--pill-font, 1.125rem);
+		font-weight: 700;
+		letter-spacing: -0.015em;
+		line-height: 1.2;
+		transition: color calc(var(--time) * 0.6) calc(var(--on) * var(--time) * 0.12);
+	}
+
+	/* The link in the title covers the whole pill. */
+	.pill :global(.card__link)::after {
+		z-index: 2;
+	}
+
+	/* The dotted line from the name to the arrow. */
+	.pill__dots {
+		display: var(--pill-dots, none);
+		flex: 1;
+		min-width: 0.5rem;
+		height: 2px;
+		background: linear-gradient(90deg, currentColor 2px, transparent 2px) 0 0 / 0.5625rem 100% repeat-x;
+		color: color-mix(in srgb, var(--c-on-accent) calc(var(--lit) * 100%), var(--c-accent));
+		opacity: 0.32;
+		transition: color calc(var(--time) * 0.6) calc(var(--on) * var(--time) * 0.3);
+	}
+
+	/* The arrow, in its disc. */
+	.pill__go {
+		flex: none;
+		display: grid;
+		place-items: center;
+		width: var(--pill-go, 2.5rem);
+		height: var(--pill-go, 2.5rem);
+		margin-left: auto;
+		margin-right: var(--pill-go-margin, 0);
+		border-radius: 50%;
+		background: var(--c-surface);
+		color: var(--c-accent);
+	}
+
+	.pill__go :global(.icon) {
+		width: 42%;
+		height: auto;
+		translate: calc(var(--on) * var(--motion) * 0.1875rem) 0;
+		transition: translate var(--time) var(--ease);
+	}
+
+	/* The pills come in from the right, one after the other, as their list enters the screen
+	   (tied to the scrolling; other browsers simply show them). */
+	@keyframes pill-arrive {
+		from {
+			opacity: 0;
+			transform: translateX(3.5rem);
+		}
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		@supports (animation-timeline: view()) {
+			.pill {
+				animation: pill-arrive var(--ease) both;
+				animation-timeline: view();
+				animation-range: entry 0% cover calc(22% + var(--i) * 6%);
+			}
+		}
+	}
+</style>

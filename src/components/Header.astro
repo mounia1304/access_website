@@ -2,13 +2,18 @@
 // Logo, menu and quote button, on a white bar that stays at the top of the screen.
 // The bar is frosted once the page scrolls (the page blurs behind it) and gets a little lower.
 import Icon from './Icon.astro';
-import LogoSlot from './LogoSlot.astro';
+import Logo from './Logo.astro';
 import type { IconName } from './icons';
 import { site } from '../data/site';
 import { route, useTranslations } from '../i18n';
 
 const t = useTranslations();
-const isHome = Astro.url.pathname === route('home');
+const path = Astro.url.pathname;
+const isHome = path === route('home');
+const current = (href: string) => (path === href ? 'page' : undefined);
+// Articles live at the root of the site, as on the current one: they belong to the blog.
+const isArticle = t.pages.blog.posts.some((post) => path === `/${post.slug}/`);
+const within = (href: string) => (path.startsWith(href) || (isArticle && href === route('blog')) ? 'page' : undefined);
 
 // Same menu as the current site: Accueil, Nos services, E-services, Blog, Notre politique qualité, Contact.
 const serviceIcons = Object.fromEntries(t.services.items.map((item) => [item.key, item.icon]));
@@ -44,9 +49,9 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 
 <header class="header" data-header>
 	<div class="header__bar">
-		<div class="container container--wide header__inner">
+		<div class="header__inner">
 			<a class="header__brand" href={route('home')} aria-label={`${site.name} — ${t.nav.home}`}>
-				<LogoSlot />
+				<Logo />
 			</a>
 
 			<nav class="nav" aria-label={t.common.mainNav}>
@@ -59,7 +64,14 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 					{
 						groups.map((group) => (
 							<li class="nav__item nav__item--sub">
-								<button class="nav__link" type="button" aria-expanded="false" aria-controls={group.id} data-sub-toggle>
+								<button
+									class="nav__link"
+									type="button"
+									aria-expanded="false"
+									aria-controls={group.id}
+									data-sub-toggle
+									data-current={group.items.some((item) => path.startsWith(item.href)) ? '' : undefined}
+								>
 									{group.label}
 									<Icon name="caret-down" size={11} class="nav__caret" />
 								</button>
@@ -67,7 +79,7 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 									<ul class="nav__panel">
 										{group.items.map((item) => (
 											<li>
-												<a href={item.href}>
+												<a href={item.href} aria-current={current(item.href)}>
 													<span class="icon-tile">
 														<Icon name={item.icon} size={22} />
 													</span>
@@ -83,7 +95,7 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 					{
 						links.map((link) => (
 							<li class="nav__item">
-								<a class="nav__link" href={link.href}>
+								<a class="nav__link" href={link.href} aria-current={within(link.href)}>
 									{link.label}
 								</a>
 							</li>
@@ -93,6 +105,10 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 			</nav>
 
 			<div class="header__actions">
+				<span class="lang" role="group" aria-label={t.common.langSwitch}>
+					<span class="lang__current" aria-current="true">FR</span>
+					<span class="lang__soon" title={t.common.langSoon}>EN</span>
+				</span>
 				<a class="btn btn--accent btn--sm header__cta" href={route('cotation')}>
 					{t.common.quoteCta}
 					<Icon name="arrow-right" size={14} />
@@ -109,7 +125,7 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 <!-- Mobile menu: a full white screen with large links. -->
 <dialog class="mmenu" id="mobile-menu" aria-label={t.common.menu}>
 	<div class="container container--wide mmenu__head">
-		<LogoSlot />
+		<Logo />
 		<button class="mmenu__close" type="button" data-menu-close>
 			{t.common.close}
 			<Icon name="x" size={16} />
@@ -129,7 +145,7 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 						<ul>
 							{group.items.map((item) => (
 								<li>
-									<a href={item.href}>
+									<a href={item.href} aria-current={current(item.href)}>
 										<Icon name={item.icon} size={24} />
 										{item.label}
 									</a>
@@ -141,7 +157,7 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 			}
 			{
 				links.map((link) => (
-					<a class="mmenu__link" href={link.href}>
+					<a class="mmenu__link" href={link.href} aria-current={within(link.href)}>
 						{link.label}
 					</a>
 				))
@@ -173,7 +189,7 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 
 <script>
 	// Marks the page as scrolled: the bar then takes its lower height (browsers that can tie
-	// the change to the scrolling itself do so in CSS), turns frosted and shows a hairline.
+	// the change to the scrolling itself do so in CSS) and turns nearly opaque.
 	const header = document.querySelector<HTMLElement>('[data-header]');
 	if (header) {
 		const onScroll = () => header.toggleAttribute('data-scrolled', window.scrollY > 48);
@@ -212,10 +228,13 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 
 <style>
 	/*
-	 * The header keeps one height in the page (so nothing jumps), and the white bar inside it
-	 * is what gets lower: from --header-h-top to --header-h over the first 200px of scrolling.
+	 * The menu floats over the page as a rounded bar of frosted glass, as in the third mockup of
+	 * the first screen. The header keeps one height in the page (so nothing jumps); the bar inside
+	 * it is what changes once the page has scrolled: it gets lower and nearly opaque.
+	 * Its measures follow the mockup (1717px wide) in hundredths of the screen's width, with floors.
 	 */
 	.header {
+		--bar-inset: clamp(0.75rem, 3.96vw, 5rem); /* from the sides of the screen */
 		position: sticky;
 		top: 0;
 		z-index: 50;
@@ -226,38 +245,42 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 	.header__bar {
 		position: relative;
 		isolation: isolate;
-		height: var(--header-h-top);
+		height: var(--bar-h);
+		margin: 0 calc(var(--bar-inset) * 0.84) 0 var(--bar-inset);
+		top: var(--header-gap);
 		pointer-events: auto;
 		transition: height 0.3s var(--ease);
 	}
 
-	/* The white is on a layer of its own, so the drop-downs can be frosted too. */
+	/* The glass is on a layer of its own, so the drop-downs can be frosted too. */
 	.header__bar::before {
 		content: '';
 		position: absolute;
 		inset: 0;
 		z-index: -1;
-		background: var(--c-surface);
-		box-shadow: 0 1px 0 transparent;
+		border: 1px solid rgb(255 255 255 / 0.2);
+		border-radius: clamp(1.125rem, 1.5vw, 1.75rem);
+		background: rgb(255 255 255 / 0.56);
+		-webkit-backdrop-filter: blur(14px);
+		backdrop-filter: blur(14px);
+		box-shadow: 0 0.5rem 1.5rem transparent;
 		transition:
 			background-color 0.3s,
 			box-shadow 0.3s;
 	}
 
 	.header[data-scrolled] .header__bar {
-		height: var(--header-h);
+		height: var(--bar-h-low);
 	}
 
 	.header[data-scrolled] .header__bar::before {
 		background: var(--c-bar);
-		-webkit-backdrop-filter: blur(16px);
-		backdrop-filter: blur(16px);
-		box-shadow: 0 1px 0 var(--c-line);
+		box-shadow: var(--shadow-soft);
 	}
 
 	@keyframes header-lower {
 		to {
-			height: var(--header-h);
+			height: var(--bar-h-low);
 		}
 	}
 
@@ -277,24 +300,89 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 		justify-content: space-between;
 		gap: 1rem;
 		height: 100%;
+		padding-inline: clamp(0.85rem, 3.03vw, 3.75rem) clamp(0.5rem, 1.1vw, 1.375rem);
 	}
 
+	/* The logo is as tall as the mockup's at the top of the page, and gets lower with the bar.
+	   Its box keeps its full width meanwhile, so that the menu does not move. */
 	.header__brand {
+		--logo-max: 2.5rem;
 		display: inline-flex;
 		flex: none;
+		align-items: center;
+		width: calc(var(--logo-max) * 2.671);
+		height: 100%;
 		border-radius: var(--r-xs);
+	}
+
+	.header__brand :global(.logo) {
+		align-items: center;
+		height: 100%;
+	}
+
+	.header__brand :global(.logo img) {
+		height: min(var(--logo-max), 100% - 0.75rem);
 	}
 
 	.header__actions {
 		display: flex;
 		align-items: center;
-		gap: 0.5rem;
+		gap: clamp(0.5rem, 2.27vw, 2.75rem);
+	}
+
+	/* FR / EN: a pill of glass; the language on screen sits in a lighter capsule. */
+	.lang {
+		display: inline-flex;
+		align-items: center;
+		padding: 0.1875rem;
+		border: 1px solid rgb(255 255 255 / 0.38);
+		border-radius: var(--r-pill);
+		background: rgb(255 255 255 / 0.12);
+		color: var(--c-ink);
+		font-size: clamp(0.75rem, 0.76vw, 0.9375rem);
+		line-height: 1;
+	}
+
+	.lang > span {
+		padding: 0.5em 0.95em;
+		border-radius: var(--r-pill);
+	}
+
+	.lang__current {
+		background: rgb(255 255 255 / 0.34);
+		font-weight: 700;
+	}
+
+	.lang__soon {
+		font-weight: 500;
+		opacity: 0.75;
+		cursor: not-allowed;
+	}
+
+	/* Once the bar is white, glass on it would not show: the pill takes the pale tint instead. */
+	.lang,
+	.lang__current {
+		transition:
+			background-color 0.3s,
+			border-color 0.3s;
+	}
+
+	.header[data-scrolled] .lang {
+		border-color: transparent;
+		background: var(--c-tile);
+	}
+
+	.header[data-scrolled] .lang__current {
+		background: var(--c-surface);
 	}
 
 	.header__cta {
 		display: none;
-		gap: 0.7rem;
-		padding-inline: 1.05rem;
+		gap: 0.9em;
+		min-height: clamp(2.5rem, 2.91vw, 3.625rem);
+		padding-inline: clamp(1.05rem, 1.2vw, 1.75rem);
+		font-size: clamp(0.8125rem, 0.76vw, 0.9375rem);
+		font-weight: 600;
 	}
 
 	.header__burger,
@@ -318,14 +406,16 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 	.nav {
 		display: none;
 		align-self: stretch;
-		/* The menu starts at a set distance from the logo, as in the mockup. */
-		margin-left: clamp(1.5rem, 27.7vw - 18.25rem, 12.65rem);
+		/* The menu starts at a set distance from the logo, as in the mockup (163px at 1717 wide);
+		   that distance and the gaps between its items close up on narrower screens, so that the
+		   menu never reaches the language switch. */
+		margin-left: clamp(1.25rem, 28.15vw - 20rem, 13rem);
 	}
 
 	.nav__list {
 		display: flex;
 		align-items: stretch;
-		gap: clamp(1.5rem, 2.465vw, 2.75rem);
+		gap: clamp(1rem, 4.12vw - 1.67rem, 3rem);
 		height: 100%;
 	}
 
@@ -344,7 +434,7 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 		border: 0;
 		background: none;
 		color: var(--c-ink);
-		font-size: 0.859375rem;
+		font-size: clamp(0.8125rem, 0.76vw, 0.9375rem);
 		font-weight: 500;
 		line-height: 1.375rem;
 		white-space: nowrap;
@@ -354,21 +444,26 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 
 	.nav__link:hover,
 	.nav__item--sub[data-open] > .nav__link,
-	.nav__link[aria-current='page'] {
+	.nav__link:is([aria-current='page'], [data-current]) {
 		color: var(--c-accent);
 	}
 
+	.nav__link:is([aria-current='page'], [data-current]) {
+		font-weight: 700;
+	}
+
 	/* A line under the current page. */
-	.nav__link[aria-current='page']::after {
+	.nav__link:is([aria-current='page'], [data-current])::after {
 		content: '';
 		position: absolute;
 		inset: auto 0 0;
 		height: 2px;
 		border-radius: 2px;
-		background: currentColor;
+		background: var(--c-stroke);
 	}
 
 	.nav__link :global(.nav__caret) {
+		flex: none;
 		transition: transform 0.25s var(--ease);
 	}
 
@@ -465,6 +560,10 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 
 		.nav {
 			display: block;
+		}
+
+		.header__brand {
+			--logo-max: clamp(2.75rem, 3.84vw, 4.75rem);
 		}
 
 		.header__burger {

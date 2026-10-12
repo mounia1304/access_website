@@ -8,9 +8,14 @@ French is the default locale, English comes later. See `README.md` for the file 
 - `npm run dev` — dev server on port 4321 (`.claude/launch.json` name: `access-transit`)
 - `npm run build` — production build into `dist/`; run it after template changes, it catches compile errors
 - `npm run check:palette` — computes the contrast of every text/background pair from `tokens.css`
-- `node scripts/make-hero-sky.mjs` — redraws the sky behind the first screen's picture (only to change it)
+- `node scripts/make-hero-scene.mjs` — widens the first screen's photograph to the framing of its mockup
+  (only if the client sends a new photograph)
+- `node scripts/make-reason-icons.mjs` — cuts the icons of the "Pourquoi choisir" containers out of the
+  client's picture (only if the client sends a new one)
+- `node scripts/make-logo.mjs` — trims the client's logo file and makes the favicon from its "A" (only when
+  the client sends a new logo)
 - `node scripts/make-chevron-trail.mjs` — redraws the trail of chevrons that runs between sections, and the
-  pair of chevrons of the fourth screen's rail (only to change them)
+  guillemet of the testimonials, which is made of the same chevron (only to change them)
 
 Restart the dev server after renaming tokens or classes across several components: it keeps serving
 the old scoped CSS for some of them, which shows up as cards with no background or text in the wrong colour.
@@ -18,35 +23,51 @@ The same happened after each style edit in `About.astro`: if a change does not s
 
 ## Design rules
 
-The client's own mockup of the first screen, `reference/maquette-premier-ecran-2.webp` (1785 x 881),
-governs the look. The client asked for it to be reproduced exactly, colours included ("do not change the
-colors"). The first screen is built to its measurements; the sections below it use the same colours,
-type, cards and labels. Earlier references (cargowise.com, a Behance case study, a first mockup,
+The client's own mockups govern the layout. The first screen follows their third mockup of it,
+`reference/maquette-premier-ecran-3.webp` (1717 x 916), which replaced the earlier ones
+(`maquette-premier-ecran.webp`, `maquette-premier-ecran-2.webp`: kept for the record, no longer
+followed). The sections below it use the same type and labels. The mockups are drawn in indigo and violet: the client has since asked for the
+two colours of their logo across the whole site instead (see "Colours"), so follow the mockups for
+shapes and measures, not for colour. Earlier references (cargowise.com, a Behance case study, a first mockup,
 several palettes) no longer apply, except for what is listed under "Kept from the previous design".
 
 The second screen ("Présentation de l'entreprise") has its own mockup from the client,
 `reference/maquette-deuxieme-ecran.webp` (1944 x 809), also to be reproduced exactly: see "Second screen".
-So has the third ("Découvrez nos services"): `reference/maquette-troisieme-ecran.webp` (1921 x 819),
-see "Third screen". The fourth ("Pourquoi choisir") has no mockup: the client asked for the third
-screen's design there, see "Fourth screen". The mockups are pictures: where their lettering is garbled (the third one reads
+The third ("Découvrez nos services") had one too, `reference/maquette-troisieme-ecran.webp` (1921 x 819):
+its label, title and background shapes still follow it, but its cards were redesigned at the client's
+request, see "Third screen". The fourth ("Pourquoi choisir") and the fifth ("Avis de nos clients") have
+no mockup: the client asked for designs an expert would make, each around one idea, see "Fourth screen"
+and "Fifth screen". The mockups are pictures: where their lettering is garbled (the third one reads
 "NOS MÉTIEPS"), the site's own text stands.
 
 ### Colours
 
 - `src/styles/tokens.css` is the only file with colour values (plus the `theme-color` meta in
-  `Base.astro`, `public/favicon.svg` and `scripts/make-hero-sky.mjs`, which cannot read CSS variables).
-  The "Palette" block holds the colours, measured on the mockup; the "Roles" blocks map them to uses;
-  shades are `color-mix()` blends of those. Do not change the palette without the client asking.
+  `Base.astro` and `scripts/make-logo.mjs`, which cannot read CSS variables).
+  The "Palette" block holds the colours; the "Roles" blocks map them to uses; shades are `color-mix()`
+  blends of those. Do not change the palette without the client asking.
+- The palette is the client's logo: its blue ("Corporate Blue", `#164b9a`) and its orange ("Vibrant
+  Orange", `#f47721`), the two values the client gave, plus the ends of the gradients the logo draws
+  them in (measured on the logo file). The client asked for them "and their gradients" in place of the
+  purple, on the whole site. Blue does what the indigo did; orange is the second colour (second half
+  of titles, thin strokes, the light on the chevrons, the strong slanted bars); gradients go on fills
+  (`--g-accent` on buttons, `--g-accent-deep` on the footer and the main e-service tile, `--g-dark` on
+  the banner, `--g-bar` on the orange bars), lighter at the top and deeper at the foot, as in the logo.
+- The logo's orange is too light to read as text (2.8:1 on the page). Titles use a deeper shade of it
+  (`--c-display`, which passes 3:1 on the page and on glows); the plain orange (`--c-stroke`,
+  `--c-trail-light`, `--g-bar`) is for strokes, lights and bars only. Never set small text in orange.
+- A gradient cannot fade into another: for a hover on a gradient fill, lay a veil over it (an inset
+  `box-shadow`, as `.btn--accent` does) instead of changing the background.
 - Components use role tokens only (`--c-accent`, `--c-panel`, `--c-tile`…), never a palette token, a hex
   value or a hue name.
 - Where things get their colour: the page is a very pale blue-white; titles and the menu are navy
-  (`--c-ink`), with the second half of each title in a lighter indigo (`--c-display`, large text only);
-  paragraphs are slate; buttons, links, the logo and the footer are indigo (`--c-accent`); small coloured
-  text and icons use a deeper indigo (`--c-label`), or the softer one of the second mockup
-  (`--c-label-soft`: its tag, slogan and signature); chips and the selected card are pale periwinkle
+  (`--c-ink`), with the second half of each title in orange (`--c-display`, large text only);
+  paragraphs are slate; buttons, links and the footer are blue (`--c-accent`); small coloured
+  text and icons use a deeper blue (`--c-label`), or a brighter one (`--c-label-soft`: the second
+  screen's tag, slogan and signature, small numbers); chips and the selected card are very pale blue
   (`--c-tint`), icon tiles and arrow discs a lighter mix (`--c-tile`), panels lighter still (`--c-panel`).
 - Every coloured fill has a partner for the text it carries: `--c-accent` / `--c-on-accent`,
-  `--c-feature` / `--c-on-feature`, `--c-soft` / `--c-on-soft`, `--c-dark` / `--c-on-dark`.
+  `--c-soft` / `--c-on-soft`, `--c-dark` / `--c-on-dark`.
 - Paragraphs sit on glows and tinted surfaces, and the slate is only just dark enough for them: after any
   colour change run `npm run check:palette`.
 - axe-core does not catch contrast problems on this site: it leaves colour contrast "undecided" on
@@ -55,46 +76,69 @@ screen's design there, see "Fourth screen". The mockups are pictures: where thei
 
 ### Type and shapes
 
-- One typeface, DM Sans (variable): 400 for paragraphs, 500 for titles, menu, buttons and labels, 550 for
+- One typeface, DM Sans (variable): 400 for paragraphs, 500 for titles, menu, buttons and labels, 800 for
   the hero title, 700 for the second screen's tag, title and motto and for the third screen's label and
-  title, 600 for the titles of its plates (as in their mockups). La Belle Aurore (handwritten) is for
-  the slogan only.
-- Section titles are set in two colours, navy then lighter indigo:
+  title (as in their mockups). La Belle Aurore (handwritten) is for
+  the slogan of the second screen only (on the first screen the slogan is set in DM Sans, as in its mockup).
+- Section titles are set in two colours, navy then orange:
   `<Title parts={['Découvrez', 'nos services']} />`. `stack` puts the two parts on two lines; a single
-  string is set entirely in the lighter indigo.
-- Above a title: `.eyebrow`, a small uppercase letter-spaced label followed by a short line. The hero's
-  tagline is a `.chip`: a pale pill that starts with a dash.
-- Buttons are indigo pills; a main action carries an arrow icon. Round white buttons (`.circle`) for
+  string is set entirely in orange.
+- Above a title: `.eyebrow`, a small uppercase letter-spaced label followed by a short line. The second
+  screen's tag is a `.chip`: a pale pill that starts with a dash.
+- Buttons are blue pills (a gradient); a main action carries an arrow icon. Round white buttons (`.circle`) for
   slider arrows and pause.
 - Cards (`.card`) are white with a pale hairline and a soft shadow, 22px corners. An icon sits in a
   rounded tile (`.icon-tile`); a small disc with an arrow (`.disc`) marks a card that leads somewhere.
   Panels that hold cards are pale (`--c-panel`) with 28 to 30px corners.
-- Slanted shapes echo the logo: the hero's frame and its bars share `--slant`.
+- Slanted shapes: the bars and strokes of the second, third and fourth screens share `--slant`; the
+  panes of the first screen lean about the same way (their corners are measured on its mockup).
 - No coloured section backgrounds: a section that needs presence gets a glow (`.glow`). The second and
-  third screens have the pale shapes of their mockups instead (the third keeps its glow under 75em).
+  third screens have the pale shapes of their mockups instead (the third keeps its glow under 80em).
 - Only use characters covered by the Latin subset of the fonts (no arrows like ⇄, no modifier letters like ᵉ),
   otherwise a second font file gets downloaded.
 
 ### Header and first screen
 
-- A thin tinted top bar (phone, e-mail, city, FR/EN) scrolls away; the white menu bar under it is sticky.
-  Logo left, then the menu at a set distance, quote button at the far end; the current page is indigo
-  with a line under it. The bar gets lower and frosted over the first 200px of scrolling
-  (`--header-h-top` to `--header-h`); the `<header>` itself keeps one height so the page never jumps.
-- `Hero.astro` follows the mockup's measurements (all noted in the file): the message on the left
-  (tagline chip, two-line title, text, button), the picture on the right, and under them a panel whose
-  five cards are the slider's tabs, with two arrows.
-- The picture is one composition placed in percentages of a "stage" box, so it scales as a whole: three
-  slanted bars, the frame, the slogan. The frame's shape is an SVG clip path with rounded corners. The
-  sky is cut to it; the client's cut-out is cut on the left and bottom only, so the ship's bow and the
-  crane stick out on the right, as in the mockup.
-- With the top bar and the menu, the hero fills exactly the first screen on large screens. Laptops
-  (short, or narrower than 88em) get a lighter panel so that it still fits; below 64em everything stacks
-  and the cards scroll sideways. Check 1785x881 against the mockup, and 1366x650, 1536x730, 1024x768
-  and a phone, when touching it. The fifth message has the longest text.
-- The picture is the same for the five messages; only the text changes.
-- The pale shape in the bottom right corner fades out in the room under the panel, so that the second
-  screen starts clear, as in its mockup.
+- The menu is a rounded bar of frosted glass that floats over the page, a little below the top of the
+  screen (`Header.astro`): logo, menu, FR/EN, quote button. There is no top bar any more (the third
+  mockup has none): the phone, the e-mail and the city are in the mobile menu, the contact block and the
+  footer. Once the page has scrolled the bar gets lower (`--bar-h` to `--bar-h-low`) and nearly opaque;
+  the `<header>` itself keeps one height so the page never jumps. `--header-h` is what the bar hides at
+  the top of the screen then: use it for sticky tops and scroll margins.
+- The first screen is pulled up under the menu (`margin-top: calc(-1 * var(--header-h-top))`), so the
+  photograph shows through the glass. Other pages simply start below it.
+- `Hero.astro` follows the third mockup: one wide photograph across the screen; over it a pale pane on
+  the left, which carries the message (tagline, two-line title in extra-bold, text, button, a round
+  "play" link to the second screen, the numbers of the messages), a dark tint and a darker pane in the
+  top right corner, which carry the slogan; an orange-then-blue line along the pale pane's edge. A white
+  panel with a leaning left side overlaps the photograph's foot: its label, title and link, then four
+  cards with small pictures.
+- On large screens (64em and up) it is a poster: every measure is in `cqw` of the screen's width
+  (17.17px on the mockup), so the whole screen scales with the width; small texts have floors. The
+  panes are SVG clip paths whose corners are the mockup's px (`roundedShape()`). Under 64em the
+  photograph is a band at the top and everything stacks; between 64em and 80em the label of the play
+  link is only read out, because it would run into the picture's slanted edge.
+- The photograph is the client's (`photos/hero/port.webp`). The mockup shows it at 74% of the screen's
+  width, with more sky and sea around it: `scripts/make-hero-scene.mjs` adds those margins by mirroring
+  the photograph's edges (`port-scene.webp`), which puts the lorry, the ship and the plane where the
+  mockup has them. Run it again if the photograph changes.
+- It is still the current site's slider: five messages, no auto-play, the same photograph for all. The
+  numbers (01 to 05; the mockup draws three) are its tab list: keep click, arrow keys, Home/End and
+  swipe working. The four cards are plain links to the pages (road, sea, air, ISO), as on the mockup;
+  customs clearance has no card there, it is the first message.
+- The small pictures on the cards (`photos/hero/cards/`) are cut out of the mockup, at its resolution:
+  replace them when the client sends the originals.
+- Texts lie over the photograph, which `check:palette` cannot see. They were measured on rendered
+  pixels (a screenshot with the texts made transparent, each text's colour against the pixels in its
+  box) at 1717, 1366 and 1024 wide: all pass 4.5:1. That is why the paragraph uses `--c-text-strong`
+  and the other numbers a navy at 78%, and why the orange word (`--g-display`) is deeper than the
+  mockup's: its lightest stop is the lightest that still reaches 3:1 there. Measure again after
+  changing the panes, the photograph or these colours.
+- A gradient text (`background-clip: text`) is cut at its line box: the orange word has a little
+  bottom padding (and the same negative margin) so that descenders are not cut.
+- Check 1717x916 against the mockup (`previews/comparaison-maquette.jpg`), then 1920, 1536, 1366,
+  1280, 1024, a tablet and a phone; show the fifth message, which has the longest text and button;
+  scroll, to see the lowered bar and an open sub-menu.
 
 ### Second screen
 
@@ -122,67 +166,195 @@ screen's design there, see "Fourth screen". The mockups are pictures: where thei
 
 ### Third screen
 
-- `Services.astro` follows `reference/maquette-troisieme-ecran.webp`: the label between two short
-  lines, the two-line title, then the four services as four "plates" in a row, each a little lower than
-  the one before, tilted and leaning. They do not use `.card`.
-- Two things differ from the mockup because the client asked for them after seeing it built: the plates
-  must not sit over one another, and none is larger than the others at rest. The four are the same size
-  with clear gaps, and the mockup's first plate (larger, indigo edge, tinted shadow) is the state of
-  whichever plate is pointed at. Do not go back to per-plate sizes or to plates that touch.
-- The plates themselves are the shared `.plate` (see "Plates"). This file holds their row, the pictures
-  on their corner bands, "Savoir plus", and their sizes on large screens.
-- A lifted plate must never reach its neighbours: at every width the gap is larger than what
-  `--grow` adds. Check this again after changing the gaps, the tilt or `--grow`.
-- The link's `::after` is raised above the texts (`z-index: 1`), or clicks on them would not reach it.
-- In the corner of each plate, a pale slanted band with a picture of the service: Phosphor's "fill"
-  icons (`ghost-…` in `icons.ts`), not the mockup's drawings, which were never supplied as files.
-- The background shapes (round-ended bars, slabs, two thin strokes) are one inline SVG drawn in the
-  mockup's px; the third stroke hangs under the last plate (`.services__row::after`).
-- The block has more room at its top than the mockup (110px against 66), for the trail of chevrons.
-- Under 75em the plates go two per row, then one, tilted less, without the background shapes.
-- Check 1921 wide against the mockup (`previews/comparaison-maquette-3.jpg`), then 1536, 1280, 1024,
-  768 and a phone, and point at each plate.
-
-### Plates
-
-- The plate is the card of the third and fourth screens, and of any later section that is asked to look
-  like them: a white sheet that is tilted and leans, with a thick edge, a pale slanted band in its top
-  right corner and an icon tile. It lives in `global.css` (block "Plates", which gives the markup):
-  `.plate` (the holder, with the variables), `.plate__body` (what tilts and leans), `.plate__sheet`,
-  `.plate__edge`, `.plate__window`, `.plate__tile`, and `.plate__upright` on texts.
-- How it is built: the body carries the tilt of the text and the lean (`skewY` then `skewX`); the
-  sheet under it is tilted a little more and draws the sheet (`::after`), its edge (`::before`) and the
-  corner band; texts and icons are stood upright again, so only their position follows the lean.
-- Its states are variables. `--lift` is 1 while the plate is pointed at or a link in it has the
-  keyboard's focus: it then grows (`--grow`), rises (`--rise`) and comes above its neighbours, staying
-  there until it is back down (delayed `z-index`). `--on` is 1 while it is lifted or `--current` is 1:
-  its edge is then indigo (`.plate__edge`, faded in). Write anything else that should follow from
-  these two, with `--ease` over `--lift-time` (a little longer coming back).
-- `--motion` is 0 for `prefers-reduced-motion`: multiply by it whatever moves or grows, as the plate
-  does. Colours still change.
-- A section sizes its plates by setting the variables on its own item class (`--tilt-by` and
-  `--lean-by` to 1, `--pad`, `--tile`, `--title`, `--text`, `--grow`…), as `Services.astro` and
-  `Why.astro` do on large screens.
+- `Services.astro`. Its label (between two short lines), its two-line title and its pale background
+  shapes follow `reference/maquette-troisieme-ecran.webp`. Its cards do not any more: after the
+  testimonials were redesigned, the client asked for this screen to be remade "the same way", to look
+  made by an expert. Do not go back to the mockup's tilted cards.
+- The idea comes from the trade. The four services are four lanes side by side, leaning 7 degrees
+  (`--skew`). One route runs through them at the same height in each (`LEVEL` in the file), so that
+  it reads as a single line across the row: it passes a seal with a tick in the customs lane, is the
+  dashed centre line of a road in the second, takes off and lands in the third, rides waves in the
+  fourth. In the customs lane it passes a checkpoint (a ring round a point, on a dotted border): not a
+  seal with a tick, which is the lane's icon. The shapes are short SVG paths in `ROUTES`, drawn far beyond their box so that they reach
+  the lane's edges at any width (`preserveAspectRatio` keeps their proportions; the lane cuts them).
+- A lane's state is one variable, `--on` (1 while it is pointed at or its link has the keyboard's
+  focus). From it: the lane lifts and grows a little, a blue "tide" rises behind its text
+  (`.lane__tide`, a `clip-path` whose top is slanted; texts turn white), its number turns orange, and
+  a light travels along its stretch of the route (`pathLength="100"`, so the dash and its speed are
+  the same on every shape). The light only runs while the lane is on, and not at all for
+  `prefers-reduced-motion`.
+- Two wishes of the client still hold from the first version: the four are the same size at rest and
+  never touch, and the one pointed at is the only one that looks larger. The gaps are wider than what
+  a lifted lane gains; check that again after changing the gaps, the lean or the growth.
+- The lanes arrive one after the other as the row scrolls in (`lane-arrive`, with a later
+  `animation-range` per lane). It replaces `.reveal`'s own rise, which would undo the lean on the way:
+  an element with a transform of its own needs its own entrance keyframes.
+- The icon of each lane is drawn for the site (`ServiceIcon.astro`, shapes in `serviceIcons.ts`). The
+  client first supplied glass tiles with gradients (`reference/icones-services-client.webp`), then
+  found them "generated by AI" once in place and asked for icons "created by an expert UI". Do not
+  bring back glass, gradients or soft shadows in icons.
+- The four are one family on one grid (64 by 64, a line of 2, round ends), in three layers: a pale
+  fill printed a little off its outline (`--c-print`), the outline in blue, and a mark in orange for
+  what the thing does (the seal that clears the file, the lorry's speed, the plane's trail, the swell).
+  The header of `serviceIcons.ts` gives the rules: follow them when adding an icon.
+- While the lane is on (`--on`), the outline lifts off its fill and the orange mark is wiped and drawn
+  again, once. That is done without keyframes: each mark path is one dash as long as itself
+  (`pathLength="1"`) and the pattern slides by two lengths, which ends on the same picture, so going
+  back to rest takes no time and does not show.
+- The link in each title covers its whole lane (`.card__link`, raised above the texts).
+- Four across from 80em, leaning; two across from 40em and one below, upright.
+- Check 1921, 1536, 1366 and 1280 wide, then 1024, a tablet and a phone; point at each lane.
 
 ### Fourth screen
 
-- `Why.astro`: the client asked for the third screen's design, with the four reasons kept one above
-  the other, "creative" and animated. The title stays in view on the left with an index of the four
-  reasons; on the right the reasons are four plates down a rail of the logo's chevrons
-  (`chevron-pair-down.svg`, used as a mask), with a stop at each plate.
-- A script follows the scrolling. A line across the screen (`--focus`, 58% of its height) lights the
-  rail down to it: each plate gets `--fill` (the lit share of the stretch under its stop),
-  `data-reached` once the line has passed its stop, and `data-current` on the last one reached, which
-  gives it the indigo edge (`--current: 1`); the matching line of the index gets `data-current` too.
-  A plate that is pointed at takes the indigo edge for itself (`:has()` rule in the file).
-- The lines of the index are links to the plates. `scroll-margin-top` on a plate is worked out from
-  `--focus`, so that the plate reached this way is also the current one, on any screen height.
-- Each plate lands as it enters the screen (`why-land`, tied to the scrolling like `.reveal`). The
-  landing is on `.why__land`, inside the item, so that the stop and the rail stay put.
-- The numbers 01 to 04 are decoration (`aria-hidden`). Under 64em the index is hidden and the title is
-  not sticky; the rail stays, in a narrower gutter.
-- Check 1921, 1536, 1366 and 1024 wide while scrolling through the block, a tablet and a phone; click
-  the lines of the index; point at a plate that is not the current one.
+- `Why.astro` has no mockup. It was first built with the tilted cards the third screen had then, down a
+  rail of chevrons. After the testimonials and the services were redesigned around one idea each, the
+  client asked for the same here ("do better work… as an expert ui"), keeping their icons. Do not go
+  back to cards down a rail.
+- The idea: the four reasons are four containers stacked on a quay, each in a colour of the palette
+  (blue, pale blue, the logo's orange, navy), held from above by a crane's spreader. The title stands
+  on the left. Texts are unchanged.
+- A container (`.box`) is drawn in an oblique view: the element is its front, which carries the text;
+  `::before` is its top (a strip `--d` high, `skewX(-45deg)`) and `::after` its end (`--d` wide,
+  `skewY(-45deg)`). Its ribs, rails and corner posts are layered gradients. Higher boxes are painted
+  over lower ones (`z-index` from `--i`), which hides a box's top under the box standing on it,
+  except where the two are out of line (`--shift`): that is what makes it read as a stack.
+- Its colours are roles in `tokens.css` (`--c-box-…`: front, top, end). Paragraphs lie on these fills:
+  `check:palette` has a line for each. On the orange one, title and paragraph are both navy: nothing
+  lighter passes there, and white on that orange does not either.
+- Pointing at a box pulls it out of the stack towards the title (`--pull`): the top of the box under it
+  shows. Each box is pushed into place from the right as it enters the screen (`box-arrive`, tied to
+  the scrolling). Neither plays for `prefers-reduced-motion`.
+- The crane is part of the first box (it moves with it): four wire ropes that hang straight, in an SVG
+  that stretches with the box, and a spreader drawn with gradients. Ropes that meet at a point above
+  the box read as a coat hanger: keep them straight.
+- The icons are the client's own (`src/assets/reasons/`, cut out of `icons-source.webp` by
+  `scripts/make-reason-icons.mjs`): glass tiles the client asked to keep here. Their cut-outs are only
+  right over white, so each sits on a white label (`.box__label`). That picture also showed cards with
+  shortened texts: only the icons were taken.
+- Title and stack side by side from 80em (the stack is never wider than 58rem, or the boxes get too
+  long to look like containers). The title starts level with the top box and is sticky, because the
+  stack is taller than short laptop screens; on screens 54em high or more it is level with the stack's
+  middle instead. Under 80em the title is above; under 40em the icon and the number share a first row
+  and the text runs under them.
+- Under the stack are the four key figures. They were a band of giant numbers gliding by; the client
+  asked for them to stand still, all four in view at once ("creative as an expert UI"). A first answer
+  painted them on the hull of a ship lying at the quay; the client turned it down: "i didn't like that
+  boat, i wanted just the numbers". Do not make them glide or count up, and do not put them in a scene
+  or on an object again: here the design is the typography.
+- So they are just the numbers (`.figures`, inside the block): large numerals in the blue gradient of
+  the logo's lettering (`--g-figure`, for very large text only), each starting with a thin orange stroke
+  on `--slant`, its label and small icon under it. A pale print of the numerals sits a little off them
+  (a `drop-shadow` filter, because `text-shadow` paints over a gradient text): the same idea as the
+  drawn icons of the services. The label comes first in the markup (`dt`), the number first on screen.
+- From 48em the four are in one row, each as wide as its number, the room left shared between them
+  (the first starts under the title, the last ends under the stack's right edge); a label never makes
+  its figure wider, it runs on under it. Below 48em they are two by two.
+- Pointing at a figure lets its pale print slip a little further out; the strokes are drawn from their
+  foot up as the row enters the screen (`figure-stroke`, tied to the scrolling). The numbers never move.
+- Check 1921x1000, 1536x800, 1366x650 and 1280 wide, then 1024, a tablet and a phone; point at a box
+  and at a figure.
+
+### Fifth screen
+
+- `Testimonials.astro` has no mockup. A first version (a tilted quote card and a
+  list of names with initials) was turned down by the client as looking "AI generated": they asked for
+  something an expert designer would make, and creative. Do not go back to a plain card beside a list.
+- The design takes its idea from the trade. The testimonials are a pile of sheets, like papers on a
+  customs desk: the top one is read, the next two show under it. A large French opening quotation
+  mark sits astride the pile's corner, drawn with the site's own double chevron (a guillemet is one:
+  `chevron-guillemet.svg`, made by `scripts/make-chevron-trail.mjs`, used as a mask over `--g-bar`).
+  A round stamp in one ink, like a customs stamp, carries the sheet's number.
+- Each sheet has `--pos` (0 on top); its place, turn, shade, edge colour, opacity and layer are all
+  worked out from it in CSS. Moving on slides the top sheet away to the left, then under the pile
+  (`quote-leave`); coming back slides it in again (`quote-enter`); the stamp is pressed again
+  (`stamp-press`, no bounce). These only play when the visitor asks for another sheet, never by
+  themselves, and not at all for `prefers-reduced-motion`.
+- The five names on the left, down a line, are the tab list (click, arrow keys, Home and End); the
+  arrows under the pile and a sideways swipe change the sheet too. Keep all of them working.
+- The sheets share one grid cell, so the pile keeps the height of the longest testimonial.
+- Texts, names and roles are the current site's: no ratings, photos or companies were added. The words
+  round the stamp are the section's label and the company's name.
+- It replaced a sky-blue card: `--c-feature` and its partners are gone.
+
+### Dark banner
+
+- `BigNumber.astro`: the "30 900 opérations" figure, on the one dark banner of the page. The client
+  liked its animation (five lanes that come in from the right, take a bend together and leave at the
+  bottom, a light running along each) and asked for the banner to be redesigned with that animation
+  kept, "just improved". Keep the lanes, their bend and their lights.
+- A light is several dashes on the same lane that all end at the same point, its head: the longer the
+  dash, the fainter (`LIGHT` in the file), which makes a tail that fades away; then a halo and the
+  head. `lane-travel` takes the head from one end of the lane to the other whatever the length of the
+  dash. Three lights are orange (`--c-dark-light`, as on the trails of chevrons), two sky blue
+  (`--c-dark-lane`, the colour they all had). The speed is constant, as everywhere.
+- The lanes are drawn from the right, one after the other, as the banner enters the screen. Parts of
+  an SVG cannot be timed on their own passage through the screen: the banner names its own
+  (`view-timeline: --banner`) and the lanes use that.
+- The lights stop the usual three ways: off screen (the script), when a pause button is pressed, and
+  for `prefers-reduced-motion`, where each rests part of the way along its lane (`--rest`).
+- The figure is set like the key figures of the fourth screen: bold numerals after the thin orange
+  stroke, here white (a little bluer at the foot, `--g-dark-figure`) over a blue print of themselves
+  (`--c-dark-print`). A glow lies in the hollow of the bend (`--c-dark-glow`).
+- The banner is as wide as the screens above it (the same `cqw` block), in line with their titles
+  from 80em. Under 52em the lanes are small, in the bottom right corner behind the text.
+- Check 1921, 1536, a short laptop screen (about 1420x560, which is what the client's screenshots
+  show), 1024, a tablet and a phone; scroll the banner in to see the lanes drawn.
+
+### Online services
+
+- `EServices.astro` has no mockup. It was three cards in a row with an icon tile each; the client asked
+  for it to be redesigned like the screens above. Do not go back to three cards.
+- The idea: these are things to press, so they are the site's own buttons (pills), made very large.
+  Each is a long round-ended bar: a white knob with its icon, its name, a dotted line, an arrow in a
+  disc. The three step down the block on `--slant` (`--step`), like the round-ended bars of the second
+  screen. The quote request, the main action, is full (blue) from the start; the other two are pale.
+- A pill has two variables: `--on` (pointed at, or its link has the keyboard's focus) drives what
+  moves; `--lit` (full: always 1 on the main one) drives the colours. The fill (`.pill__fill`) is cut
+  down to a disc behind the knob at rest, which shows as a blue ring round it, and runs to the end of
+  the pill when it is on, like a bar that loads. On the main pill a light veil comes over it instead.
+- The icons are drawn for the site, in the family of the service icons (`serviceIcons.ts`: a
+  calculator, a route to a pin, a message with its point). Their orange mark is drawn again when the
+  pill is on. They lie on the white knobs: do not put them straight on the blue.
+- The link in each name covers its whole pill (`.card__link`). The pills come in from the right as the
+  block scrolls in (`pill-arrive`).
+- A pill is a component, `PillLink.astro`: the page that asks which quote is wanted shows three more.
+  The list that holds pills sets their measures through variables (`--h`, `--step`, `--pill-…`: see
+  the head of the file); a class of the list is not matched inside the component.
+- Title on the left and pills on the right from 80em (one grid cell, both with a `grid-area`); title
+  above from there down; no step and no dotted line under 48em.
+- Check 1921, 1536, 1420x560, 1024, a tablet and a phone; point at the second and third pills.
+
+### Inner pages
+
+- The client asked for "the buttons that don't work yet" to work: every link of the menu, the
+  homepage and the footer now leads to a page. Their content is the current site's, page for page
+  (read from access-transit.com), with spelling, capitals and typography corrected. Their texts are
+  in `src/i18n/fr.pages.ts` (`t.pages`), not in `fr.ts`.
+- Pages: the four services (`pages/services/[service].astro`), the quote request (a choice of three
+  kinds, then one form per kind: `pages/e-services/demander-une-cotation/`), tracking, complaints,
+  the quality policy, the blog and its one article (`pages/[article].astro`: articles live at the
+  root of the site, as on the current one), and contact. Addresses are those of the current site.
+- They share: `PageHead.astro` (the trail, an optional label, the `h1` in the two colours of the
+  homepage's titles), `ServiceAside.astro` (the four trades, the two presentations, a help card),
+  `Assurances.astro` (the three commitments that close most pages of the current site),
+  `RequestForm.astro` (a form drawn from a list of fields) and `Prose.astro` (running text from a
+  list of blocks). They are laid out in `.wrap` / `.wrap__in`, which is the block of the homepage's
+  screens (1921px at most, `cqw`, the same margins); lists in running text start with the thin
+  orange stroke (`.prose`).
+- FORMS DO NOT SEND ANYTHING YET. Each shows a notice saying so when its button is pressed
+  (`contact.form.demo`); they are to be wired to e-mail delivery in phase 4. Do not tell the client
+  they work. The contact block of the homepage uses the same form component.
+- Where the current site is wrong or empty, it was not copied: the "Cotation de transport national"
+  page is empty there (here it sends to the contact page until the client says what it should
+  hold); its contact page shows a map of another country (left out); a link in the quality policy
+  leads to another company's site (left out). The scan of the signed quality policy and the picture
+  of the article are not here: files are only downloaded with the client's go-ahead.
+- The two "presentations" are links to the company's files on Google Drive, as on the current site.
+- The menu marks the page on screen (`aria-current`), and the group it belongs to (`data-current`
+  on the buttons "Nos services" and "E-services").
+- Check a service page, a quote form, tracking, the quality policy and contact at 1536, 1024 and a
+  phone; after touching a link or a route, follow every link of the site (all must answer 200).
 
 ### Movement
 
@@ -193,10 +365,11 @@ screen's design there, see "Fourth screen". The mockups are pictures: where thei
   travelling dashes, which had been taken from another website. Do not bring that line back.
 - The drawing is a stencil (`src/assets/decor/chevron-trail.svg`, used as a CSS mask) made by
   `scripts/make-chevron-trail.mjs`; its colours are `--c-trail` and `--c-trail-light`.
-- The logo conveyor and the band of figures (`Marquee.astro`) glide at about the same speed. Movement is
-  slow, constant and linear: nothing bounces, flies in or plays on page load.
-- On the fourth screen the rail lights up and the plates land with the scrolling, not by themselves:
-  they need no pause button.
+- The logo conveyor (`Marquee.astro`) glides at about the same speed. Movement is slow, constant and
+  linear: nothing bounces, flies in or plays on page load. The key figures used to glide the same way;
+  the client asked for them to stand still (see "Fourth screen").
+- On the third and fourth screens the lanes, the containers and the strokes of the key figures arrive
+  with the scrolling, not by themselves: they need no pause button.
 - Cards fade in as they enter the screen (`.reveal`), tied to the scrolling itself with
   `animation-timeline: view()`, inside `@supports`: other browsers simply show the cards.
 - Everything that moves by itself must stop three ways: for `prefers-reduced-motion` (use `animation: none`
@@ -211,25 +384,27 @@ screen's design there, see "Fourth screen". The mockups are pictures: where thei
 
 ### Kept from the previous design
 
-The mockup shows only the first screen, and the client asked not to change colours, so these stay:
-the sky-blue testimonial card, the navy banner with its lanes, the indigo footer, the conveyors and
-their pause buttons.
+These came before the mockups and stay: the navy banner with its lanes (in a gradient towards the
+logo's deep blue; redesigned since, its animation kept at the client's request: see "Dark banner"),
+the footer in the accent colour, the logo conveyor and its pause button. The sky blue is still the
+colour of the banner's lanes and the pale cyan that of the second button.
 
 ## Content rules
 
 - The client asked for the new site to match the current one in content: same blocks in the same order,
   same wording, same menu, same figures, same slider messages. Only spelling, typography and stray
   English are corrected. Do not rewrite, add or drop copy, sections or figures without being asked.
-- Exceptions that came with the mockup (all marked in `fr.ts`): the tagline, the slogan, the panel's
-  label, title and sentence, and the longer first message. The hero button reads "En savoir plus";
-  the service cards keep "Savoir plus". The second mockup repeats the slogan beside its picture.
-- The third mockup changed the sentences of three service plates (douane, routier, aérien). They were
+- Exceptions that came with the mockups (all marked in `fr.ts`): the tagline, the slogan, the panel's
+  label and title, its link ("Découvrir tous nos services"), the play link ("Notre savoir-faire"), and
+  the longer first message. The hero button reads "En savoir plus"; the service cards keep "Savoir
+  plus". The second mockup repeats the slogan beside its picture.
+- The third mockup changed the sentences of three services (douane, routier, aérien). They were
   taken over, with "une acheminement" corrected to "un acheminement"; the current site's sentences are
   kept in a comment above them in `fr.ts`, should the client want them back.
-- The mockup's cards show "Transport multimodal" and no "Transit en douane". The cards are the tabs of
-  the five messages, so they carry the five real titles; multimodal transport is not a service of the
-  current site and was not added. The client was told; add it only if they confirm it and supply its text.
-- All visible French text lives in `src/i18n/fr.ts`; components contain no hard-coded copy.
+- An earlier mockup showed a "Transport multimodal" card. It is not a service of the current site and
+  was not added; the third mockup no longer shows it.
+- All visible French text lives in `src/i18n/fr.ts` (homepage and shared layout) and
+  `src/i18n/fr.pages.ts` (inner pages, reached as `t.pages`); components contain no hard-coded copy.
 - Company facts (phones, addresses, figures) come from the current site. Do not invent claims, numbers or services.
 - French typography: non-breaking space before `: ; ! ?` (` `), narrow one in thousands (` `).
 - Titles use normal French capitalisation ("Nos services"); the current site capitalises every word only through CSS.
@@ -237,10 +412,19 @@ their pause buttons.
 
 ## Placeholders to replace
 
-- **Logo**: `LogoSlot.astro` draws a stand-in mark. It is not the real logo; the client is still working
-  on the brand. Swap in the real files when they arrive (also `public/favicon.svg`).
-- **Photos**: the first screen uses the client's cut-out (`src/assets/photos/hero/transport.webp`) on a
-  generated sky. The second screen shows the client's film (see "Second screen"); it is not the picture
+- **Logo**: no longer a placeholder. `Logo.astro` shows the client's own logo (blue and orange, with
+  gradients; `src/assets/brand/logo-source.webp`, trimmed into `logo.png` by `scripts/make-logo.mjs`),
+  in the header, the mobile menu and the footer. The client asked for it to be used exactly as supplied:
+  do not redraw or recolour it. Its blue would not show on the footer's blue, so there it sits on a
+  white plate (`<Logo plate />`). It is sized by its height (`--logo-h`). In the header its box keeps
+  the width of the earlier stand-in, so that the menu stays where the first mockup puts it.
+  The favicon (`public/favicon.png`) is the logo's "A" on a white rounded square.
+- **Chevrons and slant**: the double chevron of the trails and of the testimonials' guillemet, and
+  `--slant`, came from the stand-in logo that was there before. They are not in the client's logo
+  (the chevron is still on the lorry's container in the pictures). They stay until the client says
+  otherwise; where the files say "the logo's chevron" or "the slant of the logo", read it that way.
+- **Photos**: the first screen uses the client's photograph of the port (see "Header and first screen");
+  the small pictures on its cards are cut out of the mockup. The second screen shows the client's film (see "Second screen"); it is not the picture
   of the mockup, which was never supplied as a file. The other photos are the current site's, to be
   replaced later.
   `photos/entreprise.jpg` (the previous picture of the second screen) and the old slider photos in
@@ -252,11 +436,15 @@ their pause buttons.
   `<Title>`, `<Marquee>`). A class passed to a child component is not matched by the parent's scoped styles.
 - Shared pieces are global classes in `src/styles/global.css`: `.btn` (`--accent`, `--outline`, `--soft`,
   `--sm`), `.eyebrow` (+ `--lines`: between two short lines), `.chip`, `.mark`, `.circle`, `.icon-tile`,
-  `.disc`, `.card` (+ `.card__link`), `.plate` and its parts (see "Plates"), `.glow`, `.reveal`,
-  `.section`, `.section-head` (+ `--center`), `.on-dark`, `.on-accent`, `.container`, `.container--wide`.
+  `.disc`, `.card` (+ `.card__link`), `.glow`, `.reveal`,
+  `.section`, `.section-head` (+ `--center`), `.on-dark`, `.on-accent`, `.container`, `.container--wide`;
+  for the inner pages `.wrap` (+ `.wrap__in`), `.page-body`, `.page-cols`, `.split`, `.lead`, `.prose`,
+  and the forms (`.form`, `.form__row`, `.field`, `.form__status`).
 - Icons: add the Phosphor SVG import (regular weight) to `src/components/icons.ts`, then `<Icon name="…" />`.
-  Two exceptions, both for the service plates: the `ghost-…` pictures (fill weight) and `customs-file`,
-  drawn by hand after the third mockup.
+  Two exceptions: `play-solid` (fill weight), and `customs-file`, drawn by hand after the third mockup
+  (the customs service's icon in the menus). These are the small icons of the interface; the four
+  large icons of the services and of the online services are another family, drawn for the site
+  (see "Third screen" and "Online services").
 - Photos go through `astro:assets` `<Image>`.
 - Slanted frames with rounded corners: `roundedShape()` in `src/components/shapes.ts` turns a list of
   corners and radii (in px of the mockup) into an SVG clip path.
@@ -272,8 +460,9 @@ their pause buttons.
 - To reveal a bar or line, animate `clip-path: inset(...)` or `opacity`, not `transform: scale(0)`: a zero
   scale left half-drawn lines in Chrome.
 - Before reshaping shared styles, take screenshots of the sections that use them and compare after,
-  pixel for pixel, with whatever moves by itself hidden (the trails): that is how the plates were moved
-  from `Services.astro` to `global.css` without changing a pixel.
+  pixel for pixel, with whatever moves by itself hidden (the trails).
+- `--motion` (set in `global.css`) is 1, or 0 for `prefers-reduced-motion`: multiply by it whatever
+  moves or grows when something is pointed at. Colours may still change.
 - A transformed element becomes the reference for the absolutely positioned elements inside it: do not
   put a transform on the title of a card whose link is stretched over the card (`.card__link`), put it
   on a `<span>` inside the link.
@@ -283,4 +472,5 @@ their pause buttons.
   column grows to `b` first: give it a smaller `b` where the `1fr` column needs the room.
 - Check layouts with viewport screenshots taken while scrolling. A "full page" capture resizes the page,
   which breaks the first screen and the scroll-tied fades.
-- Not-yet-built pages fall through to `src/pages/404.astro`, which is a "page en préparation" screen for now.
+- An address that leads to no page shows `src/pages/404.astro` ("page introuvable").
+- `getStaticPaths()` runs on its own: it sees the file's imports, not the constants written beside it.

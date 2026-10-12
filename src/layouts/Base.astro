@@ -4,7 +4,6 @@ import '@fontsource/la-belle-aurore/latin-400.css';
 import '../styles/global.css';
 import fontSans from '@fontsource-variable/dm-sans/files/dm-sans-latin-wght-normal.woff2?url';
 
-import TopBar from '../components/TopBar.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { site } from '../data/site';
@@ -45,7 +44,7 @@ const structuredData = {
 		<meta name="description" content={description} />
 		{noindex && <meta name="robots" content="noindex" />}
 		<link rel="canonical" href={canonical} />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" type="image/png" href="/favicon.png" />
 		<link rel="preload" href={fontSans} as="font" type="font/woff2" crossorigin />
 		{/* Colour of the browser bar on phones: the menu bar's colour (--c-surface in tokens.css). */}
 		<meta name="theme-color" content="#ffffff" />
@@ -61,7 +60,6 @@ const structuredData = {
 	</head>
 	<body>
 		<a class="skip-link" href="#contenu">{t.common.skip}</a>
-		<TopBar />
 		<Header />
 		<main id="contenu">
 			<slot />

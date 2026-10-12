@@ -1,0 +1,77 @@
+---
+// The form of one kind of quote (customs transit, international transport, national
+// transport), with the fields it has on the current site.
+//
+// The national transport page of the current site has a title and nothing under it. Here it
+// sends the visitor to the contact page, until the client says what it should hold.
+import Assurances from '../../../components/Assurances.astro';
+import Icon from '../../../components/Icon.astro';
+import PageHead from '../../../components/PageHead.astro';
+import RequestForm from '../../../components/RequestForm.astro';
+import ServiceAside from '../../../components/ServiceAside.astro';
+import Base from '../../../layouts/Base.astro';
+import { site } from '../../../data/site';
+import { route, useTranslations } from '../../../i18n';
+
+export function getStaticPaths() {
+	return useTranslations().pages.cotation.kinds.map((kind) => ({ params: { kind: kind.slug }, props: { slug: kind.slug } }));
+}
+
+interface Props {
+	slug: string;
+}
+
+const t = useTranslations();
+const { cotation, aside, ui } = t.pages;
+const kind = cotation.kinds.find((item) => item.slug === Astro.props.slug)!;
+const hasForm = kind.fields.length > 0;
+---
+
+<Base title={`${kind.name} | ${site.name}`} description={cotation.intro}>
+	<PageHead
+		title={kind.title}
+		trail={[{ label: ui.eservices }, { label: cotation.title.join(' '), href: route('cotation') }]}
+	/>
+
+	<section class="section page-body">
+		<div class="wrap">
+			{
+				hasForm ? (
+					<div class="wrap__in page-cols">
+						<RequestForm id={`cotation-${kind.slug}`} title={kind.formTitle} fields={kind.fields} submit={cotation.submit} />
+						<ServiceAside trades={false} documents={false} />
+					</div>
+				) : (
+					<div class="wrap__in empty">
+						<p class="lead">{aside.helpText}</p>
+						<div class="empty__actions">
+							<a class="btn btn--accent" href={route('contact')}>
+								{aside.contact}
+								<Icon name="arrow-right" size={14} />
+							</a>
+							<a class="btn btn--outline" href={site.phone.href}>
+								<Icon name="phone-call" size={18} />
+								{site.phone.short}
+							</a>
+						</div>
+					</div>
+				)
+			}
+		</div>
+	</section>
+
+	<Assurances />
+</Base>
+
+<style>
+	.empty {
+		display: grid;
+		gap: 1.75rem;
+	}
+
+	.empty__actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+	}
+</style>

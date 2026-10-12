@@ -9,15 +9,15 @@
 // CSS mask) and gives it its colours, so the drawing itself has none. If WIDTH or HEIGHT change
 // here, change them in the component too.
 //
-// It also writes chevron-pair-down.svg: one pair of the same chevrons pointing down, which the
-// fourth screen repeats down a rail (src/components/Why.astro).
+// It also writes chevron-guillemet.svg: one pair pointing left, cut close, which is the French
+// opening quotation mark of the fifth screen (src/components/Testimonials.astro).
 
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const out = fileURLToPath(new URL('../src/assets/decor/chevron-trail.svg', import.meta.url));
-const outPair = fileURLToPath(new URL('../src/assets/decor/chevron-pair-down.svg', import.meta.url));
+const outGuillemet = fileURLToPath(new URL('../src/assets/decor/chevron-guillemet.svg', import.meta.url));
 
 const WIDTH = 3840; // wider than any screen: the page shows the middle of it
 const RISE = 84; // how much higher the trail runs after the step
@@ -29,7 +29,9 @@ const RADIUS = 80; // rounding of the two bends: wide, so the step reads as one 
 const PAIR_EVERY = 40; // from one pair of chevrons to the next, along the trail
 const PAIR_GAP = 9; // between the two chevrons of a pair
 
-// The chevron of the logo (LogoSlot.astro), 13px tall, pointing right, centred on 0 0.
+// The chevron, 13px tall, pointing right, centred on 0 0. It was the mark of the stand-in logo
+// used before the client supplied theirs; the same double chevron is painted on the lorry's
+// container in the pictures of the first two screens.
 const CHEVRON = [
 	[-5.06, -6.5],
 	[-0.72, -6.5],
@@ -102,14 +104,14 @@ mkdirSync(dirname(out), { recursive: true });
 writeFileSync(out, svg);
 console.log(`${pairs} pairs of chevrons, ${WIDTH} x ${HEIGHT}, ${(svg.length / 1024).toFixed(1)} kB -> ${out}`);
 
-// The pair pointing down: a tile as tall as the distance between two pairs, so that repeating
-// it keeps the trail's rhythm. If its size changes, change it in Why.astro too.
-const TILE = { width: 14, height: PAIR_EVERY };
-const down = (y) => chevron({ x: TILE.width / 2, y, heading: Math.PI / 2 });
-const pair = down(TILE.height / 2 - PAIR_GAP / 2) + down(TILE.height / 2 + PAIR_GAP / 2);
+// The pair pointing left, in a box cut close to it: an opening guillemet. The box is as wide
+// as the two chevrons and the gap between them (19.12) and as tall as a chevron (13).
+const BOX = { width: Number((PAIR_GAP + 10.12).toFixed(2)), height: 13 };
+const left = (x) => chevron({ x, y: BOX.height / 2, heading: Math.PI });
+const guillemet = left(BOX.width / 2 - PAIR_GAP / 2) + left(BOX.width / 2 + PAIR_GAP / 2);
 writeFileSync(
-	outPair,
-	`<svg xmlns="http://www.w3.org/2000/svg" width="${TILE.width}" height="${TILE.height}" viewBox="0 0 ${TILE.width} ${TILE.height}"><path d="${pair}"/></svg>
+	outGuillemet,
+	`<svg xmlns="http://www.w3.org/2000/svg" width="${BOX.width}" height="${BOX.height}" viewBox="0 0 ${BOX.width} ${BOX.height}"><path d="${guillemet}"/></svg>
 `,
 );
-console.log(`pair pointing down, ${TILE.width} x ${TILE.height} -> ${outPair}`);
+console.log(`guillemet, ${BOX.width} x ${BOX.height} -> ${outGuillemet}`);

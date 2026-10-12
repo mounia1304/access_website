@@ -1,35 +1,64 @@
 ---
 // The "30 900 opérations" figure, which has its own block on the current site.
 // Here it is the one dark banner of the page.
+//
+// The client liked its animation (lanes that come in from the right, take a bend together and
+// leave at the bottom, a light running along each) and asked for the banner to be redesigned
+// with that animation kept, "just improved". So the lanes are the same, and:
+// - each light is no longer a plain dash but a light with a tail, which fades away behind it,
+//   and a soft halo round its head; three are in the logo's orange (the colour of the lights
+//   on the trails of chevrons) and two in the sky blue they all had;
+// - the lanes are larger, and are drawn one after the other as the banner enters the screen;
+// - the figure is set like the key figures of the fourth screen: bold numerals after a thin
+//   orange stroke on the slant of the site, over a print of themselves set a little off.
 import { useTranslations } from '../i18n';
 
 const t = useTranslations();
 const { bigNumber } = t;
 
-// Decoration on the right of the banner: five lanes that come in from the right, take a
-// bend together and leave at the bottom, each carrying one dash (same speed as the lights
-// of the chevron trail).
-const VIEW = { width: 520, height: 460 };
-const BEND = { x: 300, y: 300 };
-const DASH = 34;
-const SPEED = 100; // px per second
+// The lanes: five of them come in from the right, take a bend together and leave at the bottom.
+const VIEW = { width: 760, height: 420 };
+const BEND = { x: 330, y: 300 };
+const SPEED = 100; // units of the drawing per second, as on the trails of chevrons
+
+// A light is several dashes on the same lane, all ending at the same point (its head): the
+// longer the dash, the fainter, which makes a tail that fades away. Then a halo and the head.
+const LIGHT = [
+	{ kind: 'tail', dash: 190, opacity: 0.14 },
+	{ kind: 'tail', dash: 142, opacity: 0.18 },
+	{ kind: 'tail', dash: 100, opacity: 0.24 },
+	{ kind: 'tail', dash: 64, opacity: 0.32 },
+	{ kind: 'tail', dash: 34, opacity: 0.46 },
+	{ kind: 'halo', dash: 16, opacity: 0.2 },
+	{ kind: 'head', dash: 16, opacity: 1 },
+];
+// Where each light rests along its lane when nothing moves (less movement asked for).
+const RESTS = [0.46, 0.66, 0.3, 0.78, 0.55];
+
 const lanes = [0, 1, 2, 3, 4].map((index) => {
-	const radius = 60 + index * 34;
+	const radius = 64 + index * 38;
 	const length = VIEW.width - BEND.x + (Math.PI / 2) * radius + VIEW.height - BEND.y;
 	return {
 		path: `M${VIEW.width} ${BEND.y - radius}H${BEND.x}a${radius} ${radius} 0 0 0 ${-radius} ${radius}V${VIEW.height}`,
-		dash: `${DASH} ${(length - DASH).toFixed(1)}`,
-		style: `--lane-length: ${length.toFixed(1)}px; --lane-time: ${(length / SPEED).toFixed(2)}s; --lane-delay: ${(-index * 1.7).toFixed(1)}s`,
+		cool: index % 2 === 1,
+		style: `--i: ${index}; --lane-length: ${length.toFixed(1)}px; --lane-time: ${(length / SPEED).toFixed(2)}s; --lane-delay: ${(-index * 2.3).toFixed(1)}s; --rest: ${RESTS[index]}`,
+		light: LIGHT.map((part) => ({
+			kind: part.kind,
+			dash: `${part.dash} ${(length - part.dash).toFixed(1)}`,
+			style: `--dash: ${part.dash}px; --o: ${part.opacity}`,
+		})),
 	};
 });
 ---
 
 <section class="section bignum">
-	<div class="container">
+	<div class="bignum__wrap">
 		<div class="banner on-dark reveal">
 			<p class="banner__text">
-				<strong>{bigNumber.value}</strong>
-				<span>{bigNumber.label}</span>
+				<strong class="banner__figure">
+					<span class="banner__n">{bigNumber.value}</span>
+				</strong>
+				<span class="banner__label">{bigNumber.label}</span>
 			</p>
 			<svg
 				class="lanes"
@@ -41,10 +70,17 @@ const lanes = [0, 1, 2, 3, 4].map((index) => {
 			>
 				{
 					lanes.map((lane) => (
-						<>
-							<path class="lanes__line" d={lane.path} />
-							<path class="lanes__dash" d={lane.path} stroke-dasharray={lane.dash} style={lane.style} />
-						</>
+						<g class:list={['lanes__lane', { 'lanes__lane--cool': lane.cool }]} style={lane.style}>
+							<path class="lanes__line" d={lane.path} pathLength="1" />
+							{lane.light.map((part) => (
+								<path
+									class={`lanes__light lanes__light--${part.kind}`}
+									d={lane.path}
+									stroke-dasharray={part.dash}
+									style={part.style}
+								/>
+							))}
+						</g>
 					))
 				}
 			</svg>
@@ -53,7 +89,7 @@ const lanes = [0, 1, 2, 3, 4].map((index) => {
 </section>
 
 <script>
-	// The dashes only move while the banner is on screen.
+	// The lights only move while the banner is on screen.
 	const lanes = document.querySelectorAll<SVGElement>('[data-lanes]');
 	if (lanes.length && 'IntersectionObserver' in window) {
 		const observer = new IntersectionObserver((entries) => {
@@ -68,74 +104,158 @@ const lanes = [0, 1, 2, 3, 4].map((index) => {
 		padding-top: 0;
 	}
 
+	/* As wide as the screens above it, and measured the same way: 1cqw is a hundredth of the
+	   block's width (19.21px on a block 1921px wide). */
+	.bignum__wrap {
+		container-type: inline-size;
+		width: min(100%, 120.0625rem);
+		margin-inline: auto;
+	}
+
+	/* The banner names the stretch of scrolling during which it crosses the screen: its lanes
+	   are drawn along it (they are parts of a drawing, which cannot be timed on themselves). */
 	.banner {
 		position: relative;
 		display: flex;
 		align-items: center;
-		min-height: clamp(17rem, 12rem + 14vw, 23rem);
-		padding: clamp(1.75rem, 1rem + 4.5vw, 5rem);
+		min-height: clamp(15.5rem, 21.6cqw, 26rem);
+		margin-inline: var(--gutter);
+		padding: clamp(1.75rem, 4.6cqw, 5.5rem);
 		border-radius: var(--r-lg);
-		background: var(--c-dark);
+		background:
+			/* a glow in the hollow of the bend, where the lights turn */
+			radial-gradient(46% 84% at 82% 78%, var(--c-dark-glow), transparent),
+			var(--g-dark);
+		background-color: var(--c-dark);
 		overflow: hidden;
+		view-timeline: --banner block;
 	}
 
 	.banner__text {
 		position: relative;
 		z-index: 1;
 		display: grid;
-		gap: 1rem;
+		gap: clamp(0.875rem, 1.3cqw, 1.5625rem);
 	}
 
-	.banner__text strong {
-		font-size: var(--fs-display);
-		letter-spacing: -0.02em;
+	/* The figure, set like the key figures of the fourth screen (Why.astro): bold numerals
+	   after a thin stroke on the slant of the site. */
+	.banner__figure {
+		display: flex;
+		align-items: center;
+		font-size: clamp(3.5rem, 9cqw, 10.75rem);
+		font-weight: 700;
+		letter-spacing: -0.04em;
 		line-height: 1;
 		white-space: nowrap;
 	}
 
-	.banner__text span {
-		max-width: 22rem;
-		font-size: var(--fs-h3);
+	/* The stroke is turned, which does not move what is beside it: its margins make its room. */
+	.banner__figure::before {
+		content: '';
+		flex: none;
+		width: max(2px, 0.024em);
+		height: 0.86em;
+		margin-inline: 0.25em 0.36em;
+		border-radius: 2px;
+		background: var(--g-bar);
+		rotate: calc(var(--slant) * -1);
+	}
+
+	/* The numerals: white, a little bluer at their foot, over a blue print of themselves. */
+	.banner__n {
+		filter: drop-shadow(0.04em 0.04em 0 var(--c-dark-print));
+	}
+
+	@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+		.banner__n {
+			background: var(--g-dark-figure);
+			-webkit-background-clip: text;
+			background-clip: text;
+			color: transparent;
+		}
+	}
+
+	.banner__label {
+		max-width: 19em;
+		font-size: clamp(1.125rem, 1.4cqw, 1.6875rem);
 		line-height: 1.3;
 	}
+
+	/* ── The lanes ──────────────────────────────────────── */
 
 	/* Small screens: the lanes sit in the bottom right corner, behind the text. */
 	.lanes {
 		position: absolute;
-		right: -5rem;
-		bottom: -3rem;
+		right: -9rem;
+		bottom: -2.5rem;
 		width: auto;
 		max-width: none;
-		height: 85%;
-		opacity: 0.55;
+		height: 82%;
+		opacity: 0.5;
 	}
 
-	.lanes__line,
-	.lanes__dash {
-		stroke: var(--c-dark-lane);
-		stroke-width: 2.5;
+	/* A lane's light is orange, or sky blue on every other lane. */
+	.lanes__lane {
+		--light: var(--c-dark-light);
+		--light-head: var(--c-dark-light-head);
 	}
 
+	.lanes__lane--cool {
+		--light: var(--c-dark-lane);
+		--light-head: var(--c-on-accent);
+	}
+
+	/* The lane itself: one dash as long as the lane (pathLength="1"), so that it can be drawn. */
 	.lanes__line {
-		stroke-opacity: 0.4;
+		stroke: var(--c-dark-lane);
+		stroke-width: 2;
+		stroke-opacity: 0.3;
+		stroke-dasharray: 1;
 	}
 
-	.lanes__dash {
-		stroke-linecap: round;
+	/* A part of a light. At rest its head is --rest of the way along the lane; travelling, the
+	   head goes from one end of the lane to the other, whatever the length of the part. */
+	.lanes__light {
+		stroke: var(--light);
+		stroke-width: 2.5;
+		stroke-opacity: var(--o);
+		stroke-dashoffset: calc(var(--dash) - var(--lane-length) * var(--rest));
 		animation: lane-travel var(--lane-time) linear var(--lane-delay) infinite paused;
 	}
 
-	.lanes[data-live] .lanes__dash {
+	.lanes__light--halo {
+		stroke-width: 13;
+		stroke-linecap: round;
+	}
+
+	.lanes__light--head {
+		stroke: var(--light-head);
+		stroke-width: 3.5;
+		stroke-linecap: round;
+	}
+
+	.lanes[data-live] .lanes__light {
 		animation-play-state: running;
 	}
 
-	:global([data-motion='paused']) .lanes .lanes__dash {
+	:global([data-motion='paused']) .lanes .lanes__light {
 		animation-play-state: paused;
 	}
 
 	@keyframes lane-travel {
 		from {
-			stroke-dashoffset: var(--lane-length);
+			stroke-dashoffset: calc(var(--lane-length) + var(--dash));
+		}
+
+		to {
+			stroke-dashoffset: var(--dash);
+		}
+	}
+
+	@keyframes lane-draw {
+		from {
+			stroke-dashoffset: 1;
 		}
 
 		to {
@@ -143,8 +263,21 @@ const lanes = [0, 1, 2, 3, 4].map((index) => {
 		}
 	}
 
+	/* The lanes are drawn from the right, one after the other, as the banner enters the screen
+	   (tied to the scrolling; other browsers simply show them). */
+	@media (prefers-reduced-motion: no-preference) {
+		@supports (animation-timeline: view()) {
+			.lanes__line {
+				animation: lane-draw linear both;
+				animation-timeline: --banner;
+				animation-range: entry calc(var(--i) * 7%) cover calc(24% + var(--i) * 4%);
+			}
+		}
+	}
+
+	/* Less movement asked for: the lights stay where they rest. */
 	@media (prefers-reduced-motion: reduce) {
-		.lanes__dash {
+		.lanes__light {
 			animation: none;
 		}
 	}
@@ -156,6 +289,13 @@ const lanes = [0, 1, 2, 3, 4].map((index) => {
 			bottom: auto;
 			height: 100%;
 			opacity: 1;
+		}
+	}
+
+	/* ── Large screens: the banner is in line with the titles above it ── */
+	@media (min-width: 80em) {
+		.banner {
+			margin-inline: 6.25cqw 4.2cqw;
 		}
 	}
 </style>

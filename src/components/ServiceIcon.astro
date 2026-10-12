@@ -1,0 +1,80 @@
+---
+// One of the four service icons drawn for this site (serviceIcons.ts says how they are built):
+// a pale fill printed a little off its outline, the outline in the logo's blue, and a mark in
+// the logo's orange.
+//
+// Its size is --sicon (4rem unless the place that shows it says otherwise). It lies on white
+// cards; elsewhere, give --sicon-ground the colour behind it, which its cut-outs take.
+//
+// It can be set going by whatever holds it: while --on is 1 on an ancestor (the lanes of the
+// services do this when one is pointed at), the outline lifts a little further off its fill,
+// and the orange mark is wiped and drawn again, once.
+import { serviceIcons, type ServiceIconName } from './serviceIcons';
+
+interface Props {
+	name: ServiceIconName;
+	class?: string;
+}
+
+const { name, class: className } = Astro.props;
+const icon = serviceIcons[name];
+---
+
+<svg class:list={['sicon', className]} viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+	<g class="sicon__fill" set:html={icon.fill} />
+	<g class="sicon__lines" set:html={icon.lines} />
+	<g class="sicon__mark" set:html={icon.mark} />
+</svg>
+
+<style>
+	.sicon {
+		display: block;
+		flex: none;
+		width: var(--sicon, 4rem);
+		height: var(--sicon, 4rem);
+		overflow: visible;
+		fill: none;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+		stroke-width: 2;
+	}
+
+	/* The fill lies 3 units down and to the right of the outline; 1.5 more while the icon is on. */
+	.sicon__fill {
+		fill: var(--c-print);
+		translate: calc(3px + var(--on, 0) * var(--motion) * 1.5px) calc(3px + var(--on, 0) * var(--motion) * 1.5px);
+		transition: translate 0.55s var(--ease);
+	}
+
+	.sicon__lines {
+		stroke: var(--c-accent);
+	}
+
+	.sicon__mark {
+		stroke: var(--c-stroke);
+	}
+
+	.sicon :global(.k),
+	.sicon :global(.k0) {
+		fill: var(--sicon-ground, var(--c-card));
+	}
+
+	.sicon :global(.k0) {
+		stroke: none;
+	}
+
+	/* Each path of the mark is one dash as long as itself, followed by a gap as long. Sliding
+	   that pattern by two lengths wipes the path from its start, then draws it again from its
+	   start, and ends where it began: so the mark can be played from a variable. Going back
+	   to rest takes no time, and does not show, the two ends being the same picture. */
+	.sicon__mark :global(path) {
+		stroke-dasharray: 1px 1px;
+		stroke-dashoffset: calc(var(--on, 0) * var(--motion) * -2px);
+		transition: stroke-dashoffset calc(var(--on, 0) * 0.85s) var(--ease);
+	}
+
+	/* In the seal, the tick follows the ring. */
+	.sicon__mark :global(.late) {
+		transition-delay: calc(var(--on, 0) * 0.18s);
+	}
+</style>

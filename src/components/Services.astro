@@ -1,36 +1,82 @@
 ---
-// Third screen, built after the client's mockup (reference/maquette-troisieme-ecran.webp,
-// 1921 x 819): the label between two short lines, the two-line title, then the four services
-// as four plates in a row, each a little lower than the one before, each tilted and leaning
-// like a sheet dropped on a desk. Around them: pale round-ended bars and slabs on the slant of
-// the logo, and three thin strokes.
+// Third screen: the four services. Its first version followed the client's mockup
+// (reference/maquette-troisieme-ecran.webp: four tilted cards); the client then asked for a
+// design that looks made by an expert, and creative, as was done for the testimonials. The
+// label, the title and the pale shapes behind are still the mockup's. The idea of the rest
+// comes from the trade:
 //
-// After seeing it built, the client asked for two changes to the mockup: the plates must not
-// sit over one another, and none is larger than the others at rest. So the four are the same
-// size, with clear gaps, and the mockup's first plate (larger, with an indigo edge and a
-// tinted shadow) is what a plate becomes while it is pointed at, or reached with the keyboard.
+// - The four services are four lanes side by side, leaning like the panes of the first screen.
+// - One route runs through them, at the same height in each, so that it reads as a single
+//   line: it passes a checkpoint on a border in the first lane (customs), is a road in the
+//   second (a dashed centre line between two edges), takes off and lands in the third, and
+//   rides the waves in the fourth.
+// - Pointing at a lane sets its stretch of the route going (a light travels along it, as on
+//   the trails of chevrons), lifts the lane a little and lets a blue tide rise behind its text.
 //
-// Sizes are in hundredths of the block's width (cqw), so the row scales as a whole; text has
-// floors under which it stops shrinking, and the plates grow taller together when it wraps.
-// Under 75em they no longer fit side by side: two per row, then one, tilted less, and the
-// background shapes give way to the usual glow.
+// All four lanes are the same size at rest and never touch: the client asked for that, and
+// for the one that is pointed at to be the only one that looks larger.
+//
+// THE ICONS are drawn for this site (ServiceIcon.astro, serviceIcons.ts): the client found the
+// glass tiles used before them "generated", and asked for icons a designer would draw. They
+// are set going with the lane (--on): their orange mark is drawn again.
 import Icon from './Icon.astro';
+import ServiceIcon from './ServiceIcon.astro';
 import Title from './Title.astro';
-import type { IconName } from './icons';
 import { route, useTranslations } from '../i18n';
 
 const t = useTranslations();
 const { services } = t;
 
-// The pale picture in the corner of each plate.
-const GHOSTS: Record<string, IconName> = {
-	douane: 'ghost-pen',
-	routier: 'ghost-truck',
-	aerien: 'ghost-plane',
-	maritime: 'ghost-boat',
+// Each lane's stretch of the route, drawn in a box of 420 by 96. The route comes in and goes
+// out at the same height (LEVEL) in every lane, and is drawn well beyond the box on both sides,
+// so that it reaches the lane's edges whatever its width.
+//   line:  the route itself;
+//   light: the same shape, only just wider than the lane: the light that travels along it;
+//   more:  what is drawn around it (the rest of the checkpoint and its border, the road's
+//          edges, the ground under the flight, a second wave), with the kind of line.
+const LEVEL = 40;
+const through = (shape: string) => ({
+	line: `M-700 ${LEVEL}${shape}H1120`,
+	light: `M-40 ${LEVEL}${shape}H460`,
+});
+const ROUTES: Record<string, { line: string; light: string; dashed?: boolean; more: { d: string; kind: 'solid' | 'faint' | 'dotted' | 'dot' }[] }> = {
+	// Customs: the route passes a checkpoint (a ring round a point) on a border, which is the
+	// dotted line that crosses it. (The seal with its tick is in the lane's icon.)
+	douane: {
+		...through('H192a18 18 0 0 1 36 0'),
+		more: [
+			{ d: `M192 ${LEVEL}a18 18 0 0 0 36 0`, kind: 'solid' },
+			{ d: `M210 ${LEVEL}h0`, kind: 'dot' },
+			{ d: `M210 ${LEVEL - 25}V0M210 ${LEVEL + 25}V96`, kind: 'dotted' },
+		],
+	},
+	// Road: the route is the dashed centre line, between the road's two edges.
+	routier: {
+		...through(''),
+		dashed: true,
+		more: [
+			{ d: `M-700 ${LEVEL - 15}H1120`, kind: 'faint' },
+			{ d: `M-700 ${LEVEL + 15}H1120`, kind: 'faint' },
+		],
+	},
+	// Air: the route leaves the ground, flies level and lands; the ground is dotted under it.
+	aerien: {
+		...through(`H92C150 ${LEVEL} 150 8 210 8S270 ${LEVEL} 328 ${LEVEL}`),
+		more: [{ d: `M100 ${LEVEL}H320`, kind: 'dotted' }],
+	},
+	// Sea: the route rides six waves; a second, fainter swell follows under it.
+	maritime: {
+		...through('H75q22.5-17 45 0t45 0 45 0 45 0 45 0 45 0'),
+		more: [{ d: `M97.5 ${LEVEL + 13}q22.5-13 45 0t45 0 45 0 45 0 45 0`, kind: 'faint' }],
+	},
 };
 
-const items = services.items.map((item, index) => ({ ...item, ghost: GHOSTS[item.key], step: index }));
+const items = services.items.map((item, index) => ({
+	...item,
+	index,
+	number: String(index + 1).padStart(2, '0'),
+	path: ROUTES[item.key],
+}));
 ---
 
 <section class="section services glow" id="services">
@@ -47,11 +93,6 @@ const items = services.items.map((item, index) => ({ ...item, ghost: GHOSTS[item
 					<stop offset="0" stop-opacity="0.6"></stop>
 					<stop offset="1" stop-opacity="0"></stop>
 				</linearGradient>
-				<linearGradient id="services-slab" gradientUnits="userSpaceOnUse" x1="-450" y1="0" x2="320" y2="0">
-					<stop offset="0" stop-opacity="0"></stop>
-					<stop offset="0.55" stop-opacity="0.6"></stop>
-					<stop offset="1"></stop>
-				</linearGradient>
 				<linearGradient id="services-bar-right" gradientUnits="userSpaceOnUse" x1="1742" y1="246" x2="2066" y2="-210">
 					<stop class="services__soft" offset="0" stop-opacity="0.95"></stop>
 					<stop class="services__soft" offset="0.5" stop-opacity="0.7"></stop>
@@ -66,17 +107,16 @@ const items = services.items.map((item, index) => ({ ...item, ghost: GHOSTS[item
 					<stop class="services__soft" offset="1" stop-opacity="0"></stop>
 				</linearGradient>
 			</defs>
-			<!-- Left: a round-ended bar, a wider and fainter one beside it, a slab under the row. -->
+			<!-- Left: a round-ended bar, a wider and fainter one beside it. -->
 			<line x1="159" y1="332" x2="-246" y2="903" stroke="url(#services-band-left)" stroke-width="110"></line>
 			<line x1="170" y1="144.5" x2="-351" y2="878" stroke="url(#services-bar-left)" stroke-width="89" stroke-linecap="round"
 			></line>
-			<path d="M-500 792L105 590L352 560V662L303 733Q296 743 284 745L-500 884Z" fill="url(#services-slab)"></path>
 			<!-- Right: a wide bar coming down from the corner, a shape rising towards the edge. -->
 			<line x1="1742" y1="246" x2="2066" y2="-210" stroke="url(#services-bar-right)" stroke-width="166" stroke-linecap="round"
 			></line>
 			<path d="M1350 950C1560 845 1780 735 1921 668L2700 300V1020H1350Z" fill="url(#services-wave)"></path>
-			<!-- Two thin strokes, on the same slant (a third one hangs under the row: .services__row::after). -->
-			<path class="services__strokes" d="M320 168L252 253M1893 453L1839 523"></path>
+			<!-- A thin stroke, on the same slant. -->
+			<path class="services__strokes" d="M320 168L252 253"></path>
 		</svg>
 
 		<header class="services__head">
@@ -84,28 +124,36 @@ const items = services.items.map((item, index) => ({ ...item, ghost: GHOSTS[item
 			<Title parts={services.title} stack />
 		</header>
 
-		<ul class="services__row">
+		<ul class="services__lanes">
 			{
 				items.map((item) => (
-					<li class="service plate reveal" style={`--step: ${item.step}`}>
-						<div class="service__plate plate__body">
-							<span class="service__sheet plate__sheet" aria-hidden="true">
-								<span class="service__edge plate__edge" />
-								<span class="service__window plate__window">
-									{item.ghost === 'ghost-boat' && <Icon name="waves" class="service__waves" />}
-									<Icon name={item.ghost} class="service__ghost" />
-								</span>
+					<li class="lane reveal" style={`--i: ${item.index}`}>
+						<div class="lane__top">
+							<ServiceIcon name={item.key} class="lane__icon" />
+							<span class="lane__number lane__upright" aria-hidden="true">
+								{item.number}
 							</span>
-							<span class="service__tile plate__tile">
-								<Icon name={item.icon} />
-							</span>
+						</div>
+
+						{/* This lane's stretch of the route. */}
+						<svg class="lane__route" viewBox="0 0 420 96" aria-hidden="true" focusable="false">
+							{item.path.more.map((part) => (
+								<path class={`lane__route-more lane__route-more--${part.kind}`} d={part.d} />
+							))}
+							<path class:list={['lane__route-line', { 'lane__route-line--dashed': item.path.dashed }]} d={item.path.line} />
+							<path class="lane__route-light" d={item.path.light} pathLength="100" />
+						</svg>
+
+						<span class="lane__tide" aria-hidden="true" />
+
+						<div class="lane__body">
 							<h3>
 								<a class="card__link" href={route(item.key)}>
-									<span class="service__upright plate__upright">{item.name}</span>
+									<span class="lane__upright">{item.name}</span>
 								</a>
 							</h3>
-							<p class="plate__upright">{item.text}</p>
-							<span class="service__more plate__upright" aria-hidden="true">
+							<p class="lane__upright">{item.text}</p>
+							<span class="lane__more lane__upright" aria-hidden="true">
 								{t.common.learnMore}
 								<span class="disc">
 									<Icon name="arrow-right" />
@@ -121,13 +169,12 @@ const items = services.items.map((item, index) => ({ ...item, ghost: GHOSTS[item
 
 <style>
 	/*
-	 * Measures come from the mockup (1921 x 819) and are given in hundredths of the width of the
-	 * block (cqw): 1cqw is 19.21px there. The mockup starts 66px above the label; the block gets
-	 * a little more room at the top, for the trail of chevrons that runs above it.
+	 * Sizes are in hundredths of the block's width (cqw): 1cqw is 19.21px on a block 1921px wide
+	 * (the width of the mockup the label, the title and the background shapes come from).
 	 */
 	.services {
 		--glow-top: 3rem;
-		padding-block: clamp(4.5rem, 5.73vw, 6.875rem) clamp(5.5rem, 8.2vw, 9.5rem);
+		padding-block: clamp(4.5rem, 5.73vw, 6.875rem) clamp(5rem, 6.8vw, 8.25rem);
 	}
 
 	.services__wrap {
@@ -160,7 +207,7 @@ const items = services.items.map((item, index) => ({ ...item, ghost: GHOSTS[item
 
 	.services__strokes {
 		fill: none;
-		stroke: var(--c-label-soft);
+		stroke: var(--c-stroke);
 		stroke-linecap: round;
 		stroke-width: 1.6;
 	}
@@ -181,123 +228,268 @@ const items = services.items.map((item, index) => ({ ...item, ghost: GHOSTS[item
 		line-height: 1.02;
 	}
 
-	/* ── The plates ─────────────────────────────────────── */
-
-	/* The plates themselves (sheet, edge, corner band, icon tile, the way one lifts when it is
-	   pointed at) are the shared .plate of global.css. What follows is their row, what they
-	   carry here, and their sizes. */
-	.services__row {
+	/* ── The lanes ──────────────────────────────────────── */
+	.services__lanes {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr);
-		gap: 1.75rem 1.5rem;
+		gap: 1rem;
 		margin-top: 2.25rem;
-		padding-inline: calc(var(--gutter) + 0.5rem);
+		padding-inline: var(--gutter);
 	}
 
-	.service__plate {
-		min-height: 15.5rem;
+	/* A lane is a white sheet in three parts, one above the other: the icon and the number, the
+	   route, the text. From 75em up it leans (--skew); what it carries is then stood upright
+	   again (.lane__upright), so that only its position follows the lean.
+	   --on is 1 while the lane is pointed at, or its link has the keyboard's focus: everything
+	   that changes then is written from it, and eases with the same curve. */
+	.lane {
+		--on: 0;
+		--skew: 0deg;
+		--pad: 1.5rem;
+		--tile: 3.375rem;
+		--band: 5.25rem; /* height of the route's part */
+		--tide: calc(var(--band) * 0.26); /* how far the tide rises into it: it stays clear of the route */
+		--time: 0.55s;
+		position: relative;
+		z-index: calc(var(--on) * 2);
+		isolation: isolate;
+		display: grid;
+		grid-template-rows: auto var(--band) 1fr;
+		border: 1px solid color-mix(in srgb, transparent calc(var(--on) * 100%), var(--c-card-line));
+		border-radius: 1.5rem;
+		background: var(--c-card);
+		box-shadow:
+			0 1.4rem 2.6rem color-mix(in srgb, var(--c-accent) calc(var(--on) * 20%), transparent),
+			var(--shadow-soft);
+		overflow: hidden;
+		transform: skewX(var(--skew));
+		scale: calc(1 + var(--on) * var(--motion) * 0.025);
+		translate: 0 calc(var(--on) * var(--motion) * -0.5rem);
+		transition:
+			scale var(--time) var(--ease),
+			translate var(--time) var(--ease),
+			box-shadow var(--time),
+			border-color var(--time),
+			z-index 0s linear calc((1 - var(--on)) * var(--time));
 	}
 
-	/* The link in the title covers the whole plate, above its texts. */
-	.service .card__link::after {
-		z-index: 1;
-		border-radius: var(--radius);
-	}
-
-	.service__plate:has(:global(.card__link:focus-visible)) .service__sheet::after {
+	.lane:has(:global(.card__link:focus-visible)) {
+		--on: 1;
 		outline: 2px solid var(--c-accent);
 		outline-offset: 3px;
 	}
 
-	.service h3 .service__upright {
-		display: inline-block;
-	}
-
-	/* The pictures on the corner bands. */
-	.service__window :global(.service__ghost) {
-		right: -2%;
-		bottom: 4%;
-		width: 56%;
-	}
-
-	/* The pen runs along the band, its tip towards the title. */
-	.service:nth-child(1) .service__window :global(.service__ghost) {
-		right: -6%;
-		bottom: 0;
-		width: 60%;
-		opacity: 0.5;
-	}
-
-	/* The lorry faces the text. */
-	.service:nth-child(2) .service__window :global(.service__ghost) {
-		right: -10%;
-		bottom: 6%;
-		width: 54%;
-		opacity: 0.5;
-		transform: scaleX(-1);
-	}
-
-	.service:nth-child(3) .service__window :global(.service__ghost) {
-		right: 8%;
-		bottom: -4%;
-		width: 52%;
-		opacity: 0.5;
-	}
-
-	.service:nth-child(4) .service__window :global(.service__ghost) {
-		right: 6%;
-		bottom: 18%;
-		width: 42%;
-		opacity: 0.85;
-	}
-
-	.service__window :global(.service__waves) {
-		right: 14%;
-		bottom: -4%;
-		width: 60%;
-		opacity: 0.4;
-	}
-
-	/* "Savoir plus" and its arrow, at the foot of the plate. */
-	.service__more {
-		display: inline-flex;
-		align-items: center;
-		gap: clamp(0.75rem, 0.94cqw, 1.125rem);
-		margin-top: auto;
-		padding-top: clamp(1rem, 0.94cqw, 1.125rem);
-		color: var(--c-label);
-		font-size: clamp(0.875rem, 0.812cqw, 0.975rem);
-		font-weight: 500;
-		line-height: 1.25rem;
-	}
-
-	/* On a lifted plate the disc takes the accent's colour and its arrow moves on. */
-	.service__more .disc {
-		width: clamp(2rem, 2.08cqw, 2.5rem);
-		height: clamp(2rem, 2.08cqw, 2.5rem);
-		background: color-mix(in srgb, var(--c-accent) calc(var(--on) * 100%), var(--c-tile));
-		color: color-mix(in srgb, var(--c-on-accent) calc(var(--on) * 100%), var(--c-accent));
-		transition:
-			background-color var(--lift-time) var(--ease),
-			color var(--lift-time) var(--ease);
-	}
-
-	.service__more .disc :global(.icon) {
-		width: 42%;
-		height: auto;
-		translate: calc(var(--lift) * var(--motion) * 0.125rem) 0;
-		transition: translate var(--lift-time) var(--ease);
-	}
-
-	@media (min-width: 48em) {
-		.services__row {
-			grid-template-columns: repeat(2, minmax(0, 1fr));
-			column-gap: 2rem;
+	@media (hover: hover) {
+		.lane:hover {
+			--on: 1;
 		}
 	}
 
-	/* ── Large screens: four in a row, as on the mockup ─── */
-	@media (min-width: 75em) {
+	.lane__upright,
+	.lane :global(.lane__icon) {
+		transform: skewX(calc(-1 * var(--skew)));
+	}
+
+	/* ── Its top: the icon, and the lane's number ───────── */
+	.lane__top {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		padding: var(--pad) var(--pad) 0;
+	}
+
+	/* The icon leaves a clear margin round its drawing (6 of its 64 units, and more under it):
+	   it is pulled back by about as much, so that the drawing lines up with the text under it. */
+	.lane :global(.lane__icon) {
+		--sicon: min(calc(var(--tile) * 1.6), 6.5rem);
+		margin: calc(var(--sicon) * -0.06) 0 calc(var(--sicon) * -0.08) calc(var(--sicon) * -0.08);
+		pointer-events: none;
+	}
+
+	/* The number, drawn in outline: pale at rest, orange once the lane is on. */
+	.lane__number {
+		color: var(--c-ghost);
+		font-size: clamp(2.75rem, 3.9cqw, 4.6875rem);
+		font-weight: 800;
+		letter-spacing: -0.04em;
+		line-height: 0.82;
+		transition:
+			color var(--time),
+			-webkit-text-stroke-color var(--time);
+	}
+
+	@supports (-webkit-text-stroke: 1px black) {
+		.lane__number {
+			color: transparent;
+			-webkit-text-stroke: 1.5px color-mix(in srgb, var(--c-stroke) calc(var(--on) * 100%), var(--c-tile-strong));
+		}
+	}
+
+	/* ── Its stretch of the route ───────────────────────── */
+
+	/* The drawing keeps its proportions; what is drawn beyond its box shows up to the lane's
+	   edges (the lane cuts it there). */
+	.lane__route {
+		display: block;
+		width: 100%;
+		height: var(--band);
+		overflow: visible;
+		fill: none;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+		pointer-events: none;
+	}
+
+	.lane__route :global(path) {
+		vector-effect: non-scaling-stroke;
+	}
+
+	.lane__route-line,
+	.lane__route-more {
+		stroke: color-mix(in srgb, var(--c-accent-bright) calc(var(--on) * 55%), var(--c-tile-strong));
+		stroke-width: 2;
+		transition: stroke var(--time);
+	}
+
+	.lane__route-line--dashed {
+		stroke-dasharray: 13 11;
+	}
+
+	.lane__route-more--faint {
+		stroke-width: 1.5;
+		opacity: 0.6;
+	}
+
+	.lane__route-more--dotted {
+		stroke-dasharray: 1 7;
+		opacity: 0.8;
+	}
+
+	/* A point: a line with no length and round ends. */
+	.lane__route-more--dot {
+		stroke-width: 7;
+	}
+
+	/* The light: a short orange dash that travels along the route while the lane is on. The
+	   path is 100 long whatever its shape, so the dash and its speed are the same in every lane. */
+	@keyframes lane-light {
+		from {
+			stroke-dashoffset: 100;
+		}
+
+		to {
+			stroke-dashoffset: 0;
+		}
+	}
+
+	.lane__route-light {
+		stroke: var(--c-trail-light);
+		stroke-width: 3;
+		stroke-dasharray: 15 85;
+		opacity: var(--on);
+		transition: opacity 0.3s;
+		animation: lane-light 2.8s linear infinite paused;
+	}
+
+	.lane:has(:global(.card__link:focus-visible)) .lane__route-light {
+		animation-play-state: running;
+	}
+
+	@media (hover: hover) {
+		.lane:hover .lane__route-light {
+			animation-play-state: running;
+		}
+	}
+
+	/* ── The tide, and the text it rises behind ─────────── */
+
+	/* A blue fill that shares the text's part and reaches a little into the route's. It is
+	   cut to nothing along the lane's foot; when the lane is on, the cut rises to a slanted line. */
+	.lane__tide {
+		grid-area: 3 / 1;
+		z-index: 0;
+		margin-top: calc(-1 * var(--tide));
+		background: var(--c-accent) var(--g-accent-deep);
+		clip-path: polygon(
+			0 calc(100% - var(--on) * (100% - var(--tide) * 0.62)),
+			100% calc(100% - var(--on) * 100%),
+			100% 100%,
+			0 100%
+		);
+		transition: clip-path var(--time) var(--ease);
+	}
+
+	.lane__body {
+		grid-area: 3 / 1;
+		z-index: 1;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		padding: 0.5rem var(--pad) var(--pad);
+	}
+
+	.lane h3 {
+		color: color-mix(in srgb, var(--c-on-accent) calc(var(--on) * 100%), var(--c-ink));
+		font-size: clamp(1.3125rem, 1.46cqw, 1.75rem);
+		font-weight: 700;
+		letter-spacing: -0.015em;
+		line-height: 1.2;
+		transition: color calc(var(--time) * 0.7);
+	}
+
+	.lane h3 .lane__upright {
+		display: inline-block;
+	}
+
+	/* The link in the title covers the whole lane, above its texts. */
+	.lane :global(.card__link)::after {
+		z-index: 2;
+	}
+
+	.lane p {
+		margin-top: 0.6rem;
+		color: color-mix(in srgb, var(--c-on-accent-soft) calc(var(--on) * 100%), var(--c-text));
+		font-size: clamp(0.9375rem, 0.83cqw, 1rem);
+		line-height: 1.6;
+		transition: color calc(var(--time) * 0.7);
+	}
+
+	/* "Savoir plus" and its arrow, at the foot of the lane. */
+	.lane__more {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.8rem;
+		margin-top: auto;
+		padding-top: 1.25rem;
+		color: color-mix(in srgb, var(--c-on-accent) calc(var(--on) * 100%), var(--c-label));
+		font-size: 0.9375rem;
+		font-weight: 600;
+		line-height: 1.25rem;
+		transition: color calc(var(--time) * 0.7);
+	}
+
+	.lane__more .disc {
+		width: 2.375rem;
+		height: 2.375rem;
+		background: color-mix(in srgb, var(--c-surface) calc(var(--on) * 100%), var(--c-tile));
+		transition: background-color calc(var(--time) * 0.7);
+	}
+
+	.lane__more .disc :global(.icon) {
+		width: 42%;
+		height: auto;
+		translate: calc(var(--on) * var(--motion) * 0.1875rem) 0;
+		transition: translate var(--time) var(--ease);
+	}
+
+	@media (min-width: 40em) {
+		.services__lanes {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	/* ── Large screens: four leaning lanes in a row ─────── */
+	@media (min-width: 80em) {
 		/* The background shapes take the place of the glow. */
 		.services::before {
 			content: none;
@@ -307,47 +499,58 @@ const items = services.items.map((item, index) => ({ ...item, ghost: GHOSTS[item
 			display: block;
 		}
 
-		/* Four equal plates with clear gaps between them; each sits one step lower than the one
-		   before (the room for the last step is kept under the row). A lifted plate grows by
-		   less than half a gap on each side, so it never reaches its neighbours. */
-		.services__row {
-			--drop: clamp(0.5rem, 0.85cqw, 1rem);
-			position: relative;
+		/* The gaps are wider than what a lifted lane gains on each side, so it never reaches its
+		   neighbours. The row keeps room on both sides for the lean of its first and last lanes. */
+		.services__lanes {
 			grid-template-columns: repeat(4, minmax(0, 1fr));
-			gap: clamp(1.5rem, 2.2cqw, 2.75rem);
-			margin-top: clamp(2rem, 2.28cqw, 2.74rem);
-			padding: 0 5.2cqw calc(var(--drop) * 3);
+			gap: clamp(0.875rem, 1.05cqw, 1.25rem);
+			margin-top: clamp(2.25rem, 2.9cqw, 3.5rem);
+			padding-inline: 6cqw;
 		}
 
-		.service {
-			--tilt-by: 1;
-			--lean-by: 1;
-			--grow: 0.07;
-			--rise: 0.5rem;
-			--pad: clamp(1.15rem, 1.614cqw, 1.9375rem);
-			--radius: clamp(1.25rem, 1.46cqw, 1.75rem);
-			--tile: clamp(3.25rem, 4.27cqw, 5.125rem);
-			--title: clamp(1.25rem, 1.364cqw, 1.6375rem);
-			--text: clamp(0.9375rem, 0.807cqw, 0.96875rem);
-			translate: 0 calc(var(--drop) * var(--step));
+		.lane h3 {
+			font-size: clamp(1.1875rem, 1.46cqw, 1.75rem);
 		}
 
-		.service__plate {
-			min-height: 0;
+		.lane {
+			--skew: -7deg;
+			--pad: clamp(1.25rem, 1.82cqw, 2.1875rem);
+			--tile: clamp(3.25rem, 4.1cqw, 4.9375rem);
+			--band: clamp(4.5rem, 5cqw, 6rem);
+			border-radius: clamp(1.25rem, 1.46cqw, 1.75rem);
 		}
 
-		/* A thin stroke under the last plate's corner, on the slant of the logo. */
-		.services__row::after {
-			content: '';
-			position: absolute;
-			top: calc(100% + 1.1cqw);
-			left: 74.2%;
-			width: 1.6px;
-			height: clamp(1.75rem, 2.4cqw, 2.875rem);
-			border-radius: 2px;
-			background: var(--c-label-soft);
-			transform: rotate(calc(-1 * var(--slant)));
-			pointer-events: none;
+		/* Room on the sides for the lean: what stands upright is narrower than the leaning lane. */
+		.lane__top,
+		.lane__body {
+			padding-inline: calc(var(--pad) + 0.6rem);
+		}
+	}
+
+	/* The lanes arrive one after the other as the row enters the screen (tied to the scrolling,
+	   like .reveal, whose own rise would undo their lean on the way). */
+	@keyframes lane-arrive {
+		from {
+			opacity: 0;
+			transform: translateY(3rem) skewX(var(--skew));
+		}
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		@supports (animation-timeline: view()) {
+			.lane {
+				animation-name: lane-arrive;
+				animation-range: entry 0% cover calc(20% + var(--i) * 5%);
+			}
+		}
+	}
+
+	/* Visitors who asked their system for less movement: colours still change, but no light
+	   travels and nothing rises or grows (the lift is already switched off by --motion). */
+	@media (prefers-reduced-motion: reduce) {
+		.lane__route-light {
+			animation: none;
+			opacity: 0;
 		}
 	}
 </style>

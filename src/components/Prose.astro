@@ -1,0 +1,38 @@
+---
+// Running text from the texts file: paragraphs, lists, and lists whose items start with a term
+// (the .prose class in global.css sets them).
+import type { Block } from '../i18n/fr.pages';
+
+interface Props {
+	blocks: readonly Block[];
+	class?: string;
+}
+
+const { blocks, class: className } = Astro.props;
+---
+
+<div class:list={['prose', className]}>
+	{
+		blocks.map((block) =>
+			'p' in block ? (
+				<p>{block.p}</p>
+			) : 'list' in block ? (
+				<ul>
+					{block.list.map((item) => (
+						<li>{item}</li>
+					))}
+				</ul>
+			) : (
+				<dl>
+					{block.terms.map((item) => (
+						<div>
+							<dt>{item.term}</dt>
+							<dd>{item.text}</dd>
+						</div>
+					))}
+				</dl>
+			),
+		)
+	}
+	<slot />
+</div>

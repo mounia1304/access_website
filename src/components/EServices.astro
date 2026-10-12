@@ -1,106 +1,179 @@
 ---
-import Icon from './Icon.astro';
+// The three online services. This block has no mockup; it was three cards in a row, each with
+// an icon in a tile. The client asked for it to be redesigned like the screens above it.
+//
+// The idea: these are not things to read but things to press, so they are the site's own
+// buttons (pills), made very large (PillLink.astro). The three step down the block on the slant
+// of the site, as the round-ended bars of the second screen do.
+// - The quote request, the main action, is full (blue) from the start.
+// - The other two are pale: pointing at one fills it from its knob to its end, as a bar that
+//   loads, and its icon's orange mark is drawn again.
+//
+// The icons are drawn for the site, in the family of the four service icons (serviceIcons.ts).
+import PillLink from './PillLink.astro';
 import Title from './Title.astro';
 import { route, useTranslations } from '../i18n';
 
 const t = useTranslations();
 const { eservices } = t;
-// The quote request (first item) is the main action: it gets the accent-coloured tile.
 ---
 
 <section class="section eservices glow" id="e-services">
-	<div class="container">
-		<header class="section-head section-head--center">
-			<p class="eyebrow">{eservices.eyebrow}</p>
-			<Title parts={eservices.title} />
-		</header>
+	<div class="eservices__wrap">
+		<!-- Background shapes on the slant of the other screens, drawn for a block 1921px wide. -->
+		<svg class="eservices__decor" viewBox="0 0 1921 460" aria-hidden="true" focusable="false">
+			<defs>
+				<linearGradient id="eservices-bar" gradientUnits="userSpaceOnUse" x1="455" y1="236" x2="250" y2="525">
+					<stop offset="0"></stop>
+					<stop offset="0.4" stop-opacity="0.75"></stop>
+					<stop offset="1" stop-opacity="0"></stop>
+				</linearGradient>
+			</defs>
+			<!-- A round-ended bar under the title, and a thin stroke. -->
+			<line x1="455" y1="236" x2="250" y2="525" stroke="url(#eservices-bar)" stroke-width="104" stroke-linecap="round"></line>
+			<path class="eservices__strokes" d="M566 204L504 291"></path>
+		</svg>
 
-		<ul class="eservices__grid">
-			{
-				eservices.items.map((item, index) => (
-					<li class:list={['card', 'etile', 'reveal', { 'etile--main': index === 0 }]}>
-						<span class="icon-tile">
-							<Icon name={item.icon} size={28} />
-						</span>
-						<span class="disc" aria-hidden="true">
-							<Icon name="arrow-right" size={14} />
-						</span>
-						<h3>
-							<a class="card__link" href={route(item.key)}>
-								{item.name}
-							</a>
-						</h3>
-					</li>
-				))
-			}
-		</ul>
+		<div class="eservices__grid">
+			<header class="eservices__head">
+				<p class="eyebrow eyebrow--lines">{eservices.eyebrow}</p>
+				<Title parts={eservices.title} />
+			</header>
+
+			{/* The quote request (first item) is the main action. */}
+			<ul class="eservices__list" style={`--n: ${eservices.items.length}`}>
+				{
+					eservices.items.map((item, index) => (
+						<PillLink href={route(item.key)} name={item.name} icon={item.key} main={index === 0} index={index} />
+					))
+				}
+			</ul>
+		</div>
 	</div>
 </section>
 
 <style>
+	/*
+	 * Sizes are in hundredths of the block's width (cqw), like the screens above:
+	 * 1cqw is 19.21px on a block 1921px wide.
+	 */
 	.eservices {
 		--glow-top: 2rem;
 	}
 
+	.eservices__wrap {
+		position: relative;
+		container-type: inline-size;
+		width: min(100%, 120.0625rem);
+		margin-inline: auto;
+	}
+
+	/* ── Background shapes ──────────────────────────────── */
+	.eservices__decor {
+		display: none;
+		position: absolute;
+		top: 0;
+		left: 0;
+		z-index: -1;
+		width: 100%;
+		height: auto;
+		overflow: visible;
+		pointer-events: none;
+	}
+
+	.eservices__decor stop {
+		stop-color: var(--c-shape);
+	}
+
+	.eservices__strokes {
+		fill: none;
+		stroke: var(--c-stroke);
+		stroke-linecap: round;
+		stroke-width: 1.6;
+	}
+
+	/* ── Label and title ────────────────────────────────── */
 	.eservices__grid {
 		display: grid;
-		gap: 0.9375rem;
+		grid-template-columns: minmax(0, 1fr);
+		gap: 2rem;
+		padding-inline: var(--gutter);
 	}
 
-	/* Icon tile top left, arrow top right, title along the bottom. */
-	.etile {
+	.eservices__head {
 		display: grid;
-		grid-template-columns: minmax(0, 1fr) auto;
-		grid-template-rows: auto 1fr;
-		gap: 1.75rem 1rem;
-		align-items: start;
-		min-height: 11rem;
-		padding: 1.75rem;
+		justify-items: start;
+		gap: clamp(0.75rem, 0.83cqw, 1rem);
 	}
 
-	.etile h3 {
-		grid-column: 1 / -1;
-		align-self: end;
+	.eservices__head :global(h2) {
+		font-size: clamp(2.25rem, 3.4cqw, 4.125rem);
+		font-weight: 700;
+		letter-spacing: -0.035em;
+		line-height: 1.04;
 	}
 
-	.etile.etile--main {
-		border-color: transparent;
-		background: var(--c-accent);
-		transition: background-color 0.15s ease-in-out;
+	/* ── The three pills ────────────────────────────────── */
+
+	/* The list sets the measures of its pills (PillLink.astro): --h is their height, --step how
+	   far each one is set back from the one above it (none on phones). */
+	.eservices__list {
+		--h: 4.75rem;
+		--gap: 0.875rem;
+		--step: 0rem;
+		display: grid;
+		gap: var(--gap);
 	}
 
-	.etile--main h3 {
-		color: var(--c-on-accent);
-	}
-
-	.etile--main .icon-tile {
-		background: rgb(255 255 255 / 0.14);
-		color: var(--c-on-accent);
-	}
-
-	.etile.etile--main .disc {
-		background: var(--c-surface);
-	}
-
-	.etile--main:has(a:focus-visible) {
-		outline-offset: 4px;
-	}
-
-	@media (hover: hover) {
-		.etile.etile--main:hover {
-			border-color: transparent;
-			background: var(--c-accent-hover);
+	/* ── From tablets up: the pills step down the block ── */
+	@media (min-width: 48em) {
+		.eservices__list {
+			--h: 5.25rem;
+			--step: 2.25rem;
+			--pill-gap: 1.125rem;
+			--pill-font: 1.375rem;
+			--pill-go: 2.75rem;
+			--pill-go-margin: 0.375rem;
+			--pill-dots: block;
 		}
 	}
 
-	@media (min-width: 56em) {
+	/* ── Large screens: the title on the left, the pills on the right ── */
+	@media (min-width: 80em) {
+		/* The background shapes take the place of the glow. */
+		.eservices::before {
+			content: none;
+		}
+
+		.eservices__decor {
+			display: block;
+		}
+
+		/* Title and pills share one cell: the title at its top left, the pills against its right
+		   edge, each set back from the one above by what the slant of the site gives. */
 		.eservices__grid {
-			grid-template-columns: repeat(3, minmax(0, 1fr));
+			padding-inline: 6.25cqw 4.2cqw;
 		}
 
-		.etile {
-			min-height: 13rem;
-			padding: 2rem;
+		.eservices__head {
+			grid-area: 1 / 1;
+			align-self: start;
+			margin-top: clamp(0.25rem, 0.6cqw, 0.75rem);
+		}
+
+		.eservices__list {
+			--h: clamp(5.25rem, 6.4cqw, 7.75rem);
+			--gap: clamp(0.875rem, 1.5cqw, 1.8125rem);
+			--step: calc((var(--h) + var(--gap)) * 0.71);
+			--pill-pad: clamp(0.4375rem, 0.66cqw, 0.8125rem);
+			--pill-gap: clamp(1.125rem, 1.6cqw, 1.9375rem);
+			--pill-font: clamp(1.375rem, 1.95cqw, 2.375rem);
+			--pill-go: clamp(2.75rem, 3.3cqw, 4rem);
+			--pill-go-margin: clamp(0.375rem, 0.7cqw, 0.875rem);
+			--pill-width: clamp(34rem, 52cqw, 62.5rem);
+			--pill-lean-left: 0;
+			grid-area: 1 / 1;
+			justify-items: end;
 		}
 	}
 </style>

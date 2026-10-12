@@ -1,0 +1,43 @@
+---
+// Tracking: the visitor gives the reference of a file to follow its clearance, as on the
+// current site.
+import Assurances from '../../components/Assurances.astro';
+import PageHead from '../../components/PageHead.astro';
+import RequestForm from '../../components/RequestForm.astro';
+import Base from '../../layouts/Base.astro';
+import { site } from '../../data/site';
+import { useTranslations } from '../../i18n';
+import { excerpt } from '../../utils/text';
+
+const t = useTranslations();
+const { tracking, ui } = t.pages;
+---
+
+<Base title={`${tracking.title} | ${site.name}`} description={excerpt(tracking.intro)}>
+	<PageHead title={tracking.title} trail={[{ label: ui.eservices }]} />
+
+	<section class="section page-body">
+		<div class="wrap">
+			<div class="wrap__in split">
+				<div class="prose">
+					<p>{tracking.intro}</p>
+					<p class="note">{tracking.note}</p>
+				</div>
+				<RequestForm id="tracking" fields={tracking.fields} submit={tracking.submit} />
+			</div>
+		</div>
+	</section>
+
+	<Assurances />
+</Base>
+
+<style>
+	/* What to do without a file number: set apart on a pale ground. */
+	.note {
+		padding: 1rem 1.25rem;
+		border-radius: var(--r-sm);
+		background: var(--c-tint);
+		color: var(--c-ink);
+		font-size: 1rem;
+	}
+</style>
