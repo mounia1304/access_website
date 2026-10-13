@@ -6,7 +6,8 @@ import { site } from '../data/site';
 import { useTranslations } from '../i18n';
 
 interface Props {
-	/** Sets the block in line with the inner pages (the contact page), not the homepage's lower blocks. */
+	/** Sets the block in line with the inner pages (the contact page), not the homepage's lower blocks.
+	    Its two halves then come up as they are scrolled to, like that page's cards. */
 	wide?: boolean;
 }
 
@@ -27,7 +28,7 @@ const fields = [
 <section class="section contact glow" id="contact">
 	<div class:list={[wide ? 'wrap' : 'container']}>
 		<div class:list={['contact__grid', { wrap__in: wide }]}>
-		<div class="contact__intro">
+		<div class:list={['contact__intro', { reveal: wide }]}>
 			<header class="section-head">
 				<p class="eyebrow">{contact.eyebrow}</p>
 				<Title parts={contact.title} />
@@ -56,7 +57,7 @@ const fields = [
 		</div>
 
 		<!-- Demo only for now: the form is wired to e-mail delivery in phase 4. -->
-		<RequestForm id="contact" fields={fields} submit={form.submit} />
+		<RequestForm id="contact" fields={fields} submit={form.submit} class={wide ? 'reveal' : undefined} />
 		</div>
 	</div>
 </section>

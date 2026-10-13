@@ -353,6 +353,12 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
 - The two "presentations" are links to the company's files on Google Drive, as on the current site.
 - The menu marks the page on screen (`aria-current`), and the group it belongs to (`data-current`
   on the buttons "Nos services" and "E-services").
+- The contact page: the client found it good and asked for "a simple improvement in the design" and
+  for animation. Its cards kept their content and got an orange tab at their top and the two ways
+  to reach the person as rows to press. They are dealt one after the other when the page opens (the
+  first row on large screens, both rows on screens tall enough to show them; elsewhere each card
+  comes up as it is scrolled to); pointing at a card lifts it, runs its tab across its top and fills
+  its initials. This is the one place where something plays as a page opens: the client asked for it.
 - Check a service page, a quote form, tracking, the quality policy and contact at 1536, 1024 and a
   phone; after touching a link or a route, follow every link of the site (all must answer 200).
 
@@ -366,7 +372,8 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
 - The drawing is a stencil (`src/assets/decor/chevron-trail.svg`, used as a CSS mask) made by
   `scripts/make-chevron-trail.mjs`; its colours are `--c-trail` and `--c-trail-light`.
 - The logo conveyor (`Marquee.astro`) glides at about the same speed. Movement is slow, constant and
-  linear: nothing bounces, flies in or plays on page load. The key figures used to glide the same way;
+  linear: nothing bounces, flies in or plays on page load (one exception, asked for by the client:
+  the cards of the contact page, see "Inner pages"). The key figures used to glide the same way;
   the client asked for them to stand still (see "Fourth screen").
 - On the third and fourth screens the lanes, the containers and the strokes of the key figures arrive
   with the scrolling, not by themselves: they need no pause button.

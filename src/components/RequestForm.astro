@@ -15,10 +15,11 @@ interface Props {
 	fields: readonly FormField[];
 	submit: string;
 	title?: string;
+	class?: string;
 }
 
 const t = useTranslations();
-const { id, fields, submit, title } = Astro.props;
+const { id, fields, submit, title, class: className } = Astro.props;
 
 // Two "half" fields in a row share a line.
 const rows: FormField[][] = [];
@@ -29,7 +30,7 @@ for (const field of fields) {
 }
 ---
 
-<form class="card form" data-demo-form>
+<form class:list={['card', 'form', className]} data-demo-form>
 	{title && <h2 class="form__title">{title}</h2>}
 	{
 		rows.map((row) => (
