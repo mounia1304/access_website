@@ -95,8 +95,9 @@ anything until phase 4: they show a notice saying so. The "EN" of the menu is no
   as its blue would not show on the blue footer).
 - **Messages of the first screen**: the mockup draws three numbers; the site has five messages, so five
   numbers are shown. The four cards under them are links (road, sea, air, ISO), as on the mockup.
-- **Photos**: the first screen uses the photograph supplied by the client; the four small pictures on its
-  cards are cut out of the mockup and are coarse on dense screens, pending the original files. The second
+- **Photos**: the first screen uses the photograph supplied by the client; on its four cards, the
+  lorry, the ship and the plane are pictures supplied by the client; the ISO badge is still cut out of
+  the mockup and is coarse on dense screens, pending the original file. The second
   screen shows the film supplied by the client inside the mockup's frame (3.5 MB, loaded only when the
   frame comes on screen). The other photos are the current site's; swap the files in
   `src/assets/photos/` to replace them.

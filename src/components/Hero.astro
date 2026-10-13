@@ -12,9 +12,10 @@
 // THE PHOTOGRAPH was supplied by the client (photos/hero/port.webp, 2000 x 767). The mockup
 // shows it a little smaller than the screen, with more sky and sea around it:
 // scripts/make-hero-scene.mjs adds those margins (port-scene.webp), so that the lorry, the
-// ship and the plane sit where the mockup has them. The four small pictures on the cards
-// (photos/hero/cards/) are cut out of the mockup, which is all there is of them: they are
-// coarse on dense screens, and should give way to the originals when the client sends them.
+// ship and the plane sit where the mockup has them. Of the four small pictures on the cards
+// (photos/hero/cards/), the lorry, the ship and the plane are the client's own; the ISO badge
+// is cut out of the mockup, which is all there is of it: it is coarse on dense screens, and
+// should give way to the original when the client sends it.
 import { Image } from 'astro:assets';
 import Icon from './Icon.astro';
 import photo from '../assets/photos/hero/port-scene.webp';
@@ -220,7 +221,7 @@ const panelShape = roundedShape(
 		<ul class="hero__cards">
 			{
 				cards.map((card) => (
-					<li class="hero__card">
+					<li class:list={["hero__card", `hero__card--${card.key}`]}>
 						<Image class="hero__card-picture" src={card.picture} alt="" width={card.picture.width} loading="eager" />
 						<a class="hero__card-link" href={route(card.key)}>
 							{card.label}
@@ -687,6 +688,12 @@ const panelShape = roundedShape(
 		width: auto;
 		height: clamp(3.5rem, 18cqw, 4.5rem);
 		transition: translate 0.4s var(--ease);
+	}
+
+	/* The lorry, the ship and the plane are the client's own pictures: they asked for them a
+	   quarter smaller than the cards' pictures are by default. */
+	:is(.hero__card--routier, .hero__card--maritime, .hero__card--aerien) :global(.hero__card-picture) {
+		scale: 0.75;
 	}
 
 	.hero__card-link {

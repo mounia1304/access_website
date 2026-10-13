@@ -126,8 +126,10 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
   numbers (01 to 05; the mockup draws three) are its tab list: keep click, arrow keys, Home/End and
   swipe working. The four cards are plain links to the pages (road, sea, air, ISO), as on the mockup;
   customs clearance has no card there, it is the first message.
-- The small pictures on the cards (`photos/hero/cards/`) are cut out of the mockup, at its resolution:
-  replace them when the client sends the originals.
+- The small pictures on the cards (`photos/hero/cards/`): the lorry, the ship and the plane are the
+  client's own (supplied with a transparent ground; only trimmed and reduced to 340px high). The
+  client asked for these three a quarter smaller than the cards' pictures are by default
+  (`scale: 0.75` in `Hero.astro`). The ISO badge is still cut out of the mockup, at its resolution.
 - Texts lie over the photograph, which `check:palette` cannot see. They were measured on rendered
   pixels (a screenshot with the texts made transparent, each text's colour against the pixels in its
   box) at 1717, 1366 and 1024 wide: all pass 4.5:1. That is why the paragraph uses `--c-text-strong`
@@ -431,7 +433,8 @@ colour of the banner's lanes and the pale cyan that of the second button.
   (the chevron is still on the lorry's container in the pictures). They stay until the client says
   otherwise; where the files say "the logo's chevron" or "the slant of the logo", read it that way.
 - **Photos**: the first screen uses the client's photograph of the port (see "Header and first screen");
-  the small pictures on its cards are cut out of the mockup. The second screen shows the client's film (see "Second screen"); it is not the picture
+  three of the small pictures on its cards are the client's too (the ISO badge is cut out of the
+  mockup). The second screen shows the client's film (see "Second screen"); it is not the picture
   of the mockup, which was never supplied as a file. The other photos are the current site's, to be
   replaced later.
   `photos/entreprise.jpg` (the previous picture of the second screen) and the old slider photos in
