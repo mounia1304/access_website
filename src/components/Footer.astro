@@ -59,7 +59,7 @@ const columns = [
 				}
 				<li>
 					<strong>{t.footer.email}&nbsp;:</strong>{' '}
-					<a href={`mailto:${site.email}`}>{site.email}</a>
+					<a class="footer__mail" href={`mailto:${site.email}`}>{site.email}</a>
 				</li>
 				<li>
 					<strong>{t.footer.phones}&nbsp;:</strong>{' '}
@@ -121,6 +121,11 @@ const columns = [
 
 	.footer__contact ul {
 		gap: 0.7rem;
+	}
+
+	/* The address goes to the next line whole rather than breaking at its hyphen. */
+	.footer__mail {
+		display: inline-block;
 	}
 
 	.footer a {

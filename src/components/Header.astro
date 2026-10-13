@@ -339,7 +339,7 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 		border-radius: var(--r-pill);
 		background: rgb(255 255 255 / 0.12);
 		color: var(--c-ink);
-		font-size: clamp(0.75rem, 0.76vw, 0.9375rem);
+		font-size: clamp(0.9375rem, 0.95vw, 1.1719rem);
 		line-height: 1;
 	}
 
@@ -381,7 +381,7 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 		gap: 0.9em;
 		min-height: clamp(2.5rem, 2.91vw, 3.625rem);
 		padding-inline: clamp(1.05rem, 1.2vw, 1.75rem);
-		font-size: clamp(0.8125rem, 0.76vw, 0.9375rem);
+		font-size: clamp(1.0156rem, 0.95vw, 1.1719rem);
 		font-weight: 600;
 	}
 
@@ -408,14 +408,16 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 		align-self: stretch;
 		/* The menu starts at a set distance from the logo, as in the mockup (163px at 1717 wide);
 		   that distance and the gaps between its items close up on narrower screens, so that the
-		   menu never reaches the language switch. */
-		margin-left: clamp(1.25rem, 28.15vw - 20rem, 13rem);
+		   menu never reaches the language switch. They close up faster than they did at first:
+		   the client asked for the bar's texts larger (25% in the end), which takes more of the room. Measure
+		   the bar at 1280, 1366, 1420 and 1536 after changing a size or a word in it. */
+		margin-left: clamp(0.25rem, 25.78vw - 20.375rem, 9.5rem);
 	}
 
 	.nav__list {
 		display: flex;
 		align-items: stretch;
-		gap: clamp(1rem, 4.12vw - 1.67rem, 3rem);
+		gap: clamp(0.6875rem, 5.81vw - 3.9625rem, 3rem);
 		height: 100%;
 	}
 
@@ -434,7 +436,7 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 		border: 0;
 		background: none;
 		color: var(--c-ink);
-		font-size: clamp(0.8125rem, 0.76vw, 0.9375rem);
+		font-size: clamp(1.0156rem, 0.95vw, 1.1719rem);
 		font-weight: 500;
 		line-height: 1.375rem;
 		white-space: nowrap;
@@ -553,9 +555,11 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 
 	/* Logo, then the menu, and the quote button at the far end. */
 	@media (min-width: 80em) {
+		/* On the narrowest of these screens the logo sits nearer the bar's edge: the menu needs the room. */
 		.header__inner {
 			display: grid;
 			grid-template-columns: auto minmax(0, 1fr) auto;
+			padding-left: clamp(1.25rem, min(3.03vw, 9vw - 5.7rem), 3.75rem);
 		}
 
 		.nav {
@@ -568,6 +572,12 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 
 		.header__burger {
 			display: none;
+		}
+
+		/* The language switch and the button sit closer on the narrowest of these screens,
+		   where the menu needs the room. */
+		.header__actions {
+			gap: clamp(0.75rem, 11.43vw - 8.39rem, 2.75rem);
 		}
 	}
 

@@ -80,6 +80,15 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
   the hero title, 700 for the second screen's tag, title and motto and for the third screen's label and
   title (as in their mockups). La Belle Aurore (handwritten) is for
   the slogan of the second screen only (on the first screen the slogan is set in DM Sans, as in its mockup).
+- TEXT SIZES. The client found the texts too small, first in the menu bar, then everywhere else:
+  every small text is 25% larger than the mockups set it (15% at first, then 22%, then 25%: menu, buttons, labels, paragraphs, card
+  titles, names, the footer: the `--fs-…` tokens from `--fs-h3` down, and the sizes written in the
+  components). The large titles, the big figures and the quotes kept their size. Do not bring a
+  text back to its mockup size; when adding a text, take a token or a neighbour's size. In the menu
+  bar the gaps close up faster on laptops to make the room (see `Header.astro`): at 1280 wide
+  there is nothing left to give, so measure the bar before adding a word to it. On the first
+  screen the button and the play link sit closer for the same reason, and their smallest sizes
+  were kept lower than 25%.
 - Section titles are set in two colours, navy then orange:
   `<Title parts={['Découvrez', 'nos services']} />`. `stack` puts the two parts on two lines; a single
   string is set entirely in orange.
@@ -116,7 +125,7 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
 - On large screens (64em and up) it is a poster: every measure is in `cqw` of the screen's width
   (17.17px on the mockup), so the whole screen scales with the width; small texts have floors. The
   panes are SVG clip paths whose corners are the mockup's px (`roundedShape()`). Under 64em the
-  photograph is a band at the top and everything stacks; between 64em and 80em the label of the play
+  photograph is a band at the top and everything stacks; between 64em and 87em the label of the play
   link is only read out, because it would run into the picture's slanted edge.
 - The photograph is the client's (`photos/hero/port.webp`). The mockup shows it at 74% of the screen's
   width, with more sky and sea around it: `scripts/make-hero-scene.mjs` adds those margins by mirroring
@@ -164,7 +173,8 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
 - Two pale shapes sit in the right-hand corners of the screen (a bar coming down from the first screen,
   a rising shape that fades out under the block). They show from 64em up, like the stacked layout below it.
 - Check 1944 wide against the mockup (`previews/comparaison-maquette-2.jpg`), then 1536, 1366, 1024,
-  a tablet and a phone. The first paragraph must keep its four lines at 1944.
+  a tablet and a phone. (The first paragraph had four lines at 1944, as in the mockup; it runs to
+  five since the texts were made larger at the client's request.)
 
 ### Third screen
 

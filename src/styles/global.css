@@ -153,7 +153,7 @@ p {
 /* The label between two short lines (third and fourth screens). */
 .eyebrow--lines {
 	gap: clamp(0.9rem, 1.25cqw, 1.5rem);
-	font-size: clamp(0.75rem, 0.93cqw, 1.11875rem);
+	font-size: clamp(0.9375rem, 1.1625cqw, 1.3985rem);
 	font-weight: 700;
 }
 
@@ -181,7 +181,7 @@ p {
 	border-radius: var(--r-pill);
 	background: var(--c-tint);
 	color: var(--c-label);
-	font-size: 0.8125rem;
+	font-size: 1.0157rem;
 	font-weight: 500;
 	line-height: 1.25rem;
 }
@@ -313,7 +313,7 @@ p {
 	padding: 0.6rem 1.6rem;
 	border: 1px solid transparent;
 	border-radius: var(--r-pill);
-	font-size: 0.90625rem;
+	font-size: 1.1328rem;
 	font-weight: 500;
 	line-height: 1.25rem;
 	white-space: nowrap;
@@ -336,7 +336,7 @@ p {
 .btn--sm {
 	min-height: 2.375rem;
 	padding: 0.4rem 1.3rem;
-	font-size: 0.8125rem;
+	font-size: 1.0157rem;
 }
 
 /* The logo's blue, in a gradient. A gradient cannot fade into another one, so pointing at
@@ -549,7 +549,7 @@ p {
 	display: grid;
 	gap: 1.15rem;
 	max-width: 46rem;
-	font-size: 1.0625rem;
+	font-size: 1.3282rem;
 	line-height: 1.7;
 }
 

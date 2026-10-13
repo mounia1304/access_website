@@ -159,13 +159,13 @@
 	--fs-display: clamp(4rem, 2.4rem + 7.2vw, 7rem); /* giant figures */
 	--fs-h2: clamp(2rem, 1.6rem + 1.7vw, 2.875rem);
 	--fs-quote: clamp(1.4375rem, 1.2rem + 1.05vw, 2rem); /* large quotes and statements */
-	--fs-h3: clamp(1.1875rem, 1.1rem + 0.4vw, 1.375rem); /* card titles */
-	--fs-body: 1rem;
-	--fs-small: 0.875rem;
-	--fs-ui: 0.9375rem; /* menu, buttons, card labels */
-	--fs-label: 0.875rem; /* small interface text */
-	--fs-eyebrow: 0.71875rem; /* uppercase label above a title */
-	--fs-micro: 0.75rem; /* legal line */
+	--fs-h3: clamp(1.4843rem, 1.375rem + 0.5vw, 1.7186rem); /* card titles */
+	--fs-body: 1.25rem;
+	--fs-small: 1.0936rem;
+	--fs-ui: 1.1718rem; /* menu, buttons, card labels */
+	--fs-label: 1.0936rem; /* small interface text */
+	--fs-eyebrow: 0.8985rem; /* uppercase label above a title */
+	--fs-micro: 0.9375rem; /* legal line */
 
 	/* ── Layout ────────────────────────────────────────────── */
 	--container: 76rem;
