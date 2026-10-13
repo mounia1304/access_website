@@ -1,0 +1,53 @@
+---
+// The map of the current site's homepage: Google's map of ACCESS TRANSIT in Casablanca, shown
+// after the contact block, before the footer. The client asked for it to be brought over.
+// It is the same embed as on the current site (site.map), in a rounded frame like the photos.
+//
+// The map is Google's: it is only fetched when the visitor scrolls near it (loading="lazy"),
+// and nothing of the site depends on it.
+import { site } from '../data/site';
+import { useTranslations } from '../i18n';
+
+interface Props {
+	/** Sets the map in line with the inner pages (the contact page), not the homepage's lower blocks. */
+	wide?: boolean;
+}
+
+const { wide = false } = Astro.props;
+const t = useTranslations();
+---
+
+<section class="section map">
+	<div class:list={[wide ? 'wrap' : 'container']}>
+		<div class:list={['map__frame', 'reveal', { wrap__in: wide }]}>
+			<iframe src={site.map} title={t.contact.map} loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen
+			></iframe>
+		</div>
+	</div>
+</section>
+
+<style>
+	.map {
+		padding-top: 0;
+	}
+
+	/* On the contact page the frame takes the page's margins: the map fills what is left. */
+	.map__frame.wrap__in > iframe {
+		border-radius: var(--r-lg);
+	}
+
+	.map__frame:not(.wrap__in) {
+		border-radius: var(--r-lg);
+		box-shadow: var(--shadow-soft);
+		overflow: hidden;
+	}
+
+	.map iframe {
+		display: block;
+		width: 100%;
+		height: clamp(20rem, 14rem + 22vw, 30rem);
+		border: 0;
+		/* The colour shown until the map arrives. */
+		background: var(--c-panel);
+	}
+</style>

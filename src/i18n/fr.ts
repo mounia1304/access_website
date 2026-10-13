@@ -267,6 +267,7 @@ const fr = {
 	contact: {
 		eyebrow: 'Contact',
 		title: 'Contactez-nous',
+		map: 'Carte : ACCESS TRANSIT à Casablanca', // read out for the map; not shown
 		form: {
 			name: 'Nom',
 			email: 'Email',

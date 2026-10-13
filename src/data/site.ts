@@ -11,6 +11,8 @@ export const site = {
 	phone: { display: '+212 5 22 24 17 17', short: '+212 522 241 717', href: 'tel:+212522241717' },
 	mobile: { display: '+212 6 62 39 86 48', href: 'tel:+212662398648' },
 	linkedin: 'https://www.linkedin.com/company/access-transit',
+	// Google's map of the company, as embedded on the current site's homepage.
+	map: 'https://maps.google.com/maps?q=Access%20transit&t=m&z=15&output=embed&iwloc=near',
 	location: 'Casablanca, MAROC',
 	hours: 'Lun - Ven 8H30-17H30',
 	// Addresses exactly as published (the Tanger wording is to be confirmed by the client).

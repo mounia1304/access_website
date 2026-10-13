@@ -1,7 +1,8 @@
 ---
 // Contact: the team, with each person's role, address and number as on the current site,
 // then the contact block of the homepage (phone, addresses and form).
-// (The current site also shows a map there, which points to another country: it is left out.)
+// Then the map of the current site's homepage (the current contact page has a map too, but it
+// points to another country: the homepage's, which shows the company, is used instead).
 //
 // The client found the page good and asked for "a simple improvement in the design" and for
 // animation. So the cards are the same, a little richer (an orange tab at their top, the two
@@ -12,6 +13,7 @@
 // - pointing at a way to reach the person fills its icon and brings an arrow in.
 import Contact from '../components/Contact.astro';
 import Icon from '../components/Icon.astro';
+import LocationMap from '../components/LocationMap.astro';
 import PageHead from '../components/PageHead.astro';
 import Base from '../layouts/Base.astro';
 import { site } from '../data/site';
@@ -86,6 +88,7 @@ const people = contact.people.map((person, index) => ({
 	</section>
 
 	<Contact wide />
+	<LocationMap wide />
 </Base>
 
 <style>

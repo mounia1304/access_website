@@ -122,7 +122,8 @@ anything until phase 4: they show a notice saying so. The "EN" of the menu is no
   to the contact page; the client is to say which fields its form should have.
 - **Not carried over from the current site**: the scan of the signed quality policy and the picture of
   the blog article (to be supplied or downloaded with the client's go-ahead); the map of the contact
-  page, which shows another country there.
+  page, which shows another country there (the homepage's map, which shows the company, is used on
+  both pages instead).
 - **Typefaces**: DM Sans, and La Belle Aurore for the handwritten slogan (both free).
 - **Contact form**: shows a demo message instead of sending.
 - **Favicon**: the "A" of the logo on a white rounded square.

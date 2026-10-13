@@ -359,9 +359,15 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
   they work. The contact block of the homepage uses the same form component.
 - Where the current site is wrong or empty, it was not copied: the "Cotation de transport national"
   page is empty there (here it sends to the contact page until the client says what it should
-  hold); its contact page shows a map of another country (left out); a link in the quality policy
+  hold); its contact page shows a map of another country (the homepage's map is used there
+  instead); a link in the quality policy
   leads to another company's site (left out). The scan of the signed quality policy and the picture
   of the article are not here: files are only downloaded with the client's go-ahead.
+- The map (`LocationMap.astro`) is Google's map of the company, the same embed as on the current
+  site's homepage (`site.map`); the client asked for it. It closes the homepage, after the contact
+  block, and the contact page. It is fetched from Google only when the visitor scrolls near it.
+  Google's card gives the address as "126 Bd Moulay Slimane", the site as "126 Avenue Ambassadeur
+  Ben Aicha": the site's wording is the current site's and was not changed.
 - The two "presentations" are links to the company's files on Google Drive, as on the current site.
 - The menu marks the page on screen (`aria-current`), and the group it belongs to (`data-current`
   on the buttons "Nos services" and "E-services").
