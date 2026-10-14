@@ -13,9 +13,8 @@
 // shows it a little smaller than the screen, with more sky and sea around it:
 // scripts/make-hero-scene.mjs adds those margins (port-scene.webp), so that the lorry, the
 // ship and the plane sit where the mockup has them. Of the four small pictures on the cards
-// (photos/hero/cards/), the lorry, the ship and the plane are the client's own; the ISO badge
-// is cut out of the mockup, which is all there is of it: it is coarse on dense screens, and
-// should give way to the original when the client sends it.
+// (photos/hero/cards/), all four are the client's own (the lorry, the ship, the plane and the
+// ISO shield).
 import { Image } from 'astro:assets';
 import Icon from './Icon.astro';
 import photo from '../assets/photos/hero/port-scene.webp';
@@ -694,6 +693,11 @@ const panelShape = roundedShape(
 	   quarter smaller than the cards' pictures are by default. */
 	:is(.hero__card--routier, .hero__card--maritime, .hero__card--aerien) :global(.hero__card-picture) {
 		scale: 0.75;
+	}
+
+	/* The ISO shield, also the client's own: 5% smaller, as asked. */
+	.hero__card--qualite :global(.hero__card-picture) {
+		scale: 0.95;
 	}
 
 	.hero__card-link {

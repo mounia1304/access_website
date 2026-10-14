@@ -285,6 +285,22 @@ const pages = {
 		title: ['Notre politique', 'qualité'],
 		description:
 			'Notre politique qualité reflète nos principes de management et vise à assurer la satisfaction de nos clients et parties intéressées.',
+		// The certificate, shown first on the page at the director's request. Its sentence is the
+		// homepage's (the ISO message of the first screen); the facts are those of TÜV Rheinland's
+		// register (Certipedia), where the button leads.
+		certificate: {
+			eyebrow: 'Certification',
+			title: ['Certifié', 'ISO 9001:2015'],
+			text: 'Notre certification ISO 9001 version 2015 de TÜV Maroc, filiale de TÜV Rheinland Allemagne, témoigne de notre engagement en faveur de la qualité de nos services.',
+			facts: [
+				{ term: 'Organisme certificateur', value: 'TÜV Rheinland' },
+				{ term: 'N° de certificat', value: '9000026569' },
+				{ term: 'Périmètre', value: 'Dédouanement à l’import et à l’export' },
+			],
+			verify: 'Vérifier le certificat',
+			verifyNote: 'sur le site de TÜV Rheinland',
+			alt: 'Marque de certification TÜV Rheinland : système de management ISO 9001:2015, ID 9000026569',
+		},
 		intro: [
 			{
 				p: 'La politique qualité de notre entreprise vise à assurer la satisfaction de nos clients et partenaires, tout en garantissant la pérennité et la croissance de notre activité. Cette politique est fondée sur les principes de management de notre entreprise, qui s’appuient sur des valeurs clés telles que :',

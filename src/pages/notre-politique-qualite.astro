@@ -2,6 +2,15 @@
 // The quality policy: the text of the current site. Its four commitments are set as four
 // numbered sheets; the conclusion closes the page on a pale panel.
 // (The current site also shows a scan of the signed policy: it is not here yet.)
+//
+// THE CERTIFICATE comes first, at the director's request, so that clients see it at once: the
+// certification mark supplied by the client (TÜV Rheinland, ISO 9001:2015), shown whole and
+// unchanged as TÜV asks, beside what it certifies and a button to the certificate's page on
+// TÜV Rheinland's own register, where anyone can check it.
+import { Image } from 'astro:assets';
+import Icon from '../components/Icon.astro';
+import Title from '../components/Title.astro';
+import certificateMark from '../assets/quality/tuv-iso9001.png';
 import Assurances from '../components/Assurances.astro';
 import PageHead from '../components/PageHead.astro';
 import Prose from '../components/Prose.astro';
@@ -10,7 +19,8 @@ import { site } from '../data/site';
 import { useTranslations } from '../i18n';
 
 const t = useTranslations();
-const { qualite } = t.pages;
+const { qualite, ui } = t.pages;
+const { certificate } = qualite;
 const sections = qualite.sections.map((section, index) => ({ ...section, number: String(index + 1).padStart(2, '0') }));
 ---
 
@@ -20,6 +30,40 @@ const sections = qualite.sections.map((section, index) => ({ ...section, number:
 	<section class="section page-body">
 		<div class="wrap">
 			<div class="wrap__in policy">
+				<div class="card cert">
+					<div class="cert__mark">
+						<Image
+							src={certificateMark}
+							alt={certificate.alt}
+							widths={[480, 760, 1100, 1500]}
+							sizes="(min-width: 64em) 48vw, 92vw"
+							loading="eager"
+						/>
+					</div>
+					<div class="cert__text">
+						<p class="eyebrow eyebrow--lines">{certificate.eyebrow}</p>
+						<Title parts={certificate.title} />
+						<p>{certificate.text}</p>
+						<dl class="cert__facts">
+							{
+								certificate.facts.map((fact) => (
+									<div>
+										<dt>{fact.term}</dt>
+										<dd>{fact.value}</dd>
+									</div>
+								))
+							}
+						</dl>
+						<a class="btn btn--accent" href={site.certificate} target="_blank" rel="noopener">
+							{certificate.verify}{' '}
+							<span class="visually-hidden">
+								{certificate.verifyNote} ({ui.external})
+							</span>
+							<Icon name="arrow-up-right" size={16} />
+						</a>
+					</div>
+				</div>
+
 				<Prose blocks={qualite.intro} />
 
 				<ol class="policy__list">
@@ -48,6 +92,85 @@ const sections = qualite.sections.map((section, index) => ({ ...section, number:
 	.policy {
 		display: grid;
 		gap: clamp(2.25rem, 1.5rem + 3vw, 4.5rem);
+	}
+
+	/* The certificate: the mark on the left, what it certifies on the right (stacked on small
+	   screens). The mark is never cropped or recoloured. */
+	.cert {
+		display: grid;
+		gap: clamp(1.5rem, 1rem + 2vw, 3rem);
+		align-items: center;
+		padding: clamp(1.25rem, 0.75rem + 2.5vw, 3rem);
+	}
+
+	.cert__mark :global(img) {
+		width: 100%;
+		height: auto;
+		border-radius: 0.5rem;
+	}
+
+	.cert__text {
+		display: grid;
+		justify-items: start;
+		gap: 1rem;
+	}
+
+	/* "ISO 9001:2015" stays on one line. */
+	.cert__text :global(h2 .mark) {
+		white-space: nowrap;
+	}
+
+	.cert__text :global(h2) {
+		font-size: clamp(2rem, 1.5rem + 2vw, 3.25rem);
+		font-weight: 700;
+		letter-spacing: -0.03em;
+		line-height: 1.05;
+	}
+
+	.cert__facts {
+		display: grid;
+		gap: 0.6rem;
+		width: 100%;
+		margin-block: 0.25rem 0.5rem;
+		padding-block: 1rem;
+		border-block: 1px solid var(--c-line);
+	}
+
+	.cert__facts div {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.25rem 1rem;
+	}
+
+	.cert__facts dt {
+		font-size: var(--fs-small);
+	}
+
+	/* From tablets up, the facts are a table: what on the left, the value on the right. */
+	@media (min-width: 40em) {
+		.cert__facts {
+			grid-template-columns: max-content minmax(0, 1fr);
+			column-gap: 1.5rem;
+		}
+
+		.cert__facts div {
+			display: contents;
+		}
+
+		.cert__facts dt {
+			align-self: baseline;
+		}
+	}
+
+	.cert__facts dd {
+		color: var(--c-ink);
+		font-weight: 600;
+	}
+
+	@media (min-width: 64em) {
+		.cert {
+			grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+		}
 	}
 
 	.policy__list {

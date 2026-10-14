@@ -138,7 +138,7 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
 - The small pictures on the cards (`photos/hero/cards/`): the lorry, the ship and the plane are the
   client's own (supplied with a transparent ground; only trimmed and reduced to 340px high). The
   client asked for these three a quarter smaller than the cards' pictures are by default
-  (`scale: 0.75` in `Hero.astro`). The ISO badge is still cut out of the mockup, at its resolution.
+  (`scale: 0.75` in `Hero.astro`). The ISO shield is the client's too, 5% smaller (`scale: 0.95`).
 - Texts lie over the photograph, which `check:palette` cannot see. They were measured on rendered
   pixels (a screenshot with the texts made transparent, each text's colour against the pixels in its
   box) at 1717, 1366 and 1024 wide: all pass 4.5:1. That is why the paragraph uses `--c-text-strong`
@@ -363,6 +363,11 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
   instead); a link in the quality policy
   leads to another company's site (left out). The scan of the signed quality policy and the picture
   of the article are not here: files are only downloaded with the client's go-ahead.
+- The quality policy page opens on the company's certificate, at the director's request ("clear, so the
+  client trusts the company"): the TÜV Rheinland ISO 9001:2015 mark supplied by the client
+  (`src/assets/quality/tuv-iso9001.png`), whole and unchanged (TÜV asks for that: never crop or
+  recolour it), beside what it certifies and a button to the certificate on TÜV Rheinland's register
+  (`site.certificate`, Certipedia, where its QR code leads). The facts are the register's.
 - The map (`LocationMap.astro`) is Google's map of the company, the same embed as on the current
   site's homepage (`site.map`); the client asked for it. It closes the homepage, after the contact
   block, and the contact page. It is fetched from Google only when the visitor scrolls near it.
