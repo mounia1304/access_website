@@ -1,88 +1,32 @@
 ---
-// Contact: the team, with each person's role, address and number as on the current site,
-// then the contact block of the homepage (phone, addresses and form).
-// Then the map of the current site's homepage (the current contact page has a map too, but it
-// points to another country: the homepage's, which shows the company, is used instead).
+// Contact: the team, drawn as the director's diagram (TeamDiagram.astro), then the contact block
+// of the homepage (phone, addresses and form), then the map of the current site's homepage (the
+// current contact page has a map too, but it points to another country: the homepage's, which
+// shows the company, is used instead).
 //
-// The client found the page good and asked for "a simple improvement in the design" and for
-// animation. So the cards are the same, a little richer (an orange tab at their top, the two
-// ways to reach the person as rows to press), and they move:
-// - they are dealt one after the other when the page opens (large screens), or come up as
-//   they are scrolled to (the second row on short screens, every card on small ones);
-// - pointing at a card lifts it, draws its tab across its top and fills its initials;
-// - pointing at a way to reach the person fills its icon and brings an arrow in.
+// The team was first a grid of cards with the current site's six people; the director then
+// asked for the page to look exactly like a diagram of their own, with the team they listed:
+// the cards and the people who are not in it are gone.
 import Contact from '../components/Contact.astro';
-import Icon from '../components/Icon.astro';
 import LocationMap from '../components/LocationMap.astro';
 import PageHead from '../components/PageHead.astro';
+import TeamDiagram from '../components/TeamDiagram.astro';
 import Base from '../layouts/Base.astro';
 import { site } from '../data/site';
 import { useTranslations } from '../i18n';
 
 const t = useTranslations();
 const { contact } = t.pages;
-const people = contact.people.map((person, index) => ({
-	...person,
-	tel: `tel:${person.phone.replace(/\s/g, '')}`,
-	// The two halves of the address: a long one breaks before its @, not in the middle of a word.
-	mail: person.email.split('@'),
-	// The first letter of the first name (written last) and of the word before it: the family
-	// name without its particle ("EL BALGHITI Yassine" gives YB).
-	initials: person.name
-		.split(' ')
-		.slice(-2)
-		.reverse()
-		.map((word) => word[0])
-		.join(''),
-	style: `--i: ${index}`,
-}));
 ---
 
 <Base title={`${contact.title} | ${site.name}`}>
 	<PageHead title={contact.title} />
 
-	<section class="section page-body team">
+	<section class="section page-body team-section">
 		<div class="wrap">
 			<div class="wrap__in">
-				<h2 class="team__title">{contact.team}</h2>
-				<ul class="team__list">
-					{
-						people.map((person) => (
-							<li class="card person" style={person.style}>
-								<span class="person__tab" aria-hidden="true" />
-								<span class="person__initials" aria-hidden="true">
-									{person.initials}
-								</span>
-								<div class="person__who">
-									<h3>{person.name}</h3>
-									<p>{person.role}</p>
-								</div>
-								<ul class="person__ways">
-									<li>
-										<a href={`mailto:${person.email}`}>
-											<span class="person__icon">
-												<Icon name="envelope" size={18} />
-											</span>
-											<span class="person__text">
-												{person.mail[0]}<wbr />@{person.mail[1]}
-											</span>
-											<Icon name="arrow-right" size={14} class="person__go" />
-										</a>
-									</li>
-									<li>
-										<a href={person.tel}>
-											<span class="person__icon">
-												<Icon name="phone" size={18} />
-											</span>
-											<span class="person__text">{person.phone}</span>
-											<Icon name="arrow-right" size={14} class="person__go" />
-										</a>
-									</li>
-								</ul>
-							</li>
-						))
-					}
-				</ul>
+				<h2 class="team-section__title">{contact.team}</h2>
+				<TeamDiagram />
 			</div>
 		</div>
 	</section>
@@ -92,219 +36,15 @@ const people = contact.people.map((person, index) => ({
 </Base>
 
 <style>
-	.team {
+	.team-section {
 		padding-bottom: 0;
 	}
 
-	.team__title {
+	.team-section__title {
 		margin-bottom: clamp(1.5rem, 1rem + 2vw, 2.5rem);
 		font-size: var(--fs-quote);
 		font-weight: 700;
 		letter-spacing: -0.02em;
-	}
-
-	.team__list {
-		display: grid;
-		gap: 1.25rem;
-	}
-
-	/* A person's card. --on is 1 while it is pointed at, or something in it has the keyboard's
-	   focus: what moves and changes colour then is written from it. */
-	.person {
-		--on: 0;
-		--time: 0.5s;
-		display: grid;
-		grid-template-columns: auto minmax(0, 1fr);
-		align-items: center;
-		gap: 1.25rem 1rem;
-		padding: 1.75rem 1.5rem 1.5rem;
-		border-color: color-mix(in srgb, var(--c-tile-strong) calc(var(--on) * 100%), var(--c-card-line));
-		box-shadow:
-			0 1.4rem 2.6rem color-mix(in srgb, var(--c-accent) calc(var(--on) * 14%), transparent),
-			var(--shadow-soft);
-		translate: 0 calc(var(--on) * var(--motion) * -0.375rem);
-		transition:
-			translate var(--time) var(--ease),
-			box-shadow var(--time),
-			border-color var(--time);
-	}
-
-	.person:focus-within {
-		--on: 1;
-	}
-
-	@media (hover: hover) {
-		.person:hover {
-			--on: 1;
-		}
-	}
-
-	/* The tab: a short orange line hanging from the top of the card, which runs across it when
-	   the card is on. */
-	.person__tab {
-		position: absolute;
-		top: -1px;
-		right: 1.5rem;
-		left: 1.5rem;
-		height: 3px;
-		border-radius: 0 0 3px 3px;
-		background: var(--g-bar);
-		clip-path: inset(0 calc((1 - var(--on)) * (100% - 2.75rem)) 0 0 round 0 0 3px 3px);
-		transition: clip-path calc(var(--time) * 1.2) var(--ease);
-	}
-
-	/* The initials: pale at rest, full when the card is on. */
-	.person__initials {
-		display: grid;
-		place-items: center;
-		width: 3.5rem;
-		height: 3.5rem;
-		border-radius: 50%;
-		background: color-mix(in srgb, var(--c-accent) calc(var(--on) * 100%), var(--c-tint));
-		color: color-mix(in srgb, var(--c-on-accent) calc(var(--on) * 100%), var(--c-accent));
-		font-weight: 700;
-		letter-spacing: 0.02em;
-		transition:
-			background-color var(--time),
-			color var(--time);
-	}
-
-	.person h3 {
-		font-weight: 700;
-	}
-
-	.person__who p {
-		font-size: var(--fs-small);
-		line-height: 1.4;
-	}
-
-	/* The two ways to reach the person: rows to press. */
-	.person__ways {
-		grid-column: 1 / -1;
-		display: grid;
-		gap: 0.5rem;
-	}
-
-	.person__ways a {
-		display: flex;
-		align-items: center;
-		gap: 0.75rem;
-		min-height: 2.875rem;
-		padding: 0.375rem 1rem 0.375rem 0.375rem;
-		border-radius: var(--r-pill);
-		background: var(--c-panel);
-		color: var(--c-ink);
-		font-size: var(--fs-ui);
-		transition: background-color 0.25s;
-	}
-
-	.person__icon {
-		flex: none;
-		display: grid;
-		place-items: center;
-		width: 2.125rem;
-		height: 2.125rem;
-		border-radius: 50%;
-		background: var(--c-surface);
-		color: var(--c-label);
-		transition:
-			background-color 0.25s,
-			color 0.25s;
-	}
-
-	.person__text {
-		min-width: 0;
-		overflow-wrap: anywhere;
-		line-height: 1.3;
-	}
-
-	/* The arrow comes in from the left when the row is pointed at. */
-	.person__ways :global(.person__go) {
-		display: none;
-		flex: none;
-		margin-left: auto;
-		color: var(--c-accent);
-		opacity: 0;
-		translate: calc(var(--motion) * -0.5rem) 0;
-		transition:
-			opacity 0.25s,
-			translate 0.4s var(--ease);
-	}
-
-	/* Only where there is a pointer to bring it in. */
-	@media (hover: hover) {
-		.person__ways :global(.person__go) {
-			display: block;
-		}
-	}
-
-	.person__ways a:is(:hover, :focus-visible) {
-		background: var(--c-tint);
-	}
-
-	.person__ways a:is(:hover, :focus-visible) .person__icon {
-		background: var(--c-accent);
-		color: var(--c-on-accent);
-	}
-
-	.person__ways a:is(:hover, :focus-visible) :global(.person__go) {
-		opacity: 1;
-		translate: 0 0;
-	}
-
-	/* ── How the cards arrive ───────────────────────────── */
-	@keyframes person-arrive {
-		from {
-			opacity: 0;
-			transform: translateY(2.25rem);
-		}
-	}
-
-	@media (prefers-reduced-motion: no-preference) {
-		/* Small screens show one or two cards at a time: each comes up as it is scrolled to
-		   (other browsers simply show them). */
-		@supports (animation-timeline: view()) {
-			.person {
-				animation: person-arrive linear both;
-				animation-timeline: view();
-				animation-range: entry 0% cover 26%;
-			}
-		}
-
-		/* Large screens open on the first row: its three cards are dealt one after the other.
-		   The second row still comes up with the scrolling (a little later for each card)… */
-		@media (min-width: 72em) {
-			.person:nth-child(-n + 3) {
-				animation: person-arrive 0.75s var(--ease) calc(0.15s + var(--i) * 0.11s) both;
-				animation-timeline: auto;
-			}
-
-			@supports (animation-timeline: view()) {
-				.person:nth-child(n + 4) {
-					animation-range: entry 0% cover calc(20% + (var(--i) - 3) * 6%);
-				}
-			}
-		}
-
-		/* …unless the screen is tall enough to show both rows as the page opens: then all six
-		   are dealt. */
-		@media (min-width: 72em) and (min-height: 56em) {
-			.person:nth-child(n + 4) {
-				animation: person-arrive 0.75s var(--ease) calc(0.15s + var(--i) * 0.11s) both;
-				animation-timeline: auto;
-			}
-		}
-	}
-
-	@media (min-width: 40em) {
-		.team__list {
-			grid-template-columns: repeat(2, minmax(0, 1fr));
-		}
-	}
-
-	@media (min-width: 72em) {
-		.team__list {
-			grid-template-columns: repeat(3, minmax(0, 1fr));
-		}
+		text-align: center;
 	}
 </style>

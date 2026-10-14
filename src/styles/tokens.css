@@ -133,6 +133,9 @@
 	--c-on-box-soft: color-mix(in srgb, var(--p-ink) 84%, transparent); /* paragraphs on the pale container */
 	--c-crane: color-mix(in srgb, var(--p-ink) 55%, var(--p-blue-pale)); /* the cables of the crane above them */
 
+	/* ── Roles: the team diagram of the contact page ───────── */
+	--c-card-warm: color-mix(in srgb, var(--p-orange) 7%, white); /* the square behind an orange card's icon */
+
 	/* ── Roles: lines ──────────────────────────────────────── */
 	--c-line: color-mix(in srgb, var(--p-ink) 9%, transparent);
 	--c-line-strong: color-mix(in srgb, var(--p-ink) 16%, white); /* outlined buttons, logo tiles */

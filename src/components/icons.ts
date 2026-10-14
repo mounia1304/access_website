@@ -34,6 +34,9 @@ import globe from '@phosphor-icons/core/assets/regular/globe-hemisphere-west.svg
 import handshake from '@phosphor-icons/core/assets/regular/handshake.svg?raw';
 import packageBox from '@phosphor-icons/core/assets/regular/package.svg?raw';
 import mapTrifold from '@phosphor-icons/core/assets/regular/map-trifold.svg?raw';
+import usersThree from '@phosphor-icons/core/assets/regular/users-three.svg?raw';
+import chartLineUp from '@phosphor-icons/core/assets/regular/chart-line-up.svg?raw';
+import coins from '@phosphor-icons/core/assets/regular/coins.svg?raw';
 
 
 // A page with a folded corner and three lines, and a round badge that carries a figure.
@@ -79,6 +82,9 @@ export const icons = {
 	handshake: inner(handshake),
 	package: inner(packageBox),
 	'map-trifold': inner(mapTrifold),
+	'users-three': inner(usersThree),
+	'chart-line-up': inner(chartLineUp),
+	coins: inner(coins),
 	'customs-file': customsFile,
 } as const;
 

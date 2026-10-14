@@ -376,12 +376,31 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
 - The two "presentations" are links to the company's files on Google Drive, as on the current site.
 - The menu marks the page on screen (`aria-current`), and the group it belongs to (`data-current`
   on the buttons "Nos services" and "E-services").
-- The contact page: the client found it good and asked for "a simple improvement in the design" and
-  for animation. Its cards kept their content and got an orange tab at their top and the two ways
-  to reach the person as rows to press. They are dealt one after the other when the page opens (the
-  first row on large screens, both rows on screens tall enough to show them; elsewhere each card
-  comes up as it is scrolled to); pointing at a card lifts it, runs its tab across its top and fills
-  its initials. This is the one place where something plays as a page opens: the client asked for it.
+- The contact page: the team is the director's own diagram (sent as a picture, "look exactly like this"),
+  in `TeamDiagram.astro`: the general manager in the middle over a blue plate, his number and address in
+  a box under it, two hairline orbits round him; seven cards round him, each with a round photo facing
+  the middle, the icon of the trade in a small square, name, role, number and address, and a line from
+  its photo to the orbit. The picture's green became the logo's orange (cards at the top and on the
+  right), its blue stayed (cards on the left). It replaced the grid of the current site's six people:
+  those not in the diagram are gone, at the director's request.
+- A first version copied the picture's finish too (gradient discs with white rims, glows, capitals, a
+  bar under each name, tinted gradient cards); the client found it "AI generated" and asked for the
+  same design "as created by an expert UI designer". Keep the layout, keep the finish quiet: white cards
+  with a hairline, names as on the current site (family name in capitals), thin rings, flat icons inside
+  the cards, no glow. Colour only says whose card it is; pointing at a card colours its line and edge.
+- From 80em it is a stage in the picture's proportions (1536 by 1100, the rows a little further apart
+  than in the picture because the site's lettering is wider), everything placed in the picture's px
+  (`--u`, `PLACES`); a card's line belongs to the card and is aimed at the middle from its place, so it
+  stays on the photo when the card grows. Below 80em the cards are a list (two columns from 44em; on
+  phones the photo is above the text). Check 1920, 1536, 1366 and 1280 (no two cards may touch), a
+  tablet and a phone.
+- No photos yet: each frame shows the person's initials until the client sends them. The picture's
+  numbers and addresses are samples (all "@societe.ma", numbers running 12 34 56 78) and are not used:
+  where the current site gives a person's real ones they are shown, elsewhere "Coordonnées à venir"
+  (null in `fr.pages.ts`).
+- As the page opens the general manager appears and the cards come out one after the other (large
+  screens; on small ones each card comes up as it is scrolled to): the one place where something
+  plays as a page opens, the client asked for animation on this page.
 - Check a service page, a quote form, tracking, the quality policy and contact at 1536, 1024 and a
   phone; after touching a link or a route, follow every link of the site (all must answer 200).
 

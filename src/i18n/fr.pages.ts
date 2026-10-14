@@ -7,6 +7,7 @@
 //   is a non-breaking space (before : ; ! ?).
 
 import type { RouteKey } from './routes';
+import type { IconName } from '../components/icons';
 
 /** One field of a form (RequestForm.astro). Two "half" fields in a row share a line. */
 export interface FormField {
@@ -362,15 +363,25 @@ const pages = {
 	contact: {
 		title: 'Contact',
 		team: 'Contactez notre équipe :',
-		// Names, roles, addresses and numbers as published on the contact page of the current site.
-		people: [
-			{ name: 'BEIDOURI Zohra', role: 'Responsable d’exploitation commerciale', email: 'z.accesstransit@gmail.com', phone: '+212 5 22 24 17 17' },
-			{ name: 'SNOUSSI Manal', role: 'Responsable de développement commercial', email: 'manal.accesstransit@gmail.com', phone: '+212 5 22 24 17 17' },
-			{ name: 'LAARAJ Ibtissam', role: 'Responsable de transport international', email: 'ibtissamlj.accesstransit@gmail.com', phone: '+212 5 22 24 17 17' },
-			{ name: 'EL BALGHITI Yassine', role: 'Responsable management qualité', email: 'yassineelbalghiti@gmail.com', phone: '+212 5 22 24 17 17' },
-			{ name: 'EL ALLAM Younes', role: 'Responsable logistique', email: 'youneselallam1@gmail.com', phone: '+212 6 62 68 44 07' },
-			{ name: 'FAHMI Laarbi', role: 'Directeur délégué', email: 'fahmilarbi@gmail.com', phone: '+212 5 22 24 17 17' },
-		],
+		// The team, as the director drew it (TeamDiagram.astro): the general manager in the middle,
+		// seven people round him. Names and roles are the director's diagram, spelled out ("DG" is
+		// "directeur général", "ex" is "exploitation", as on the current site); names are written
+		// family name first, in capitals, as on the current site's contact page. The diagram's numbers and addresses (all "@societe.ma", numbers that run
+		// 12 34 56 78) are samples: they are not used. Where the current site gives a person's real
+		// number and address, they are used; elsewhere they are null and an empty line stands in
+		// their place until the client sends them. The same goes for the photos.
+		director: { name: 'M. EZZAHRAOUI Mohamed', role: 'Directeur général', phone: null, email: null },
+		// Shown in place of a number and an address not sent yet.
+		pending: 'Coordonnées à venir',
+		members: [
+			{ name: 'FAHMI Larbi', role: 'Directeur général délégué', icon: 'users-three', phone: '+212 5 22 24 17 17', email: 'fahmilarbi@gmail.com' },
+			{ name: 'FAHMI Omar', role: 'Chef des déclarants', icon: 'customs-file', phone: null, email: null },
+			{ name: 'BEIDOURI Zohra', role: 'Responsable d’exploitation commerciale', icon: 'chart-line-up', phone: '+212 5 22 24 17 17', email: 'z.accesstransit@gmail.com' },
+			{ name: 'BOUSSRY Khadija', role: 'Responsable transport national', icon: 'truck', phone: null, email: null },
+			{ name: 'OUATID Ghizlane', role: 'Suppléante, exploitation commerciale', icon: 'users-three', phone: null, email: null },
+			{ name: 'SABIR Hind', role: 'Responsable administrative et financière', icon: 'coins', phone: null, email: null },
+			{ name: 'LAARAJ Ibtissam', role: 'Responsable transport international', icon: 'globe', phone: '+212 5 22 24 17 17', email: 'ibtissamlj.accesstransit@gmail.com' },
+		] satisfies ReadonlyArray<{ name: string; role: string; icon: IconName; phone: string | null; email: string | null }>,
 	},
 };
 
