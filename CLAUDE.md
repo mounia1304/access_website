@@ -109,7 +109,8 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
 ### Header and first screen
 
 - The menu is a rounded bar of frosted glass that floats over the page, a little below the top of the
-  screen (`Header.astro`): logo, menu, FR/EN, quote button. There is no top bar any more (the third
+  screen (`Header.astro`): logo, menu, FR/EN, quote button. The menu is the current site's, except
+  that "Blog" became "Actualités" (see "Actualités"). There is no top bar any more (the third
   mockup has none): the phone, the e-mail and the city are in the mobile menu, the contact block and the
   footer. Once the page has scrolled the bar gets lower (`--bar-h` to `--bar-h-low`) and nearly opaque;
   the `<header>` itself keeps one height so the page never jumps. `--header-h` is what the bar hides at
@@ -345,8 +346,8 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
   in `src/i18n/fr.pages.ts` (`t.pages`), not in `fr.ts`.
 - Pages: the four services (`pages/services/[service].astro`), the quote request (a choice of three
   kinds, then one form per kind: `pages/e-services/demander-une-cotation/`), tracking, complaints,
-  the quality policy, the blog and its one article (`pages/[article].astro`: articles live at the
-  root of the site, as on the current one), and contact. Addresses are those of the current site.
+  the quality policy, the blog (see "Blog"), the news (see "Actualités"), and contact. Addresses are
+  those of the current site, except the news pages (new).
 - They share: `PageHead.astro` (the trail, an optional label, the `h1` in the two colours of the
   homepage's titles), `ServiceAside.astro` (the four trades, the two presentations, a help card),
   `Assurances.astro` (the three commitments that close most pages of the current site),
@@ -403,6 +404,64 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
   plays as a page opens, the client asked for animation on this page.
 - Check a service page, a quote form, tracking, the quality policy and contact at 1536, 1024 and a
   phone; after touching a link or a route, follow every link of the site (all must answer 200).
+
+### Blog
+
+- The director wants the blog to be one of the important pages, carrying the company's information as
+  well as its articles. Its plan was approved by the client: the categories, an author on each
+  article, no photos yet, no newsletter, no writing page or sign-in. The company's news have since
+  left it for the Actualités page (the client's decision): four categories remain. The client writes the articles
+  themselves, in code: keep adding one a matter of copying a file.
+- Each article is a Markdown file in `src/content/blog/` (collection in `src/content.config.ts`),
+  whose name is its address: articles live at the root of the site, as on the current one
+  (`pages/[article].astro`). `_modele-article.md` is the template (files starting with "_" are not
+  published); README.md, "Writing an article", says how. Its fields are checked at build time:
+  category, author and service are lists, and a wrong value stops the build with the right ones.
+- Categories: keys, icons and colours in `src/data/blog.ts`, names and descriptions in
+  `t.pages.blog.categories`. Their pages are `/category/<key>/` (`import-export` is the current
+  site's address). Authors are the people of the contact page, by their `key` in `fr.pages.ts`; an
+  article without an author is signed ACCESS TRANSIT (the logo's "A" stands for a photo).
+- The blog's first page opens on the article "À la une" (`featured: true`, or the newest) beside
+  "Access Transit en bref" (the about paragraph, "Depuis 2010", the certificate and its link, the key
+  figures `why.stats`, quote and contact); then the category pills and the other articles, nine to a
+  page (`/blog/2/`…), then the help band. An article page: category, title, author, date and reading
+  time; its picture; its text beside a column with the summary (from three `##` intertitles) and the
+  share buttons (LinkedIn, WhatsApp, copy link); its author; the service it leads to (`service`) or
+  help offered; three related articles. It tells search engines it is an article (`og:type`,
+  BlogPosting data, `og:image` from its cover).
+- Until an article has a photo (`cover`), `BlogCover.astro` shows its category's drawn icon on a pale
+  ground with the thin orange stroke, lower than a photo would be (`--cover-ratio-empty`). The finish
+  is the quiet one the client accepts (no box round the cards, hairlines, the orange stroke as the one
+  accent): keep it.
+- Check the blog at 1420 and on a phone with one article and with several (add a temporary article
+  file, with an author and three `##`, then delete it), and a category page without articles.
+
+### Actualités
+
+- The director wanted a news page "as the big companies" have. `pages/actualites/index.astro`: the
+  notices to clients kept at the top (`pinned: true`, type `avis-clients`), "À la une" (the newest)
+  beside the three next ones, all the news by year with a filter by kind (a small script; without it
+  everything shows and the filter is hidden), and the press corner (contact, logo to download, the
+  presentations, the certificate's page, LinkedIn). Each item has its page, `/actualites/<file>/`
+  (`pages/actualites/[slug].astro`): kind, title, date, picture if any, text, share buttons, three
+  other news items.
+- Each news item is a Markdown file in `src/content/actualites/` (collection `actualites` in
+  `content.config.ts`, template `_modele-actualite.md`, README "Writing a news item"). The kinds are
+  `src/data/actualites.ts` (`entreprise`, `avis-clients`, `evenements`, `certifications`; each with
+  a drawn icon, two of them drawn for this page: `entreprise`, `calendrier`), their names
+  `t.pages.actualites.types`.
+- The list's pieces are `NewsItem.astro` (lead, row, compact); the picture, the text and the share
+  buttons are shared with the blog (`BlogCover`, `ArticleText`, `ShareLinks`).
+- There is no news yet: the page shows "Les premières actualités paraîtront ici." and the press corner.
+  The director is asked for the first items and the press contact in
+  `informations-logistique-et-actualites.xlsx` (kept out of git: `.git/info/exclude`).
+- In the menu, "Blog" became "Actualités", a small menu with the Actualités page and the blog (the
+  client's decision): there is no room in the bar for one more item. The longer word took the bar's
+  last room: its gaps and the distance from the logo close up more, the carets are smaller, and
+  between 80em and 86em the menu's text is 15px (instead of 16.25px) and the quote button narrower.
+  At least 15px must stay before FR/EN at every width: measure 1280, 1366, 1376, 1420, 1536 and 1920.
+- Still to come (approved): a "Dernières actualités" block on the homepage, once this page is
+  approved; and the Logistique part, once the director has filled in the Excel file.
 
 ### Movement
 

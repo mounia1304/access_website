@@ -14,9 +14,13 @@ interface Props {
 	description?: string;
 	locale?: Locale;
 	noindex?: boolean;
+	/** "article" for an article of the blog. */
+	type?: 'website' | 'article';
+	/** The picture shown when the page is shared (a path on the site). */
+	image?: string;
 }
 
-const { locale = defaultLocale, noindex = false } = Astro.props;
+const { locale = defaultLocale, noindex = false, type = 'website', image } = Astro.props;
 const t = useTranslations(locale);
 const title = Astro.props.title ?? t.meta.title;
 const description = Astro.props.description ?? t.meta.description;
@@ -49,7 +53,8 @@ const structuredData = {
 		{/* Colour of the browser bar on phones: the menu bar's colour (--c-surface in tokens.css). */}
 		<meta name="theme-color" content="#ffffff" />
 
-		<meta property="og:type" content="website" />
+		<meta property="og:type" content={type} />
+		{image && <meta property="og:image" content={new URL(image, Astro.site)} />}
 		<meta property="og:site_name" content={site.name} />
 		<meta property="og:locale" content="fr_FR" />
 		<meta property="og:title" content={title} />

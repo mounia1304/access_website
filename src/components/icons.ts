@@ -37,6 +37,13 @@ import mapTrifold from '@phosphor-icons/core/assets/regular/map-trifold.svg?raw'
 import usersThree from '@phosphor-icons/core/assets/regular/users-three.svg?raw';
 import chartLineUp from '@phosphor-icons/core/assets/regular/chart-line-up.svg?raw';
 import coins from '@phosphor-icons/core/assets/regular/coins.svg?raw';
+import whatsapp from '@phosphor-icons/core/assets/regular/whatsapp-logo.svg?raw';
+import linkSimple from '@phosphor-icons/core/assets/regular/link-simple.svg?raw';
+import newspaper from '@phosphor-icons/core/assets/regular/newspaper.svg?raw';
+import article from '@phosphor-icons/core/assets/regular/article.svg?raw';
+import download from '@phosphor-icons/core/assets/regular/download-simple.svg?raw';
+import calendar from '@phosphor-icons/core/assets/regular/calendar-blank.svg?raw';
+import info from '@phosphor-icons/core/assets/regular/info.svg?raw';
 
 
 // A page with a folded corner and three lines, and a round badge that carries a figure.
@@ -85,6 +92,13 @@ export const icons = {
 	'users-three': inner(usersThree),
 	'chart-line-up': inner(chartLineUp),
 	coins: inner(coins),
+	whatsapp: inner(whatsapp),
+	link: inner(linkSimple),
+	newspaper: inner(newspaper),
+	article: inner(article),
+	download: inner(download),
+	calendar: inner(calendar),
+	info: inner(info),
 	'customs-file': customsFile,
 } as const;
 

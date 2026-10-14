@@ -1,0 +1,309 @@
+---
+// The blog. Its first page opens on the article "À la une" beside ACCESS TRANSIT in brief (who
+// the company is, its certificate, its figures, the ways to reach it), as the director wanted
+// the blog to carry the company's information as well as its articles. Then come the categories
+// and the other articles, newest first, PAGE_SIZE to a page (/blog/2/, /blog/3/…).
+//
+// The articles are Markdown files in src/content/blog/ (README.md, "Writing an article").
+import type { GetStaticPaths, Page } from 'astro';
+import BlogCard from '../../components/BlogCard.astro';
+import BlogPager from '../../components/BlogPager.astro';
+import CategoryNav from '../../components/CategoryNav.astro';
+import HelpBand from '../../components/HelpBand.astro';
+import Icon from '../../components/Icon.astro';
+import PageHead from '../../components/PageHead.astro';
+import Base from '../../layouts/Base.astro';
+import { PAGE_SIZE } from '../../data/blog';
+import { site } from '../../data/site';
+import { route, useTranslations } from '../../i18n';
+import { featuredOf, getPosts, type Post } from '../../utils/blog';
+
+export const getStaticPaths = (async ({ paginate }) => {
+	const posts = await getPosts();
+	const featured = featuredOf(posts);
+	return paginate(
+		posts.filter((post) => post !== featured),
+		{ pageSize: PAGE_SIZE, props: { posts, featured } },
+	);
+}) satisfies GetStaticPaths;
+
+interface Props {
+	page: Page<Post>;
+	posts: Post[];
+	featured?: Post;
+}
+
+const { page, posts, featured } = Astro.props;
+const first = page.currentPage === 1;
+const t = useTranslations();
+const { blog, aside, qualite } = t.pages;
+const title = first ? `Blog | ${site.name}` : `Blog – ${blog.page} ${page.currentPage} | ${site.name}`;
+---
+
+<Base title={title} description={blog.intro}>
+	<PageHead title={blog.title} trail={first ? [] : [{ label: 'Blog', href: route('blog') }]}>
+		<p class="lead blog-intro">{blog.intro}</p>
+	</PageHead>
+
+	{
+		first && featured && (
+			<section class="section page-body blog-featured">
+				<div class="wrap">
+					<div class="wrap__in blog-top">
+						<div class="blog-top__lead">
+							<p class="eyebrow eyebrow--lines">{blog.featured}</p>
+							<BlogCard post={featured} featured heading="h2" eager />
+						</div>
+
+						<aside class="brief on-accent" aria-labelledby="brief-title">
+							<p class="brief__label" id="brief-title">
+								{blog.brief}
+							</p>
+							<p class="brief__text">{t.about.paragraphs[0]}</p>
+							<ul class="brief__facts">
+								<li>{t.about.eyebrow}</li>
+								<li>
+									{qualite.certificate.title.join(' ')}
+									<a href={site.certificate} target="_blank" rel="noopener">
+										{qualite.certificate.verify}
+										<span class="visually-hidden">
+											{qualite.certificate.verifyNote} ({t.pages.ui.external})
+										</span>
+										<Icon name="arrow-up-right" size={14} />
+									</a>
+								</li>
+							</ul>
+							<dl class="brief__figures">
+								{t.why.stats.map((stat) => (
+									<div>
+										<dt>{stat.label}</dt>
+										<dd>{stat.value}</dd>
+									</div>
+								))}
+							</dl>
+							<div class="brief__actions">
+								<a class="btn btn--soft" href={route('cotation')}>
+									{t.common.quoteCta}
+									<Icon name="arrow-right" size={16} />
+								</a>
+								<a class="brief__link" href={route('contact')}>
+									{aside.contact}
+									<Icon name="arrow-right" size={14} />
+								</a>
+							</div>
+						</aside>
+					</div>
+				</div>
+			</section>
+		)
+	}
+
+	<section class:list={['section', 'blog-list', { 'page-body': !first || !featured }]}>
+		<div class="wrap">
+			<div class="wrap__in">
+				<div class="blog-list__head">
+					<h2>{blog.all}</h2>
+					<CategoryNav posts={posts} current="all" />
+				</div>
+				{
+					page.data.length ? (
+						<ul class="post-grid">
+							{page.data.map((post) => (
+								<li>
+									<BlogCard post={post} />
+								</li>
+							))}
+						</ul>
+					) : (
+						<p class="blog-list__note">{blog.soon}</p>
+					)
+				}
+				<BlogPager page={page} />
+			</div>
+		</div>
+	</section>
+
+	<HelpBand />
+</Base>
+
+<style>
+	.blog-featured {
+		padding-bottom: 0;
+	}
+
+	.blog-intro {
+		max-width: 40rem;
+		margin-top: 0.5rem;
+	}
+
+	/* "À la une" and ACCESS TRANSIT in brief, side by side on large screens. */
+	.blog-top {
+		display: grid;
+		gap: 2.5rem;
+	}
+
+	.blog-top__lead {
+		display: grid;
+		align-content: start;
+		gap: 1.25rem;
+	}
+
+	@media (min-width: 64em) {
+		.blog-top {
+			grid-template-columns: minmax(0, 1.75fr) minmax(19rem, 1fr);
+			column-gap: clamp(2.5rem, 4.5cqw, 5rem);
+			align-items: start;
+		}
+
+		.brief {
+			position: sticky;
+			top: calc(var(--header-h) + 1.5rem);
+			margin-top: 2.6rem;
+		}
+	}
+
+	/* ACCESS TRANSIT in brief: the footer's blue. */
+	.brief {
+		display: grid;
+		gap: 1.25rem;
+		padding: clamp(1.5rem, 1rem + 1.5vw, 2.25rem);
+		border-radius: var(--r-lg);
+		background: var(--c-accent) var(--g-accent-deep);
+	}
+
+	.brief__label {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		color: var(--c-on-accent);
+		font-size: var(--fs-eyebrow);
+		font-weight: 700;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+	}
+
+	.brief__label::before {
+		content: '';
+		flex: none;
+		width: 2px;
+		height: 1.15em;
+		border-radius: 2px;
+		background: var(--g-bar);
+		rotate: calc(var(--slant) * -1);
+	}
+
+	.brief__text {
+		font-size: var(--fs-small);
+		line-height: 1.6;
+	}
+
+	.brief__facts {
+		display: grid;
+		gap: 0.5rem;
+		padding-block: 1rem;
+		border-block: 1px solid var(--c-line-accent);
+		color: var(--c-on-accent);
+		font-size: var(--fs-small);
+		font-weight: 600;
+	}
+
+	.brief__facts li {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.35rem 0.75rem;
+	}
+
+	.brief__facts a {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.3rem;
+		color: var(--c-on-accent-soft);
+		font-weight: 400;
+		text-decoration: underline;
+		text-underline-offset: 0.22em;
+	}
+
+	.brief__facts a:hover {
+		color: var(--c-on-accent);
+	}
+
+	.brief__figures {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 1rem 1.25rem;
+	}
+
+	/* The label comes first in the markup, the number first on screen. */
+	.brief__figures div {
+		display: flex;
+		flex-direction: column-reverse;
+		justify-content: flex-end;
+		gap: 0.15rem;
+	}
+
+	.brief__figures dd {
+		color: var(--c-on-accent);
+		font-size: clamp(1.5rem, 1.25rem + 0.8vw, 1.875rem);
+		font-variant-numeric: tabular-nums;
+		font-weight: 700;
+		letter-spacing: -0.02em;
+		line-height: 1.1;
+		white-space: nowrap;
+	}
+
+	.brief__figures dt {
+		font-size: var(--fs-label);
+		line-height: 1.3;
+	}
+
+	.brief__actions {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.75rem 1.25rem;
+		margin-top: 0.25rem;
+	}
+
+	.brief__link {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+		color: var(--c-on-accent);
+		font-size: var(--fs-ui);
+		font-weight: 500;
+	}
+
+	.brief__link:hover {
+		text-decoration: underline;
+		text-underline-offset: 0.25em;
+	}
+
+	/* All the articles. */
+	.blog-list {
+		padding-top: clamp(2.5rem, 1.5rem + 3vw, 4.5rem);
+	}
+
+	.blog-list.page-body {
+		padding-top: 0;
+	}
+
+	.blog-list__head {
+		display: grid;
+		gap: 1.25rem;
+		margin-bottom: clamp(2rem, 1.5rem + 1.5vw, 3rem);
+		padding-bottom: 1.5rem;
+		border-bottom: 1px solid var(--c-line);
+	}
+
+	.blog-list__head h2 {
+		font-size: clamp(1.625rem, 1.3rem + 1vw, 2.25rem);
+		font-weight: 700;
+		letter-spacing: -0.025em;
+	}
+
+	.blog-list__note {
+		color: var(--c-text);
+	}
+
+</style>

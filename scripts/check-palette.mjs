@@ -108,6 +108,8 @@ const pairs = [
 	['name on a pale pill of the online services', colour('c-ink'), colour('c-tint'), TEXT],
 	['name on a full pill of the online services', colour('c-on-accent'), colour('c-accent-floor'), TEXT],
 	['icon on an orange square of the team', colour('c-display'), colour('c-card-warm'), LARGE],
+	['title of a notice to clients', colour('c-ink'), colour('c-card-warm'), TEXT],
+	['text and date of a notice to clients', colour('c-text'), colour('c-card-warm'), TEXT],
 	['icon on a blue square of the team', colour('c-label'), colour('c-tint'), LARGE],
 	['initials in an orange photo frame', colour('c-display'), colour('c-panel'), LARGE],
 	['initials in a blue photo frame', colour('c-label'), colour('c-panel'), LARGE],

@@ -1,0 +1,94 @@
+---
+// The blog's categories, as a row of pills: all the articles, then each category with the number
+// of its articles. The page on screen is marked.
+import { CATEGORIES, type CategoryKey } from '../data/blog';
+import { route, useTranslations } from '../i18n';
+import { categoryOf, type Post } from '../utils/blog';
+
+interface Props {
+	posts: Post[];
+	current: 'all' | CategoryKey;
+}
+
+const { posts, current } = Astro.props;
+const t = useTranslations();
+const { blog } = t.pages;
+const items = [
+	{ key: 'all', name: blog.all, href: route('blog'), count: posts.length },
+	...CATEGORIES.map((key) => {
+		const category = categoryOf(key);
+		return { key, name: category.name, href: category.href, count: posts.filter((post) => post.data.category === key).length };
+	}),
+];
+---
+
+<nav class="cats" aria-label={blog.categoriesNav}>
+	<ul>
+		{
+			items.map((item) => (
+				<li>
+					<a href={item.href} aria-current={item.key === current ? 'page' : undefined}>
+						{item.name} <span class="cats__count">{item.count}</span>
+					</a>
+				</li>
+			))
+		}
+	</ul>
+</nav>
+
+<style>
+	.cats ul {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+
+	.cats a {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.55rem;
+		min-height: 2.625rem;
+		padding: 0.4rem 0.9rem 0.4rem 1.1rem;
+		border: 1px solid var(--c-card-line);
+		border-radius: var(--r-pill);
+		background: var(--c-surface);
+		color: var(--c-ink);
+		font-size: var(--fs-label);
+		font-weight: 500;
+		line-height: 1.2;
+		transition:
+			border-color 0.2s,
+			background-color 0.2s,
+			color 0.2s;
+	}
+
+	.cats__count {
+		display: grid;
+		place-items: center;
+		min-width: 1.5rem;
+		height: 1.5rem;
+		padding-inline: 0.35rem;
+		border-radius: var(--r-pill);
+		background: var(--c-tile);
+		color: var(--c-label);
+		font-size: 0.8em;
+		font-variant-numeric: tabular-nums;
+		font-weight: 600;
+	}
+
+	.cats a:hover {
+		border-color: var(--c-tile-strong);
+		background: var(--c-panel);
+	}
+
+	.cats a[aria-current='page'] {
+		border-color: transparent;
+		background: var(--c-accent) var(--g-accent);
+		color: var(--c-on-accent);
+	}
+
+	.cats a[aria-current='page'] .cats__count {
+		background: rgb(255 255 255 / 0.18);
+		color: var(--c-on-accent);
+	}
+</style>

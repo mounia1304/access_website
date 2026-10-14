@@ -543,6 +543,13 @@ p {
 	line-height: 1.5;
 }
 
+/* A list of articles of the blog (BlogCard.astro): as many columns as fit. */
+.post-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+	gap: clamp(2.5rem, 2rem + 1.5vw, 3.5rem) clamp(1.5rem, 1rem + 1.5vw, 2.5rem);
+}
+
 /* Running text: paragraphs, lists whose items start with the site's thin orange stroke, and
    lists of terms. */
 .prose {

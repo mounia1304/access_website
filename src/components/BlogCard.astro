@@ -1,0 +1,185 @@
+---
+// An article in a list: its picture, its category, its title, the start of its description, then
+// its author, its date and how long it takes to read. The link in the title covers the whole card.
+// No box round it: the picture and the type are enough. "featured" is the article "À la une".
+import Avatar from './Avatar.astro';
+import BlogCover from './BlogCover.astro';
+import { useTranslations } from '../i18n';
+import { authorOf, categoryOf, formatDate, isoDate, readingTime, type Post } from '../utils/blog';
+
+interface Props {
+	post: Post;
+	featured?: boolean;
+	/** The level of its title in the page. */
+	heading?: 'h2' | 'h3';
+	eager?: boolean;
+}
+
+const { post, featured = false, heading: Heading = 'h3', eager = false } = Astro.props;
+const t = useTranslations();
+const { blog } = t.pages;
+const author = authorOf(post);
+const category = categoryOf(post.data.category);
+---
+
+<article class:list={['post', { 'post--featured': featured }]}>
+	<BlogCover
+		cover={post.data.cover}
+		alt={post.data.coverAlt}
+		icon={category.icon}
+		tone={category.tone}
+		sizes={featured ? '(min-width: 64em) 56vw, 92vw' : '(min-width: 64em) 30vw, (min-width: 40em) 46vw, 92vw'}
+		eager={eager}
+		class="post__cover"
+	/>
+	<div class="post__body">
+		<p class="post__category">{category.name}</p>
+		<Heading class="post__title">
+			<a class="card__link" href={`/${post.id}/`}>{post.data.title}</a>
+		</Heading>
+		<p class="post__desc">{post.data.description}</p>
+		<p class="post__meta">
+			<Avatar author={author} size={featured ? '2.25rem' : '1.875rem'} />
+			<span class="post__author">{author.name}</span>
+			<span class="post__dot" aria-hidden="true"></span>
+			<time datetime={isoDate(post.data.date)}>{formatDate(post.data.date)}</time>
+			<span class="post__dot" aria-hidden="true"></span>
+			<span>{readingTime(post)} {blog.minutes}</span>
+		</p>
+	</div>
+</article>
+
+<style>
+	.post {
+		position: relative;
+		display: grid;
+		align-content: start;
+		gap: 1.25rem;
+	}
+
+	.post :global(.post__cover) {
+		transition:
+			translate 0.45s var(--ease),
+			box-shadow 0.45s;
+	}
+
+	.post__body {
+		display: grid;
+		gap: 0.6rem;
+	}
+
+	/* The category, after the thin orange stroke of the site's labels. */
+	.post__category {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		color: var(--c-label);
+		font-size: var(--fs-eyebrow);
+		font-weight: 700;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+	}
+
+	.post__category::before {
+		content: '';
+		flex: none;
+		width: 2px;
+		height: 1.15em;
+		border-radius: 2px;
+		background: var(--g-bar);
+		rotate: calc(var(--slant) * -1);
+	}
+
+	.post__title {
+		font-size: clamp(1.25rem, 1.05rem + 0.55vw, 1.5rem);
+		font-weight: 700;
+		letter-spacing: -0.015em;
+		line-height: 1.25;
+	}
+
+	.post__title a {
+		transition: color 0.2s;
+	}
+
+	/* The link in the title covers the whole card. */
+	.post :global(.card__link)::after {
+		z-index: 1;
+	}
+
+	.post__desc {
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 3;
+		overflow: hidden;
+		font-size: var(--fs-small);
+		line-height: 1.6;
+	}
+
+	.post__meta {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.4rem 0.6rem;
+		margin-top: 0.4rem;
+		font-size: var(--fs-label);
+		font-variant-numeric: tabular-nums;
+		line-height: 1.3;
+	}
+
+	.post__author {
+		margin-left: 0.15rem;
+		color: var(--c-ink);
+		font-weight: 500;
+	}
+
+	.post__dot {
+		flex: none;
+		width: 3px;
+		height: 3px;
+		border-radius: 50%;
+		background: var(--c-field-line);
+	}
+
+	.post:has(:global(.card__link:focus-visible)) {
+		outline: 2px solid var(--c-accent);
+		outline-offset: 0.5rem;
+		border-radius: 1.25rem;
+	}
+
+	@media (hover: hover) {
+		.post:hover :global(.post__cover) {
+			translate: 0 calc(var(--motion) * -0.25rem);
+			box-shadow: var(--shadow-pop);
+		}
+
+		.post:hover :global(.post__cover img) {
+			scale: calc(1 + var(--motion) * 0.03);
+		}
+
+		.post:hover .post__title a {
+			color: var(--c-accent);
+		}
+	}
+
+	/* "À la une". */
+	.post--featured {
+		gap: 1.5rem;
+	}
+
+	.post--featured :global(.post__cover) {
+		--cover-ratio: 16 / 9;
+		--cover-ratio-empty: 2.2 / 1;
+		--cover-r: var(--r-lg);
+	}
+
+	.post--featured .post__title {
+		font-size: clamp(1.625rem, 1.15rem + 1.5vw, 2.375rem);
+		letter-spacing: -0.025em;
+		line-height: 1.15;
+	}
+
+	.post--featured .post__desc {
+		-webkit-line-clamp: 4;
+		font-size: var(--fs-body);
+	}
+</style>

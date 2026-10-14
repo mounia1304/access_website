@@ -30,6 +30,7 @@
 import Icon from './Icon.astro';
 import type { IconName } from './icons';
 import { useTranslations } from '../i18n';
+import { initialsOf } from '../utils/text';
 
 const t = useTranslations();
 const { contact } = t.pages;
@@ -62,12 +63,6 @@ const PLACES: Place[] = [
 ];
 // The colour of each card: blue on the left, orange at the top and on the right.
 const TONES = ['warm', 'blue', 'warm', 'blue', 'warm', 'blue', 'warm'] as const;
-
-// Initials stand in for the photos: the first name's (written last), then the family name's.
-const initialsOf = (name: string) => {
-	const words = name.replace(/^M\.\s*/, '').split(/\s+/);
-	return `${words.at(-1)![0]}${words[0][0]}`.toUpperCase();
-};
 
 const contactOf = (person: { phone: string | null; email: string | null }) => ({
 	phone: person.phone,

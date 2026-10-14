@@ -16,6 +16,7 @@ export const routes = {
 		reclamation: '/e-services/reclamations/',
 		qualite: '/notre-politique-qualite/',
 		blog: '/blog/',
+		actualites: '/actualites/',
 		contact: '/contact/',
 	},
 } as const;

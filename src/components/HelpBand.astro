@@ -1,0 +1,84 @@
+---
+// The band that closes the blog's pages: help offered (the words of the help card of the service
+// pages), with the way to a quote and to the contact page.
+import Icon from './Icon.astro';
+import { route, useTranslations } from '../i18n';
+
+const t = useTranslations();
+const { aside } = t.pages;
+---
+
+<section class="section help-band">
+	<div class="wrap">
+		<div class="wrap__in">
+			<div class="help-band__box">
+				<div class="help-band__text">
+					<h2>{aside.help}</h2>
+					<p>{aside.helpText}</p>
+				</div>
+				<div class="help-band__actions">
+					<a class="btn btn--accent" href={route('cotation')}>
+						{t.common.quoteCta}
+						<Icon name="arrow-right" size={16} />
+					</a>
+					<a class="btn btn--outline" href={route('contact')}>{aside.contact}</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<style>
+	.help-band {
+		padding-top: 0;
+	}
+
+	.help-band__box {
+		display: grid;
+		gap: 1.5rem;
+		padding: clamp(1.75rem, 1rem + 3vw, 3.25rem);
+		border: 1px solid var(--c-card-line);
+		border-radius: var(--r-lg);
+		background: var(--c-panel);
+	}
+
+	.help-band__text {
+		display: grid;
+		gap: 0.5rem;
+	}
+
+	/* The title starts with the thin orange stroke, as the commitments of the inner pages do. */
+	.help-band h2 {
+		display: flex;
+		align-items: center;
+		font-size: clamp(1.5rem, 1.25rem + 0.9vw, 2rem);
+		font-weight: 700;
+		letter-spacing: -0.02em;
+		line-height: 1.2;
+	}
+
+	.help-band h2::before {
+		content: '';
+		flex: none;
+		width: 2px;
+		height: 1em;
+		margin-inline: 0.3em 0.6em;
+		border-radius: 2px;
+		background: var(--g-bar);
+		rotate: calc(var(--slant) * -1);
+	}
+
+	.help-band__actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+	}
+
+	@media (min-width: 56em) {
+		.help-band__box {
+			grid-template-columns: minmax(0, 1fr) auto;
+			align-items: center;
+			column-gap: 3rem;
+		}
+	}
+</style>

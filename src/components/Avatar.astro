@@ -1,0 +1,51 @@
+---
+// An author's portrait: a thin ring in the logo's blue, a white gap, and inside it the person's
+// photo (none yet: their initials), or, for an article signed by the company, the logo's "A".
+import type { Author } from '../utils/blog';
+
+interface Props {
+	author: Author;
+	/** Its width (and height). */
+	size?: string;
+	class?: string;
+}
+
+const { author, size = '2rem', class: className } = Astro.props;
+---
+
+<span class:list={['avatar', className]} style={`--size: ${size}`} aria-hidden="true">
+	{author.company ? <img src="/favicon.png" alt="" width="64" height="64" /> : <span>{author.initials}</span>}
+</span>
+
+<style>
+	.avatar {
+		display: inline-grid;
+		flex: none;
+		width: var(--size);
+		height: var(--size);
+		padding: max(1.5px, calc(var(--size) * 0.045));
+		border-radius: 50%;
+		background: var(--g-accent);
+	}
+
+	.avatar > * {
+		display: grid;
+		place-items: center;
+		width: 100%;
+		height: 100%;
+		border: max(2px, calc(var(--size) * 0.06)) solid var(--c-surface);
+		border-radius: 50%;
+		background: var(--c-panel);
+		color: var(--c-label);
+		font-size: calc(var(--size) * 0.34);
+		font-weight: 600;
+		letter-spacing: 0.02em;
+		line-height: 1;
+	}
+
+	.avatar img {
+		padding: calc(var(--size) * 0.07);
+		background: var(--c-surface);
+		object-fit: contain;
+	}
+</style>

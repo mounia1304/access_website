@@ -1,60 +1,464 @@
 ---
-// An article of the blog. On the current site articles live at the root of the site
-// (access-transit.com/<title-of-the-article>/): they keep that address here.
+// An article of the blog (a Markdown file in src/content/blog/). Articles live at the root of the
+// site, as on the current one (access-transit.com/<title-of-the-article>/): they keep that address.
+//
+// Its head gives the category, the title, the author, the date and the reading time; then come
+// its picture and its text, with a column beside it that holds the summary (from three
+// intertitles up) and the ways to share it; then its author, the service it leads to (or help
+// offered) and three other articles.
+import type { GetStaticPaths } from 'astro';
+import { render } from 'astro:content';
+import Avatar from '../components/Avatar.astro';
+import BlogCard from '../components/BlogCard.astro';
+import ArticleText from '../components/ArticleText.astro';
+import BlogCover from '../components/BlogCover.astro';
 import Icon from '../components/Icon.astro';
 import PageHead from '../components/PageHead.astro';
+import ServiceIcon from '../components/ServiceIcon.astro';
+import ShareLinks from '../components/ShareLinks.astro';
 import Base from '../layouts/Base.astro';
 import { site } from '../data/site';
 import { route, useTranslations } from '../i18n';
-import { excerpt } from '../utils/text';
+import { authorOf, categoryOf, formatDate, getPosts, isoDate, readingTime, relatedTo, type Post } from '../utils/blog';
 
-export function getStaticPaths() {
-	return useTranslations().pages.blog.posts.map((post) => ({ params: { article: post.slug }, props: { slug: post.slug } }));
-}
+export const getStaticPaths = (async () => {
+	const posts = await getPosts();
+	return posts.map((post) => ({ params: { article: post.id }, props: { post, posts } }));
+}) satisfies GetStaticPaths;
 
 interface Props {
-	slug: string;
+	post: Post;
+	posts: Post[];
 }
 
+const { post, posts } = Astro.props;
+const { Content, headings } = await render(post);
 const t = useTranslations();
-const { blog } = t.pages;
-const post = blog.posts.find((item) => item.slug === Astro.props.slug)!;
+const { blog, aside } = t.pages;
+const author = authorOf(post);
+const category = categoryOf(post.data.category);
+const toc = headings.filter((heading) => heading.depth === 2);
+const service = t.services.items.find((item) => item.key === post.data.service);
+const related = relatedTo(post, posts);
+const url = new URL(Astro.url.pathname, Astro.site).href;
+
+// What search engines read about the article.
+const structuredData = {
+	'@context': 'https://schema.org',
+	'@type': 'BlogPosting',
+	headline: post.data.title,
+	description: post.data.description,
+	datePublished: isoDate(post.data.date),
+	mainEntityOfPage: url,
+	author: author.company ? { '@type': 'Organization', name: site.name, url: site.url } : { '@type': 'Person', name: author.name },
+	publisher: { '@type': 'Organization', name: site.name, url: site.url },
+	...(post.data.cover ? { image: new URL(post.data.cover.src, Astro.site).href } : {}),
+};
 ---
 
-<Base title={`${post.title} | ${site.name}`} description={excerpt(post.paragraphs[0])}>
-	<PageHead title={post.title} eyebrow={post.category} trail={[{ label: blog.title, href: route('blog') }]} long>
-		<time class="article__date" datetime={post.date}>{post.dateText}</time>
+<Base title={`${post.data.title} | ${site.name}`} description={post.data.description} type="article" image={post.data.cover?.src}>
+	<PageHead
+		title={[post.data.title, '']}
+		eyebrow={category.name}
+		trail={[
+			{ label: 'Blog', href: route('blog') },
+			{ label: category.name, href: category.href },
+		]}
+		long
+	>
+		<div class="byline">
+			<Avatar author={author} size="2.875rem" />
+			<div>
+				<p class="byline__name">{author.name}</p>
+				<p class="byline__meta">
+					<time datetime={isoDate(post.data.date)}>{formatDate(post.data.date)}</time>
+					<span class="byline__dot" aria-hidden="true"></span>
+					<span>{readingTime(post)} {blog.minutes}</span>
+				</p>
+			</div>
+		</div>
 	</PageHead>
 
 	<section class="section page-body">
 		<div class="wrap">
-			<div class="wrap__in article">
-				<div class="prose">
-					<h2>{post.subtitle}</h2>
-					{post.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+			<div class="wrap__in read">
+				<aside class="read__aside">
+					{
+						toc.length >= 3 && (
+							<nav class="toc" aria-labelledby="toc-title">
+								<p class="read__label" id="toc-title">
+									{blog.toc}
+								</p>
+								<ol>
+									{toc.map((heading) => (
+										<li>
+											<a href={`#${heading.slug}`}>{heading.text}</a>
+										</li>
+									))}
+								</ol>
+							</nav>
+						)
+					}
+					<ShareLinks url={url} title={post.data.title} />
+				</aside>
+
+				<div class="read__main">
+					<BlogCover
+						cover={post.data.cover}
+						alt={post.data.coverAlt}
+						icon={category.icon}
+						tone={category.tone}
+						sizes="(min-width: 64em) 62vw, 92vw"
+						eager
+						class="read__cover"
+					/>
+
+					<ArticleText>
+						<Content />
+					</ArticleText>
+
+					<div class="author-card">
+						<Avatar author={author} size="4.25rem" />
+						<div class="author-card__who">
+							<p class="author-card__label">{blog.writtenBy}</p>
+							<p class="author-card__name">{author.name}</p>
+							<p class="author-card__role">{author.role}</p>
+						</div>
+						<a class="author-card__link" href={route('contact')}>
+							{blog.contactAuthor}
+							<Icon name="arrow-right" size={14} />
+						</a>
+					</div>
+
+					{
+						service ? (
+							<div class="next on-accent">
+								<span class="next__knob" aria-hidden="true">
+									<ServiceIcon name={service.key} class="next__icon" />
+								</span>
+								<div class="next__text">
+									<p class="next__label">{blog.service}</p>
+									<h2>{service.name}</h2>
+									<p>{service.text}</p>
+								</div>
+								<div class="next__actions">
+									<a class="btn btn--soft" href={route(service.key)}>
+										{blog.discoverService}
+										<Icon name="arrow-right" size={16} />
+									</a>
+									<a class="next__link" href={route('cotation')}>
+										{t.common.quoteCta}
+										<Icon name="arrow-right" size={14} />
+									</a>
+								</div>
+							</div>
+						) : (
+							<div class="next on-accent">
+								<div class="next__text">
+									<h2>{aside.help}</h2>
+									<p>{aside.helpText}</p>
+								</div>
+								<div class="next__actions">
+									<a class="btn btn--soft" href={route('cotation')}>
+										{t.common.quoteCta}
+										<Icon name="arrow-right" size={16} />
+									</a>
+									<a class="next__link" href={route('contact')}>
+										{aside.contact}
+										<Icon name="arrow-right" size={14} />
+									</a>
+								</div>
+							</div>
+						)
+					}
+
+					<a class="read__back" href={route('blog')}>
+						<Icon name="arrow-left" size={16} />
+						{blog.back}
+					</a>
 				</div>
-				<a class="btn btn--outline" href={route('blog')}>
-					<Icon name="arrow-left" size={14} />
-					{blog.back}
-				</a>
 			</div>
 		</div>
 	</section>
+
+	{
+		related.length > 0 && (
+			<section class="section related">
+				<div class="wrap">
+					<div class="wrap__in">
+						<h2 class="related__title">{blog.related}</h2>
+						<ul class="post-grid">
+							{related.map((other) => (
+								<li>
+									<BlogCard post={other} />
+								</li>
+							))}
+						</ul>
+					</div>
+				</div>
+			</section>
+		)
+	}
+
+	<script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
 </Base>
 
 <style>
-	.article__date {
-		font-size: var(--fs-small);
+	/* The author, the date and the reading time, under the title. */
+	.byline {
+		display: flex;
+		align-items: center;
+		gap: 0.875rem;
+		margin-top: 0.75rem;
 	}
 
-	.article {
+	.byline__name {
+		color: var(--c-ink);
+		font-weight: 600;
+		line-height: 1.3;
+	}
+
+	.byline__meta {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.25rem 0.6rem;
+		font-size: var(--fs-label);
+		font-variant-numeric: tabular-nums;
+	}
+
+	.byline__dot {
+		width: 3px;
+		height: 3px;
+		border-radius: 50%;
+		background: var(--c-field-line);
+	}
+
+	/* The text, and the column beside it (above it on small screens). */
+	.read {
 		display: grid;
-		justify-items: start;
 		gap: 2.5rem;
 	}
 
-	/* The arrow of this button points back: it slides the other way. */
-	.article .btn:hover :global(.icon) {
-		transform: translateX(-3px);
+	.read__main {
+		display: grid;
+		gap: clamp(2rem, 1.5rem + 2vw, 3rem);
+		min-width: 0;
+	}
+
+	.read__aside {
+		display: grid;
+		align-content: start;
+		gap: 2rem;
+	}
+
+	.read__label {
+		margin-bottom: 0.75rem;
+		color: var(--c-label);
+		font-size: var(--fs-eyebrow);
+		font-weight: 700;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+	}
+
+	@media (min-width: 64em) {
+		.read {
+			grid-template-columns: minmax(0, 1fr) 15rem;
+			column-gap: clamp(3rem, 6cqw, 7rem);
+			align-items: start;
+		}
+
+		.read__main {
+			grid-area: 1 / 1;
+		}
+
+		.read__aside {
+			grid-area: 1 / 2;
+			position: sticky;
+			top: calc(var(--header-h) + 1.5rem);
+		}
+	}
+
+	.read :global(.read__cover) {
+		--cover-ratio: 16 / 9;
+		--cover-ratio-empty: 3 / 1;
+		--cover-r: var(--r-lg);
+	}
+
+	/* The summary: a line in the page's margin, which takes the accent where pointed at. */
+	.toc ol {
+		display: grid;
+		border-left: 1px solid var(--c-line);
+	}
+
+	.toc a {
+		display: block;
+		margin-left: -1px;
+		padding: 0.4rem 0 0.4rem 1rem;
+		border-left: 2px solid transparent;
+		color: var(--c-text);
+		font-size: var(--fs-label);
+		line-height: 1.35;
+		transition:
+			color 0.15s,
+			border-color 0.15s;
+	}
+
+	.toc a:hover {
+		border-left-color: var(--c-stroke);
+		color: var(--c-ink);
+	}
+
+	/* Who wrote it. */
+	.author-card {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 1rem 1.25rem;
+		max-width: 44rem;
+		padding-block: 1.5rem;
+		border-block: 1px solid var(--c-line);
+	}
+
+	.author-card__who {
+		flex: 1;
+		min-width: 12rem;
+	}
+
+	.author-card__label {
+		color: var(--c-label);
+		font-size: var(--fs-eyebrow);
+		font-weight: 700;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+	}
+
+	.author-card__name {
+		margin-top: 0.2rem;
+		color: var(--c-ink);
+		font-size: var(--fs-h3);
+		font-weight: 700;
+		line-height: 1.25;
+	}
+
+	.author-card__role {
+		font-size: var(--fs-small);
+	}
+
+	.author-card__link {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+		color: var(--c-accent);
+		font-size: var(--fs-ui);
+		font-weight: 500;
+	}
+
+	.author-card__link:hover {
+		text-decoration: underline;
+		text-underline-offset: 0.25em;
+	}
+
+	/* What comes next: the service the article leads to, or help offered. */
+	.next {
+		display: grid;
+		gap: 1.25rem;
+		max-width: 44rem;
+		padding: clamp(1.5rem, 1rem + 2vw, 2.25rem);
+		border-radius: var(--r-lg);
+		background: var(--c-accent) var(--g-accent-deep);
+	}
+
+	.next__knob {
+		display: grid;
+		place-items: center;
+		width: 4rem;
+		height: 4rem;
+		border-radius: 50%;
+		background: var(--c-surface);
+	}
+
+	.next :global(.next__icon) {
+		--sicon: 2.875rem;
+	}
+
+	.next__text {
+		display: grid;
+		gap: 0.4rem;
+	}
+
+	.next__label {
+		color: var(--c-on-accent-soft);
+		font-size: var(--fs-eyebrow);
+		font-weight: 700;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+	}
+
+	.next h2 {
+		font-size: clamp(1.5rem, 1.25rem + 0.8vw, 1.875rem);
+		font-weight: 700;
+		letter-spacing: -0.02em;
+		line-height: 1.2;
+	}
+
+	.next__actions {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.75rem 1.25rem;
+	}
+
+	.next__link {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+		color: var(--c-on-accent);
+		font-size: var(--fs-ui);
+		font-weight: 500;
+	}
+
+	.next__link:hover {
+		text-decoration: underline;
+		text-underline-offset: 0.25em;
+	}
+
+	@media (min-width: 40em) {
+		.next:has(.next__knob) {
+			grid-template-columns: auto minmax(0, 1fr);
+			column-gap: 1.5rem;
+		}
+
+		.next:has(.next__knob) .next__actions {
+			grid-column: 2;
+		}
+	}
+
+	.read__back {
+		display: inline-flex;
+		justify-self: start;
+		align-items: center;
+		gap: 0.5rem;
+		color: var(--c-label);
+		font-size: var(--fs-ui);
+		font-weight: 500;
+	}
+
+	.read__back:hover {
+		color: var(--c-accent);
+	}
+
+	/* Three other articles. */
+	.related {
+		padding-top: 0;
+	}
+
+	.related__title {
+		margin-bottom: clamp(1.75rem, 1.25rem + 1.5vw, 2.75rem);
+		padding-bottom: 1.25rem;
+		border-bottom: 1px solid var(--c-line);
+		font-size: clamp(1.625rem, 1.3rem + 1vw, 2.25rem);
+		font-weight: 700;
+		letter-spacing: -0.025em;
 	}
 </style>

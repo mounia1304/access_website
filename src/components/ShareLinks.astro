@@ -1,0 +1,108 @@
+---
+// The ways to share a page of the blog or of the Actualités page: LinkedIn, WhatsApp, and its
+// address copied (a short note says so).
+import Icon from './Icon.astro';
+import { useTranslations } from '../i18n';
+
+interface Props {
+	/** The page's full address. */
+	url: string;
+	title: string;
+}
+
+const { url, title } = Astro.props;
+const t = useTranslations();
+const { blog, ui } = t.pages;
+const linkedin = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+const whatsapp = `https://wa.me/?text=${encodeURIComponent(`${title} ${url}`)}`;
+---
+
+<div class="share">
+	<p class="share__label">{blog.share}</p>
+	<ul class="share__list">
+		<li>
+			<a class="share__button" href={linkedin} target="_blank" rel="noopener">
+				<Icon name="linkedin" size={20} />
+				<span class="visually-hidden">{blog.shareOn} LinkedIn ({ui.external})</span>
+			</a>
+		</li>
+		<li>
+			<a class="share__button" href={whatsapp} target="_blank" rel="noopener">
+				<Icon name="whatsapp" size={20} />
+				<span class="visually-hidden">{blog.shareOn} WhatsApp ({ui.external})</span>
+			</a>
+		</li>
+		<li>
+			<button class="share__button" type="button" data-copy-link={url} data-copied-text={blog.copied}>
+				<Icon name="link" size={20} />
+				<span class="visually-hidden">{blog.copyLink}</span>
+			</button>
+		</li>
+	</ul>
+	<p class="share__note" role="status" data-copy-note></p>
+</div>
+
+<script>
+	// "Copier le lien": the page's address goes to the clipboard, and a short note says so.
+	for (const button of document.querySelectorAll<HTMLButtonElement>('[data-copy-link]')) {
+		const note = button.closest('.share')?.querySelector<HTMLElement>('[data-copy-note]');
+		let timer: number | undefined;
+		button.addEventListener('click', async () => {
+			try {
+				await navigator.clipboard.writeText(button.dataset.copyLink ?? location.href);
+			} catch {
+				return;
+			}
+			if (!note) return;
+			note.textContent = button.dataset.copiedText ?? '';
+			window.clearTimeout(timer);
+			timer = window.setTimeout(() => (note.textContent = ''), 2400);
+		});
+	}
+</script>
+
+<style>
+	.share__label {
+		margin-bottom: 0.75rem;
+		color: var(--c-label);
+		font-size: var(--fs-eyebrow);
+		font-weight: 700;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+	}
+
+	.share__list {
+		display: flex;
+		gap: 0.5rem;
+	}
+
+	.share__button {
+		display: grid;
+		place-items: center;
+		width: 2.75rem;
+		height: 2.75rem;
+		padding: 0;
+		border: 1px solid var(--c-card-line);
+		border-radius: 50%;
+		background: var(--c-surface);
+		color: var(--c-label);
+		cursor: pointer;
+		transition:
+			background-color 0.2s,
+			border-color 0.2s,
+			color 0.2s;
+	}
+
+	.share__button:hover {
+		border-color: transparent;
+		background: var(--c-accent);
+		color: var(--c-on-accent);
+	}
+
+	.share__note {
+		min-height: 1.5em;
+		margin-top: 0.5rem;
+		color: var(--c-label);
+		font-size: var(--fs-label);
+	}
+</style>

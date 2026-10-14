@@ -1,0 +1,501 @@
+---
+// The Actualités page, as the newsrooms of the large logistics companies: the notices to clients
+// kept at the top (pinned), the item "À la une" beside the latest news, then all the news by year
+// with a filter by kind, and the press corner (contact, logo, documents, LinkedIn).
+//
+// Each news item is a Markdown file in src/content/actualites/ (README.md, "Writing a news
+// item"). The client decided that the company's news leave the blog for this page.
+import Icon from '../../components/Icon.astro';
+import NewsItem from '../../components/NewsItem.astro';
+import PageHead from '../../components/PageHead.astro';
+import Base from '../../layouts/Base.astro';
+import logoFile from '../../assets/brand/logo.png';
+import { NEWS_TYPES } from '../../data/actualites';
+import { site } from '../../data/site';
+import { useTranslations } from '../../i18n';
+import { formatDate, isoDate } from '../../utils/blog';
+import { getNews, hrefOf, pinnedOf, typeOf } from '../../utils/news';
+
+const t = useTranslations();
+const { actualites: a, aside, ui } = t.pages;
+const news = await getNews();
+const pinned = pinnedOf(news);
+const lead = news.find((item) => !pinned.includes(item));
+const latest = news.filter((item) => item !== lead && !pinned.includes(item)).slice(0, 3);
+const years = [...new Set(news.map((item) => item.data.date.getUTCFullYear()))];
+// Only the kinds that have news are offered as filters.
+const types = NEWS_TYPES.filter((key) => news.some((item) => item.data.type === key)).map(typeOf);
+---
+
+<Base title={`Actualités | ${site.name}`} description={a.intro}>
+	<PageHead title={a.title}>
+		<p class="lead news-intro">{a.intro}</p>
+	</PageHead>
+
+	{
+		pinned.length > 0 && (
+			<section class="section page-body notices-section">
+				<div class="wrap">
+					<div class="wrap__in">
+						<div class="notices" role="region" aria-labelledby="notices-title">
+							<p class="notices__label" id="notices-title">
+								<Icon name="info" size={18} />
+								{a.notices}
+							</p>
+							<ul class="notices__list">
+								{pinned.map((item) => (
+									<li class="notice">
+										<time datetime={isoDate(item.data.date)}>{formatDate(item.data.date)}</time>
+										<h2>
+											<a href={hrefOf(item)}>{item.data.title}</a>
+										</h2>
+										<p>{item.data.description}</p>
+									</li>
+								))}
+							</ul>
+						</div>
+					</div>
+				</div>
+			</section>
+		)
+	}
+
+	{
+		lead ? (
+			<section class:list={['section', 'news-top', { 'page-body': pinned.length === 0 }]}>
+				<div class="wrap">
+					<div class="wrap__in news-top__grid">
+						<div class="news-top__lead">
+							<p class="eyebrow eyebrow--lines">{a.featured}</p>
+							<NewsItem item={lead} variant="lead" heading="h2" eager />
+						</div>
+						{latest.length > 0 && (
+							<aside class="news-latest" aria-labelledby="latest-title">
+								<h2 class="news-latest__title" id="latest-title">
+									{a.latest}
+								</h2>
+								<ul>
+									{latest.map((item) => (
+										<li>
+											<NewsItem item={item} variant="compact" />
+										</li>
+									))}
+								</ul>
+							</aside>
+						)}
+					</div>
+				</div>
+			</section>
+		) : (
+			<section class="section page-body news-top">
+				<div class="wrap">
+					<div class="wrap__in">
+						<p class="news-empty">{a.empty}</p>
+					</div>
+				</div>
+			</section>
+		)
+	}
+
+	{
+		news.length > 0 && (
+			<section class="section news-all">
+				<div class="wrap">
+					<div class="wrap__in">
+						<div class="news-all__head">
+							<h2>{a.all}</h2>
+							<div class="news-filter" role="group" aria-label={a.filterLabel} data-news-filter data-count={a.count.join('|')}>
+								<button type="button" aria-pressed="true" data-filter="all">
+									{a.filterAll}
+								</button>
+								{types.map((type) => (
+									<button type="button" aria-pressed="false" data-filter={type.key}>
+										{type.name}
+									</button>
+								))}
+							</div>
+							<p class="visually-hidden" role="status" data-news-count />
+						</div>
+						{years.map((year) => (
+							<div class="news-year" data-year>
+								<h3 class="news-year__title">{year}</h3>
+								<ul>
+									{news
+										.filter((item) => item.data.date.getUTCFullYear() === year)
+										.map((item) => (
+											<li data-type={item.data.type}>
+												<NewsItem item={item} variant="row" />
+											</li>
+										))}
+								</ul>
+							</div>
+						))}
+					</div>
+				</div>
+			</section>
+		)
+	}
+
+	<section class="section press" aria-labelledby="press-title">
+		<div class="wrap">
+			<div class="wrap__in">
+				<div class="press__box">
+					<div class="press__head">
+						<h2 id="press-title">{a.press.title}</h2>
+						<p>{a.press.text}</p>
+					</div>
+					<div class="press__cols">
+						<div>
+							<h3>{a.press.contact}</h3>
+							<ul class="press__list">
+								<li>
+									<a href={`mailto:${site.email}`}>
+										<Icon name="envelope" size={18} />
+										{site.email}
+									</a>
+								</li>
+								<li>
+									<a href={site.phone.href}>
+										<Icon name="phone" size={18} />
+										{site.phone.display}
+									</a>
+								</li>
+							</ul>
+						</div>
+						<div>
+							<h3>{a.press.kit}</h3>
+							<ul class="press__list">
+								<li>
+									<a href={logoFile.src} download="access-transit-logo.png">
+										<Icon name="download" size={18} />
+										{a.press.logo}
+									</a>
+								</li>
+								{aside.docs.map((doc) => (
+									<li>
+										<a href={doc.href} target="_blank" rel="noopener">
+											<Icon name="arrow-up-right" size={18} />
+											{doc.label}
+											<span class="visually-hidden">({ui.external})</span>
+										</a>
+									</li>
+								))}
+								<li>
+									<a href={site.certificate} target="_blank" rel="noopener">
+										<Icon name="arrow-up-right" size={18} />
+										{a.press.certificate}
+										<span class="visually-hidden">({ui.external})</span>
+									</a>
+								</li>
+							</ul>
+						</div>
+						<div>
+							<h3>{a.press.follow}</h3>
+							<a class="btn btn--outline press__follow" href={site.linkedin} target="_blank" rel="noopener">
+								<Icon name="linkedin" size={18} />
+								{a.press.linkedin}
+								<span class="visually-hidden">({ui.external})</span>
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</Base>
+
+<script>
+	// The filter by kind: it hides the other news, and the years left empty. Without the script,
+	// every news item shows and the filter does not appear.
+	const filter = document.querySelector<HTMLElement>('[data-news-filter]');
+	if (filter) {
+		const buttons = [...filter.querySelectorAll<HTMLButtonElement>('button[data-filter]')];
+		const rows = [...document.querySelectorAll<HTMLElement>('[data-year] li[data-type]')];
+		const years = [...document.querySelectorAll<HTMLElement>('[data-year]')];
+		const count = document.querySelector<HTMLElement>('[data-news-count]');
+		const [one, many] = (filter.dataset.count ?? '|').split('|');
+		filter.dataset.ready = '';
+		filter.addEventListener('click', (event) => {
+			const button = (event.target as HTMLElement).closest<HTMLButtonElement>('button[data-filter]');
+			if (!button) return;
+			const key = button.dataset.filter;
+			for (const other of buttons) other.setAttribute('aria-pressed', String(other === button));
+			let shown = 0;
+			for (const row of rows) {
+				row.hidden = key !== 'all' && row.dataset.type !== key;
+				if (!row.hidden) shown++;
+			}
+			for (const year of years) year.hidden = !year.querySelector('li[data-type]:not([hidden])');
+			if (count) count.textContent = `${shown} ${shown === 1 ? one : many}`;
+		});
+	}
+</script>
+
+<style>
+	.news-intro {
+		max-width: 40rem;
+		margin-top: 0.5rem;
+	}
+
+	/* The notices to clients: a pale orange panel at the top, each notice after an orange edge. */
+	.notices-section {
+		padding-bottom: 0;
+	}
+
+	.notices {
+		display: grid;
+		gap: 1rem;
+		padding: clamp(1.25rem, 1rem + 1.5vw, 2rem);
+		border: 1px solid color-mix(in srgb, var(--c-stroke) 28%, transparent);
+		border-radius: var(--r-lg);
+		background: var(--c-card-warm);
+	}
+
+	.notices__label {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		color: var(--c-ink);
+		font-size: var(--fs-eyebrow);
+		font-weight: 700;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+	}
+
+	.notices__label :global(.icon) {
+		color: var(--c-display);
+	}
+
+	.notices__list {
+		display: grid;
+		gap: 1rem;
+	}
+
+	.notice {
+		position: relative;
+		display: grid;
+		gap: 0.25rem;
+		padding-left: 1.25rem;
+		border-left: 3px solid var(--c-stroke);
+	}
+
+	.notice time {
+		font-size: var(--fs-label);
+		font-variant-numeric: tabular-nums;
+	}
+
+	.notice h2 {
+		font-size: var(--fs-h3);
+		font-weight: 700;
+		line-height: 1.3;
+	}
+
+	.notice a:hover {
+		color: var(--c-accent);
+	}
+
+	.notice p {
+		font-size: var(--fs-small);
+		line-height: 1.55;
+	}
+
+	/* "À la une" and the latest news, side by side on large screens. */
+	.news-top {
+		padding-bottom: 0;
+	}
+
+	.notices-section + .news-top {
+		padding-top: clamp(2.5rem, 1.5rem + 3vw, 4rem);
+	}
+
+	.news-top__grid {
+		display: grid;
+		gap: 2.5rem;
+	}
+
+	.news-top__lead {
+		display: grid;
+		align-content: start;
+		gap: 1.25rem;
+	}
+
+	.news-latest__title {
+		padding-bottom: 0.9rem;
+		border-bottom: 2px solid var(--c-ink);
+		font-size: var(--fs-h3);
+		font-weight: 700;
+	}
+
+	.news-empty {
+		padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+		border: 1px dashed var(--c-line-strong);
+		border-radius: var(--r-md);
+	}
+
+	@media (min-width: 64em) {
+		.news-top__grid {
+			grid-template-columns: minmax(0, 1.75fr) minmax(18rem, 1fr);
+			column-gap: clamp(2.5rem, 4.5cqw, 5rem);
+			align-items: start;
+		}
+
+		.news-latest {
+			margin-top: 2.6rem;
+		}
+	}
+
+	/* All the news, by year, and the filter by kind. */
+	.news-all {
+		padding-top: clamp(2.5rem, 1.5rem + 3vw, 4.5rem);
+	}
+
+	.news-all__head {
+		display: grid;
+		gap: 1.25rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.news-all__head h2 {
+		font-size: clamp(1.625rem, 1.3rem + 1vw, 2.25rem);
+		font-weight: 700;
+		letter-spacing: -0.025em;
+	}
+
+	.news-filter {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+
+	.news-filter:not([data-ready]) {
+		display: none;
+	}
+
+	.news-filter button {
+		min-height: 2.625rem;
+		padding: 0.4rem 1.1rem;
+		border: 1px solid var(--c-card-line);
+		border-radius: var(--r-pill);
+		background: var(--c-surface);
+		color: var(--c-ink);
+		font-size: var(--fs-label);
+		font-weight: 500;
+		cursor: pointer;
+		transition:
+			border-color 0.2s,
+			background-color 0.2s,
+			color 0.2s;
+	}
+
+	.news-filter button:hover {
+		border-color: var(--c-tile-strong);
+		background: var(--c-panel);
+	}
+
+	.news-filter button[aria-pressed='true'] {
+		border-color: transparent;
+		background: var(--c-accent) var(--g-accent);
+		color: var(--c-on-accent);
+	}
+
+	.news-year {
+		display: grid;
+		margin-top: 2rem;
+	}
+
+	.news-year[hidden] {
+		display: none;
+	}
+
+	.news-year__title {
+		padding-bottom: 0.75rem;
+		border-bottom: 2px solid var(--c-ink);
+		color: var(--c-ink);
+		font-size: var(--fs-h3);
+		font-weight: 700;
+		font-variant-numeric: tabular-nums;
+	}
+
+	/* The press corner. */
+	.press__box {
+		display: grid;
+		gap: 2rem;
+		padding: clamp(1.75rem, 1rem + 3vw, 3.25rem);
+		border: 1px solid var(--c-card-line);
+		border-radius: var(--r-lg);
+		background: var(--c-panel);
+	}
+
+	.press__head {
+		display: grid;
+		gap: 0.5rem;
+	}
+
+	.press__head h2 {
+		display: flex;
+		align-items: center;
+		font-size: clamp(1.5rem, 1.25rem + 0.9vw, 2rem);
+		font-weight: 700;
+		letter-spacing: -0.02em;
+	}
+
+	/* The title starts with the thin orange stroke. */
+	.press__head h2::before {
+		content: '';
+		flex: none;
+		width: 2px;
+		height: 1em;
+		margin-inline: 0.3em 0.6em;
+		border-radius: 2px;
+		background: var(--g-bar);
+		rotate: calc(var(--slant) * -1);
+	}
+
+	.press__cols {
+		display: grid;
+		gap: 2rem;
+	}
+
+	.press__cols h3 {
+		margin-bottom: 0.9rem;
+		color: var(--c-label);
+		font-size: var(--fs-eyebrow);
+		font-weight: 700;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+	}
+
+	.press__list {
+		display: grid;
+		gap: 0.7rem;
+	}
+
+	.press__list a {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.65rem;
+		color: var(--c-ink);
+		font-weight: 500;
+		overflow-wrap: anywhere;
+		transition: color 0.15s;
+	}
+
+	.press__list a:hover {
+		color: var(--c-accent);
+	}
+
+	.press__list :global(.icon) {
+		flex: none;
+		color: var(--c-label);
+	}
+
+	.press__follow {
+		white-space: normal;
+	}
+
+	@media (min-width: 56em) {
+		.press__cols {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
+	}
+</style>

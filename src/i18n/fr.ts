@@ -38,6 +38,7 @@ const fr = {
 		services: 'Nos services',
 		eservices: 'E-services',
 		blog: 'Blog',
+		news: 'Actualités',
 		quality: 'Notre politique qualité',
 		contact: 'Contact',
 		serviceItems: [

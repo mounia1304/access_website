@@ -74,14 +74,54 @@ npm run check:palette
 | How they look (size, colours, the orange strokes) | the "Key figures" block of `src/components/Why.astro`; their gradient is `--g-figure` in `tokens.css` |
 | The second screen's film             | `src/assets/photos/presentation/transport.mp4` (+ its first image, `transport.webp`) |
 | A section of the homepage            | `src/components/<Section>.astro`                       |
+| A blog article                       | `src/content/blog/`: one file each (see "Writing an article" below) |
+| A news item (Actualités page)        | `src/content/actualites/`: one file each (see "Writing a news item" below) |
+| The kinds of news                    | `src/data/actualites.ts` (icons, colours), names in `src/i18n/fr.pages.ts` (`actualites.types`) |
+| The blog's categories                | `src/data/blog.ts` (addresses, icons), names in `src/i18n/fr.pages.ts` (`blog.categories`) |
 | Where the trail of chevrons runs     | `src/pages/index.astro` (the `<ChevronTrail />` between sections) |
 | The drawing of that trail            | `node scripts/make-chevron-trail.mjs`                  |
+
+## Writing an article
+
+1. In `src/content/blog/`, copy `_modele-article.md` and rename the copy. Its name becomes the
+   article's address: `mon-article.md` is published at `access-transit.com/mon-article/`. Use
+   lowercase letters, digits and hyphens only.
+2. Fill in the fields between the two `---` lines (the template explains each one):
+   - `title`, `description` (one or two sentences, shown on the blog and by Google), `date`;
+   - `category`: `douane-reglementation`, `transport-international`, `import-export` or
+     `guides-pratiques` (the company's news go to the Actualités page instead);
+   - `author` (optional): `ezzahraoui-mohamed`, `fahmi-larbi`, `fahmi-omar`, `beidouri-zohra`,
+     `boussry-khadija`, `ouatid-ghizlane`, `sabir-hind` or `laaraj-ibtissam`; without it the
+     article is signed ACCESS TRANSIT;
+   - `service` (optional): the service shown at the end: `douane`, `routier`, `aerien` or `maritime`;
+   - `cover` and `coverAlt` (optional): a photo put in `src/assets/blog/`, and what it shows;
+   - `featured: true` (optional) puts it "À la une"; otherwise the newest article is there.
+3. Write the text under the second `---` line, in Markdown: a blank line between paragraphs,
+   `## ` for an intertitle (three of them make a summary appear), `- ` for a list, `1. ` for a
+   numbered one, `> ` for a tip set apart, `**bold**`, `[a link](https://…)`, and tables.
+4. Run `npm run build`. If a field is wrong, it stops and says which one and what it accepts.
+
+## Writing a news item
+
+1. In `src/content/actualites/`, copy `_modele-actualite.md` and rename the copy. Its name becomes
+   the address: `nouveau-site.md` is published at `access-transit.com/actualites/nouveau-site/`.
+2. Fill in `title`, `description`, `date` and `type`: `entreprise`, `avis-clients`, `evenements`
+   or `certifications`. A notice to clients can be kept at the top of the page with `pinned: true`;
+   set it back to `false` when it no longer applies. `cover` and `coverAlt` add a photo (put in
+   `src/assets/actualites/`).
+3. Write the text under the second `---` line, as for an article, then run `npm run build`.
 
 ## Status
 
 - **Phase 1 — homepage (French): done, awaiting approval.**
 - **Phase 2 — inner pages (services, quality policy, quote, file follow-up, complaint, contact, blog):
-  built with the content of the current site, awaiting approval.**
+  built with the content of the current site, awaiting approval.** The blog has its own pages: the
+  list with "À la une", four categories, and an article page; its articles are written in code
+  (see "Writing an article"). The Actualités page (news, notices to clients, press corner) is built
+  the same way (see "Writing a news item"); it has no news yet. In the menu, "Blog" became
+  "Actualités", with the Actualités page and the blog under it.
+- **Next**: the Logistique part (two platforms), once the director has filled in
+  `informations-logistique-et-actualites.xlsx`; then the homepage (latest news, logistics).
 - Phase 3 — English version.
 - Phase 4 — working forms, SEO, final performance pass.
 - Phase 5 — go live.

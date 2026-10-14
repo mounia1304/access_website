@@ -337,27 +337,79 @@ const pages = {
 			'En somme, notre politique qualité vise à assurer la satisfaction de tous nos partenaires tout en garantissant la pérennité et la croissance de notre entreprise. Nous nous basons sur des valeurs clés telles que la satisfaction des clients, la réalisation de prestations fiables, le développement des compétences de nos collaborateurs et l’amélioration continue des performances. Nous avons mis en place cette politique avec des objectifs précis et des moyens concrets pour les atteindre. Elle ne peut être mise en œuvre que grâce à l’implication de tous les acteurs de notre entreprise.',
 	},
 
+	// The blog's own texts. The articles are not here: each is a Markdown file in src/content/blog/
+	// (README.md, "Writing an article"). The intro and the categories' lines came with the blog's
+	// plan, which the client approved.
 	blog: {
-		title: 'Blog',
-		readMore: 'Lire la suite',
+		title: ['Le blog', 'ACCESS TRANSIT'],
+		intro: 'La réglementation douanière, le transport international et des conseils pratiques pour vos opérations d’import et d’export.',
+		featured: 'À la une',
+		all: 'Tous les articles',
+		categoriesNav: 'Catégories du blog',
+		categoryLabel: 'Catégorie',
+		readMore: 'Lire l’article',
+		minutes: 'min de lecture',
+		writtenBy: 'Écrit par',
+		contactAuthor: 'Contacter notre équipe',
+		toc: 'Sommaire',
+		share: 'Partager',
+		shareOn: 'Partager sur',
+		copyLink: 'Copier le lien',
+		copied: 'Lien copié',
+		related: 'À lire aussi',
 		back: 'Retour au blog',
-		// One article so far, as on the current site. Its address is the one it has there.
-		posts: [
-			{
-				slug: 'reduire-les-delais-dattente-pour-lexport-enjeu-crucial-pour-limage-de-marque-du-maroc-en-tant-que-destination',
-				category: 'Import Export',
-				date: '2023-02-22',
-				dateText: '22 février 2023',
-				title:
-					'Réduire les délais d’attente pour l’export : enjeu crucial pour l’image de marque du Maroc en tant que destination d’exportation',
-				subtitle: 'File d’attente au port de Tanger Med',
-				paragraphs: [
-					'Les délais d’attente sur les plateformes d’exportation au niveau des ports marocains, tels que Tanger Med, s’allongent pour les transporteurs, impactant la compétitivité des produits marocains. Les autorités portuaires, notamment la Douane, sont appelées à agir pour remédier à cette situation qui est devenue la norme dans le premier port africain et méditerranéen. Les camions sont souvent contraints de patienter sur les plateformes d’exportation pendant 24 heures au lieu de 4 heures, ce qui affecte les produits transportés et les coûts de conditionnement, notamment pour les produits périssables. Les transporteurs et opérateurs économiques préconisent des solutions durables, notamment la catégorisation qui permettrait une meilleure performance dans le traitement des opérations de dédouanement de marchandises. Le port Tanger Med tente de simplifier ses procédures en dématérialisant les formalités du passage portuaire à l’import et à l’export depuis novembre 2021.',
-					'Cependant, la dématérialisation des procédures ne suffit pas à elle seule à résoudre les problèmes d’attente et de congestion sur les plateformes d’exportation. D’autres mesures doivent être mises en place pour améliorer la fluidité des échanges commerciaux. Les autorités portuaires et douanières devraient collaborer étroitement avec les transporteurs et les opérateurs économiques pour identifier les goulots d’étranglement et trouver des solutions adaptées. Parmi les solutions envisageables, on peut citer l’augmentation des capacités d’accueil des ports, l’amélioration des infrastructures routières et ferroviaires, la réduction des délais de traitement des formalités douanières et la mise en place d’une gestion plus efficace des flux de marchandises.',
-					'Enfin, il est important de souligner que les délais d’attente sur les plateformes d’exportation ne sont pas seulement un problème pour les transporteurs et les opérateurs économiques, mais également pour l’image de marque du Maroc en tant que destination d’exportation. Les retards dans la livraison des produits peuvent affecter la satisfaction des clients étrangers et nuire à la compétitivité des produits marocains sur les marchés internationaux. Il est donc essentiel que les autorités concernées prennent rapidement des mesures pour améliorer la fluidité des échanges commerciaux et préserver la réputation du Maroc en tant que pays exportateur fiable et compétitif.',
-				],
-			},
-		],
+		empty: 'Aucun article dans cette catégorie pour le moment.',
+		soon: 'Les prochains articles paraîtront ici.',
+		newer: 'Articles plus récents',
+		older: 'Articles plus anciens',
+		page: 'Page',
+		service: 'Notre service',
+		discoverService: 'Découvrir le service',
+		brief: 'Access Transit en bref',
+		// The categories (approved by the client; the company's news have since moved to the
+		// Actualités page). Their keys are the end of their address, /category/<key>/:
+		// "import-export" is the current site's.
+		categories: {
+			'douane-reglementation': { name: 'Douane & réglementation', description: 'Procédures, régimes et réglementation douanière au Maroc.' },
+			'transport-international': { name: 'Transport international', description: 'Transport maritime, aérien et routier entre le Maroc et le monde.' },
+			'import-export': { name: 'Import-Export', description: 'Le commerce international et ses enjeux pour les entreprises marocaines.' },
+			'guides-pratiques': { name: 'Guides pratiques', description: 'Des explications pas à pas pour préparer vos opérations.' },
+		},
+	},
+
+	// The Actualités page: the company's news, its notices to clients, its events and
+	// certifications. Each news item is a Markdown file in src/content/actualites/.
+	actualites: {
+		title: ['Actualités', 'ACCESS TRANSIT'],
+		intro: 'Les nouvelles d’ACCESS TRANSIT, nos avis aux clients, nos événements et nos certifications.',
+		featured: 'À la une',
+		latest: 'Dernières actualités',
+		notices: 'Avis aux clients',
+		all: 'Toutes les actualités',
+		filterAll: 'Toutes',
+		filterLabel: 'Afficher',
+		// Read out when a filter is chosen: "3 actualités".
+		count: ['actualité', 'actualités'],
+		readMore: 'Lire la suite',
+		empty: 'Les premières actualités paraîtront ici.',
+		others: 'Autres actualités',
+		back: 'Retour aux actualités',
+		types: {
+			entreprise: 'Entreprise',
+			'avis-clients': 'Avis aux clients',
+			evenements: 'Événements',
+			certifications: 'Certifications',
+		},
+		press: {
+			title: 'Espace presse',
+			text: 'Journalistes et partenaires : nos contacts, notre logo et nos documents.',
+			contact: 'Contact presse',
+			kit: 'Kit média',
+			logo: 'Logo ACCESS TRANSIT',
+			certificate: 'Certificat ISO 9001:2015',
+			follow: 'Suivez-nous',
+			linkedin: 'ACCESS TRANSIT sur LinkedIn',
+		},
 	},
 
 	contact: {
@@ -370,18 +422,19 @@ const pages = {
 		// 12 34 56 78) are samples: they are not used. Where the current site gives a person's real
 		// number and address, they are used; elsewhere they are null and an empty line stands in
 		// their place until the client sends them. The same goes for the photos.
-		director: { name: 'M. EZZAHRAOUI Mohamed', role: 'Directeur général', phone: null, email: null },
+		// "key" is how an article of the blog names its author (author: fahmi-larbi).
+		director: { key: 'ezzahraoui-mohamed', name: 'M. EZZAHRAOUI Mohamed', role: 'Directeur général', phone: null, email: null },
 		// Shown in place of a number and an address not sent yet.
 		pending: 'Coordonnées à venir',
 		members: [
-			{ name: 'FAHMI Larbi', role: 'Directeur général délégué', icon: 'users-three', phone: '+212 5 22 24 17 17', email: 'fahmilarbi@gmail.com' },
-			{ name: 'FAHMI Omar', role: 'Chef des déclarants', icon: 'customs-file', phone: null, email: null },
-			{ name: 'BEIDOURI Zohra', role: 'Responsable d’exploitation commerciale', icon: 'chart-line-up', phone: '+212 5 22 24 17 17', email: 'z.accesstransit@gmail.com' },
-			{ name: 'BOUSSRY Khadija', role: 'Responsable transport national', icon: 'truck', phone: null, email: null },
-			{ name: 'OUATID Ghizlane', role: 'Suppléante, exploitation commerciale', icon: 'users-three', phone: null, email: null },
-			{ name: 'SABIR Hind', role: 'Responsable administrative et financière', icon: 'coins', phone: null, email: null },
-			{ name: 'LAARAJ Ibtissam', role: 'Responsable transport international', icon: 'globe', phone: '+212 5 22 24 17 17', email: 'ibtissamlj.accesstransit@gmail.com' },
-		] satisfies ReadonlyArray<{ name: string; role: string; icon: IconName; phone: string | null; email: string | null }>,
+			{ key: 'fahmi-larbi', name: 'FAHMI Larbi', role: 'Directeur général délégué', icon: 'users-three', phone: '+212 5 22 24 17 17', email: 'fahmilarbi@gmail.com' },
+			{ key: 'fahmi-omar', name: 'FAHMI Omar', role: 'Chef des déclarants', icon: 'customs-file', phone: null, email: null },
+			{ key: 'beidouri-zohra', name: 'BEIDOURI Zohra', role: 'Responsable d’exploitation commerciale', icon: 'chart-line-up', phone: '+212 5 22 24 17 17', email: 'z.accesstransit@gmail.com' },
+			{ key: 'boussry-khadija', name: 'BOUSSRY Khadija', role: 'Responsable transport national', icon: 'truck', phone: null, email: null },
+			{ key: 'ouatid-ghizlane', name: 'OUATID Ghizlane', role: 'Suppléante, exploitation commerciale', icon: 'users-three', phone: null, email: null },
+			{ key: 'sabir-hind', name: 'SABIR Hind', role: 'Responsable administrative et financière', icon: 'coins', phone: null, email: null },
+			{ key: 'laaraj-ibtissam', name: 'LAARAJ Ibtissam', role: 'Responsable transport international', icon: 'globe', phone: '+212 5 22 24 17 17', email: 'ibtissamlj.accesstransit@gmail.com' },
+		] satisfies ReadonlyArray<{ key: string; name: string; role: string; icon: IconName; phone: string | null; email: string | null }>,
 	},
 };
 

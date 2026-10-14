@@ -1,7 +1,7 @@
 ---
 // The head of an inner page: where the page is in the site (the trail), an optional label,
 // and its title, set like the titles of the homepage (navy, then orange; a title given as a
-// single string is all orange). Behind it, the pale slanted bar and the thin stroke of the
+// single string is all orange, one given as [title, ''] all navy, as an article's). Behind it, the pale slanted bar and the thin stroke of the
 // homepage's screens.
 import { route, useTranslations } from '../i18n';
 
@@ -24,7 +24,7 @@ const t = useTranslations();
 const { ui } = t.pages;
 const { title, eyebrow, trail = [], long = false } = Astro.props;
 const [lead, mark] = typeof title === 'string' ? ['', title] : title;
-const plain = typeof title === 'string' ? title : title.join(' ');
+const plain = typeof title === 'string' ? title : title.filter(Boolean).join(' ');
 const crumbs: Crumb[] = [{ label: ui.root, href: route('home') }, ...trail, { label: plain }];
 ---
 
@@ -57,7 +57,7 @@ const crumbs: Crumb[] = [{ label: ui.root, href: route('home') }, ...trail, { la
 			</nav>
 			{eyebrow && <p class="eyebrow eyebrow--lines">{eyebrow}</p>}
 			<h1>
-				{lead}{lead && ' '}<span class="mark">{mark}</span>
+				{lead}{lead && mark && ' '}{mark && <span class="mark">{mark}</span>}
 			</h1>
 			<slot />
 		</div>

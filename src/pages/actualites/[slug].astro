@@ -1,0 +1,187 @@
+---
+// A news item of the Actualités page (a Markdown file in src/content/actualites/), at
+// /actualites/<name of the file>/: its kind, title and date, its picture if it has one, its
+// text beside the ways to share it, then the other latest news.
+import type { GetStaticPaths } from 'astro';
+import { render } from 'astro:content';
+import ArticleText from '../../components/ArticleText.astro';
+import BlogCover from '../../components/BlogCover.astro';
+import Icon from '../../components/Icon.astro';
+import NewsItem from '../../components/NewsItem.astro';
+import PageHead from '../../components/PageHead.astro';
+import ShareLinks from '../../components/ShareLinks.astro';
+import Base from '../../layouts/Base.astro';
+import { site } from '../../data/site';
+import { route, useTranslations } from '../../i18n';
+import { formatDate, isoDate } from '../../utils/blog';
+import { getNews, typeOf, type News } from '../../utils/news';
+
+export const getStaticPaths = (async () => {
+	const news = await getNews();
+	return news.map((item) => ({ params: { slug: item.id }, props: { item, news } }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+	item: News;
+	news: News[];
+}
+
+const { item, news } = Astro.props;
+const { Content } = await render(item);
+const t = useTranslations();
+const { actualites: a } = t.pages;
+const type = typeOf(item.data.type);
+const others = news.filter((other) => other.id !== item.id).slice(0, 3);
+const url = new URL(Astro.url.pathname, Astro.site).href;
+
+// What search engines read about the news item.
+const structuredData = {
+	'@context': 'https://schema.org',
+	'@type': 'NewsArticle',
+	headline: item.data.title,
+	description: item.data.description,
+	datePublished: isoDate(item.data.date),
+	mainEntityOfPage: url,
+	author: { '@type': 'Organization', name: site.name, url: site.url },
+	publisher: { '@type': 'Organization', name: site.name, url: site.url },
+	...(item.data.cover ? { image: new URL(item.data.cover.src, Astro.site).href } : {}),
+};
+---
+
+<Base title={`${item.data.title} | ${site.name}`} description={item.data.description} type="article" image={item.data.cover?.src}>
+	<PageHead title={[item.data.title, '']} eyebrow={type.name} trail={[{ label: t.nav.news, href: route('actualites') }]} long>
+		<p class="news-date">
+			<Icon name="calendar" size={18} />
+			<time datetime={isoDate(item.data.date)}>{formatDate(item.data.date)}</time>
+		</p>
+	</PageHead>
+
+	<section class="section page-body">
+		<div class="wrap">
+			<div class="wrap__in read">
+				<aside class="read__aside">
+					<ShareLinks url={url} title={item.data.title} />
+				</aside>
+
+				<div class="read__main">
+					{
+						item.data.cover && (
+							<BlogCover
+								cover={item.data.cover}
+								alt={item.data.coverAlt}
+								icon={type.icon}
+								tone={type.tone}
+								sizes="(min-width: 64em) 62vw, 92vw"
+								eager
+								class="read__cover"
+							/>
+						)
+					}
+					<ArticleText>
+						<Content />
+					</ArticleText>
+					<a class="read__back" href={route('actualites')}>
+						<Icon name="arrow-left" size={16} />
+						{a.back}
+					</a>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	{
+		others.length > 0 && (
+			<section class="section others">
+				<div class="wrap">
+					<div class="wrap__in">
+						<h2 class="others__title">{a.others}</h2>
+						<ul>
+							{others.map((other) => (
+								<li>
+									<NewsItem item={other} variant="row" />
+								</li>
+							))}
+						</ul>
+					</div>
+				</div>
+			</section>
+		)
+	}
+
+	<script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
+</Base>
+
+<style>
+	.news-date {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin-top: 0.5rem;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.news-date :global(.icon) {
+		color: var(--c-label);
+	}
+
+	/* The text, and the ways to share it beside it (above it on small screens). */
+	.read {
+		display: grid;
+		gap: 2rem;
+	}
+
+	.read__main {
+		display: grid;
+		gap: clamp(2rem, 1.5rem + 2vw, 3rem);
+		min-width: 0;
+	}
+
+	@media (min-width: 64em) {
+		.read {
+			grid-template-columns: minmax(0, 1fr) 15rem;
+			column-gap: clamp(3rem, 6cqw, 7rem);
+			align-items: start;
+		}
+
+		.read__main {
+			grid-area: 1 / 1;
+		}
+
+		.read__aside {
+			grid-area: 1 / 2;
+			position: sticky;
+			top: calc(var(--header-h) + 1.5rem);
+		}
+	}
+
+	.read :global(.read__cover) {
+		--cover-ratio: 16 / 9;
+		--cover-r: var(--r-lg);
+	}
+
+	.read__back {
+		display: inline-flex;
+		justify-self: start;
+		align-items: center;
+		gap: 0.5rem;
+		color: var(--c-label);
+		font-size: var(--fs-ui);
+		font-weight: 500;
+	}
+
+	.read__back:hover {
+		color: var(--c-accent);
+	}
+
+	.others {
+		padding-top: 0;
+	}
+
+	.others__title {
+		padding-bottom: 0.9rem;
+		border-bottom: 2px solid var(--c-ink);
+		font-size: clamp(1.5rem, 1.25rem + 0.9vw, 2rem);
+		font-weight: 700;
+		letter-spacing: -0.02em;
+	}
+</style>

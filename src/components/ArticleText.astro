@@ -1,0 +1,106 @@
+---
+// The text of an article of the blog or of a news item, as Markdown writes it: paragraphs, lists
+// (the site's thin orange stroke, or numbers in orange), intertitles, tips set apart, tables,
+// pictures, links. It builds on .prose (global.css).
+---
+
+<div class="prose article-text">
+	<slot />
+</div>
+
+<style>
+	.article-text {
+		max-width: 44rem;
+	}
+
+	.article-text :global(h2) {
+		margin-top: 1.25rem;
+		font-size: clamp(1.5rem, 1.25rem + 0.8vw, 1.875rem);
+		letter-spacing: -0.02em;
+		line-height: 1.2;
+		scroll-margin-top: calc(var(--header-h) + 1.5rem);
+	}
+
+	.article-text :global(h3) {
+		margin-top: 0.5rem;
+		font-size: var(--fs-h3);
+		font-weight: 700;
+		scroll-margin-top: calc(var(--header-h) + 1.5rem);
+	}
+
+	.article-text :global(a) {
+		color: var(--c-accent);
+		text-decoration: underline;
+		text-underline-offset: 0.2em;
+	}
+
+	.article-text :global(strong) {
+		color: var(--c-ink);
+		font-weight: 600;
+	}
+
+	/* Numbered lists: the number in place of the stroke. */
+	.article-text :global(ol) {
+		display: grid;
+		gap: 0.7rem;
+		counter-reset: step;
+	}
+
+	.article-text :global(ol > li) {
+		counter-increment: step;
+	}
+
+	.article-text :global(ol > li::before) {
+		content: counter(step) '.';
+		top: 0;
+		left: 0;
+		width: auto;
+		height: auto;
+		background: none;
+		color: var(--c-display);
+		font-weight: 700;
+		rotate: none;
+	}
+
+	/* A tip set apart. */
+	.article-text :global(blockquote) {
+		margin: 0.5rem 0;
+		padding: 1.1rem 1.4rem;
+		border-left: 3px solid var(--c-stroke);
+		border-radius: 0 var(--r-sm) var(--r-sm) 0;
+		background: var(--c-panel);
+		color: var(--c-ink);
+	}
+
+	.article-text :global(table) {
+		display: block;
+		max-width: 100%;
+		overflow-x: auto;
+		border-collapse: collapse;
+		font-size: var(--fs-small);
+	}
+
+	.article-text :global(th),
+	.article-text :global(td) {
+		padding: 0.7rem 1.25rem 0.7rem 0;
+		border-bottom: 1px solid var(--c-line);
+		text-align: left;
+		vertical-align: top;
+	}
+
+	.article-text :global(th) {
+		border-bottom-color: var(--c-ink);
+		color: var(--c-ink);
+		font-weight: 600;
+	}
+
+	.article-text :global(img) {
+		border-radius: var(--r-md);
+	}
+
+	.article-text :global(hr) {
+		width: 100%;
+		border: 0;
+		border-top: 1px solid var(--c-line);
+	}
+</style>

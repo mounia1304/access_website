@@ -1,0 +1,103 @@
+---
+// A category of the blog: its articles, newest first, PAGE_SIZE to a page. Its address is
+// /category/<key>/, as on the current site (/category/import-export/).
+import type { GetStaticPaths, Page } from 'astro';
+import BlogCard from '../../../components/BlogCard.astro';
+import BlogPager from '../../../components/BlogPager.astro';
+import CategoryNav from '../../../components/CategoryNav.astro';
+import HelpBand from '../../../components/HelpBand.astro';
+import Icon from '../../../components/Icon.astro';
+import PageHead from '../../../components/PageHead.astro';
+import Base from '../../../layouts/Base.astro';
+import { CATEGORIES, PAGE_SIZE, type CategoryKey } from '../../../data/blog';
+import { site } from '../../../data/site';
+import { route, useTranslations } from '../../../i18n';
+import { categoryOf, getPosts, type Post } from '../../../utils/blog';
+
+export const getStaticPaths = (async ({ paginate }) => {
+	const posts = await getPosts();
+	return CATEGORIES.flatMap((key) =>
+		paginate(
+			posts.filter((post) => post.data.category === key),
+			{ params: { category: key }, pageSize: PAGE_SIZE, props: { posts, key } },
+		),
+	);
+}) satisfies GetStaticPaths;
+
+interface Props {
+	page: Page<Post>;
+	posts: Post[];
+	key: CategoryKey;
+}
+
+const { page, posts, key } = Astro.props;
+const t = useTranslations();
+const { blog } = t.pages;
+const category = categoryOf(key);
+const title = page.currentPage === 1 ? category.name : `${category.name} – ${blog.page} ${page.currentPage}`;
+---
+
+<Base title={`${title} | Blog | ${site.name}`} description={category.description}>
+	<PageHead title={category.name} eyebrow={blog.categoryLabel} trail={[{ label: 'Blog', href: route('blog') }]}>
+		<p class="lead category-intro">{category.description}</p>
+	</PageHead>
+
+	<section class="section page-body">
+		<div class="wrap">
+			<div class="wrap__in">
+				<div class="category-nav">
+					<CategoryNav posts={posts} current={key} />
+				</div>
+				{
+					page.data.length ? (
+						<ul class="post-grid">
+							{page.data.map((post, index) => (
+								<li>
+									<BlogCard post={post} eager={index < 3} />
+								</li>
+							))}
+						</ul>
+					) : (
+						<div class="category-empty">
+							<p>{blog.empty}</p>
+							<a class="btn btn--outline" href={route('blog')}>
+								<Icon name="arrow-left" size={16} />
+								{blog.back}
+							</a>
+						</div>
+					)
+				}
+				<BlogPager page={page} />
+			</div>
+		</div>
+	</section>
+
+	<HelpBand />
+</Base>
+
+<style>
+	.category-intro {
+		max-width: 40rem;
+		margin-top: 0.5rem;
+	}
+
+	.category-nav {
+		margin-bottom: clamp(2rem, 1.5rem + 1.5vw, 3rem);
+		padding-bottom: 1.5rem;
+		border-bottom: 1px solid var(--c-line);
+	}
+
+	.category-empty {
+		display: grid;
+		justify-items: start;
+		gap: 1.25rem;
+		padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+		border: 1px dashed var(--c-line-strong);
+		border-radius: var(--r-md);
+	}
+
+	/* This arrow points back: it slides the other way. */
+	.category-empty .btn:hover :global(.icon) {
+		transform: translateX(-3px);
+	}
+</style>

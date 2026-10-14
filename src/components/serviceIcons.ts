@@ -1,6 +1,6 @@
 // The four service icons, drawn by hand for this site (ServiceIcon.astro shows them). The client
 // asked for icons that look made by a designer, in place of glass tiles that read as generated.
-// The three online services (EServices.astro) have theirs in the same family.
+// The three online services (EServices.astro) and the kinds of news have theirs in the same family.
 //
 // ONE FAMILY, ON ONE GRID. Each icon is drawn in a box of 64 by 64, with the same line (2.5
 // wide, round ends and round corners) and the same three layers:
@@ -37,6 +37,9 @@ const CARGO = 'M24 30.5V19.5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2V24h7a2 2 0 0 1 2 2v4
 const CALCULATOR = '<rect x="16" y="7" width="32" height="48" rx="5"/>';
 const PIN = 'M41 40c-6.2-6.6-10.5-13.8-10.5-20.5a10.5 10.5 0 0 1 21 0c0 6.7-4.3 13.9-10.5 20.5Z';
 const BUBBLE = 'M15 10H47a6 6 0 0 1 6 6V35a6 6 0 0 1-6 6H27l-9 8.5V41h-3a6 6 0 0 1-6-6V16a6 6 0 0 1 6-6Z';
+const TOWER = 'M14 55V19a3 3 0 0 1 3-3h17a3 3 0 0 1 3 3v36';
+const WING = 'M37 31h11a3 3 0 0 1 3 3v21';
+const CALENDAR = '<rect x="10" y="14" width="44" height="40" rx="5"/>';
 
 export const serviceIcons = {
 	// Customs clearance: the file, and the seal that clears it.
@@ -90,6 +93,23 @@ export const serviceIcons = {
 		mark:
 			'<path pathLength="1" d="M8 33a3 3 0 1 1 6 0a3 3 0 1 1-6 0"/>' +
 			'<path class="late" pathLength="1" d="M11 36.5V45a7.5 7.5 0 0 0 7.5 7.5H33.5a7.5 7.5 0 0 0 7.5-7.5V44.5"/>',
+	},
+	// ── The kinds of news (the Actualités page) ──
+	// The company: its office, a tower and a lower wing, and the flag on its roof.
+	entreprise: {
+		fill: `<path d="${TOWER}Z"/><path d="${WING}H37Z"/>`,
+		lines:
+			`<path d="${TOWER}"/><path d="${WING}"/><path d="M9 55h46"/>` +
+			'<path d="M21 24h3M27 24h3M21 31h3M27 31h3M21 38h3M27 38h3M42 39h4M42 46h4"/><path d="M23 55v-7h5v7"/>',
+		mark: '<path pathLength="1" d="M25.5 16V6.5"/><path class="late" pathLength="1" d="M25.5 7h8.5l-2.5 3 2.5 3h-8.5"/>',
+	},
+	// Events: a calendar, and the day circled.
+	calendrier: {
+		fill: CALENDAR,
+		lines: `${CALENDAR}<path d="M10 25h44"/><path d="M21 9v9M43 9v9"/><path d="M19 33h4M30 33h4M41 33h4M19 42h4M30 42h4"/>`,
+		mark:
+			'<path pathLength="1" d="M43 36.5a5.5 5.5 0 1 1 0 11a5.5 5.5 0 1 1 0-11"/>' +
+			'<path class="late" pathLength="1" d="M40.6 42.2l1.7 1.7 3.2-3.4"/>',
 	},
 	// Complaint: a message, and the point it raises.
 	reclamation: {
