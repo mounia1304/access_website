@@ -29,6 +29,6 @@ const margin = {
 };
 await source
 	.extend({ ...margin, extendWith: 'mirror' })
-	.webp({ quality: 88 })
+	.webp({ quality: 95 })
 	.toFile(file('../src/assets/photos/hero/port-scene.webp'));
 console.log(`port-scene.webp: ${width + margin.left + margin.right} x ${height + margin.top + margin.bottom}`, margin);

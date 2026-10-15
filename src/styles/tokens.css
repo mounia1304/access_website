@@ -94,11 +94,12 @@
 	--g-bar: linear-gradient(to bottom, var(--p-orange-light), var(--p-orange) 45%, var(--p-orange-deep)); /* the strong slanted bars */
 	/* The second word of the first screen's title: lighter at the top of the letters, deeper at
 	   their foot, like the logo's lettering. It lies over the photograph: its lightest stop is
-	   the lightest orange that still reads there (3:1, measured on the rendered pixels). */
+	   the lightest orange that still reads there (3:1, measured on the rendered pixels). The
+	   brighter photograph the client sent in October 2026 made it deeper than it was. */
 	--g-display: linear-gradient(
 		to bottom,
-		color-mix(in srgb, var(--c-display) 80%, var(--p-orange)) 30%,
-		color-mix(in srgb, var(--c-display) 90%, black)
+		color-mix(in srgb, var(--c-display) 93%, black) 30%,
+		color-mix(in srgb, var(--c-display) 80%, black)
 	);
 
 	/* ── Roles: fills that carry the ink colour ────────────── */

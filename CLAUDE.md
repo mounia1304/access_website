@@ -134,7 +134,9 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
   panes are SVG clip paths whose corners are the mockup's px (`roundedShape()`). Under 64em the
   photograph is a band at the top and everything stacks; between 64em and 87em the label of the play
   link is only read out, because it would run into the picture's slanted edge.
-- The photograph is the client's (`photos/hero/port.webp`). The mockup shows it at 74% of the screen's
+- The photograph is the client's (`photos/hero/port.webp`, 2000 x 767): a second, brighter and sharper
+  version they sent in October 2026 replaced the first, kept as it came (no re-encoding); the widened
+  scene is written at quality 95 and the page asks for 90. The mockup shows it at 74% of the screen's
   width, with more sky and sea around it: `scripts/make-hero-scene.mjs` adds those margins by mirroring
   the photograph's edges (`port-scene.webp`), which puts the lorry, the ship and the plane where the
   mockup has them. Run it again if the photograph changes.
@@ -150,7 +152,8 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
   pixels (a screenshot with the texts made transparent, each text's colour against the pixels in its
   box) at 1717, 1366 and 1024 wide: all pass 4.5:1. That is why the paragraph uses `--c-text-strong`
   and the other numbers a navy at 78%, and why the orange word (`--g-display`) is deeper than the
-  mockup's: its lightest stop is the lightest that still reaches 3:1 there. Measure again after
+  mockup's: its lightest stop is the lightest that still reaches 3:1 there (the brighter second photograph
+  made it deeper still). Measure again after
   changing the panes, the photograph or these colours.
 - A gradient text (`background-clip: text`) is cut at its line box: the orange word has a little
   bottom padding (and the same negative margin) so that descenders are not cut.
