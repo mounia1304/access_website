@@ -38,8 +38,9 @@ const { contact } = t.pages;
 // Where each card sits on the stage, in px of the director's picture, in the order of the texts
 // file: x, y (top left corner), w, h (width, smallest height), side (where the card lies: its
 // photo faces the middle), pin (from the card's inner edge to the centre of its photo; negative:
-// outside the card) and to (where its line lands: by default on the orbit round the general
-// manager; the two at the foot land on the outer orbit, below the box under him).
+// outside the card) and foot (where its line lands: by default on the orbit round the general
+// manager; the two at the foot, whose part of the orbit is hidden by his plate and box, land on
+// that box instead, at the client's request: they join him like the others).
 type Place = {
 	x: number;
 	y: number;
@@ -47,19 +48,23 @@ type Place = {
 	h: number;
 	side: 'left' | 'right';
 	pin?: number;
-	to?: { x: number; y: number; r: number };
+	foot?: boolean;
 };
 // The general manager's photo: its centre, and the orbit the lines land on.
 const LEAD = { x: 765, y: 470, r: 215 };
 const PHOTO_R = 80;
+// The two lower lines run into the box under the general manager and end behind it. Its foot is
+// 724 to 734 px down (its text keeps a larger size on smaller screens), and a card that grows
+// moves its line down with it: ending 25 px inside the box keeps them joined to it at every width.
+const BOX_FOOT = 700;
 const PLACES: Place[] = [
 	{ x: 700, y: 20, w: 475, h: 155, side: 'right', pin: -32 },
 	{ x: 35, y: 235, w: 510, h: 170, side: 'left' },
 	{ x: 985, y: 235, w: 515, h: 170, side: 'right' },
 	{ x: 25, y: 515, w: 495, h: 200, side: 'left' },
 	{ x: 1015, y: 515, w: 495, h: 205, side: 'right' },
-	{ x: 80, y: 800, w: 580, h: 200, side: 'left', to: { ...LEAD, r: 330 } },
-	{ x: 870, y: 800, w: 585, h: 200, side: 'right', to: { ...LEAD, r: 330 } },
+	{ x: 80, y: 800, w: 580, h: 200, side: 'left', foot: true },
+	{ x: 870, y: 800, w: 585, h: 200, side: 'right', foot: true },
 ];
 // The colour of each card: blue on the left, orange at the top and on the right.
 const TONES = ['warm', 'blue', 'warm', 'blue', 'warm', 'blue', 'warm'] as const;
@@ -80,9 +85,12 @@ const members = contact.members.map((person, index) => {
 	// stays on the photo when the card grows. Its angle and length come from the card's place.
 	const px = place.side === 'left' ? place.x + place.w - pin : place.x + pin;
 	const py = place.y + place.h / 2;
-	const to = place.to ?? LEAD;
-	const angle = (Math.atan2(to.y - py, to.x - px) * 180) / Math.PI;
-	const length = Math.max(24, Math.hypot(to.x - px, to.y - py) - PHOTO_R - to.r);
+	// Towards the middle; it stops on the orbit, or on the foot of the box (where the line towards
+	// the middle crosses it).
+	const t = place.foot ? (py - BOX_FOOT) / (py - LEAD.y) : 0;
+	const stop = place.foot ? Math.hypot(px + (LEAD.x - px) * t - LEAD.x, BOX_FOOT - LEAD.y) : LEAD.r;
+	const angle = (Math.atan2(LEAD.y - py, LEAD.x - px) * 180) / Math.PI;
+	const length = Math.max(24, Math.hypot(LEAD.x - px, LEAD.y - py) - PHOTO_R - stop);
 	return {
 		...person,
 		...contactOf(person),

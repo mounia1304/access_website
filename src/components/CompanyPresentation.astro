@@ -1,0 +1,699 @@
+---
+// The company's presentation, in either language: the client supplied it as two PDFs, French and
+// English (reference/presentation-entreprise.pdf, reference/company-presentation-en.pdf, eleven
+// slides each, January 2023), and asked for each to be a page laid out like a service page. This is
+// the text column and the side column; the pages (pages/presentation-de-l-entreprise.astro,
+// pages/en/company-presentation.astro) add the head and the three commitments. The text opens on
+// the document's summary; its six parts follow, each starting with its number, drawn in outline
+// as on the quality page. Texts: `presentation` in fr.pages.ts and en.pages.ts.
+//
+// The pictures are the site's own where the document shows the same ones, which it holds small:
+// the photograph is that of the homepage's second screen (the first image of the client's film),
+// the three transport cards carry the photographs of the service pages, the certificate is the
+// current TÜV mark (the document's cover shows an older one), the logos are those of the
+// homepage. Three logos and the director's portrait are only in the document and were cut out of
+// it. Its drawings of people at work are not used.
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+import ServiceAside from './ServiceAside.astro';
+import photo from '../assets/photos/presentation/transport.webp';
+import photoRoutier from '../assets/photos/slides/enlarged/routier.jpg';
+import photoMaritime from '../assets/photos/slides/enlarged/maritime.jpg';
+import photoAerien from '../assets/photos/slides/enlarged/aerien.jpg';
+import certificateMark from '../assets/quality/tuv-iso9001.png';
+import portrait from '../assets/team/mohamed-ezzahraoui-portrait.jpg';
+import { presentationClients } from '../data/references';
+import { site } from '../data/site';
+import { route, type RouteKey } from '../i18n';
+import type { PresentationText } from '../i18n/fr.pages';
+import { slugify } from '../utils/text';
+
+interface Props {
+	text: PresentationText;
+	/** The text's language when it is not the page's ("en": the menu and the side column stay French). */
+	lang?: string;
+	/** This page, for the side column. */
+	current: RouteKey;
+	/** The certification mark's description, and the label read out on its link. */
+	certificate: { alt: string; verify: string };
+	/** "Opens in a new tab", in the text's language. */
+	external: string;
+}
+
+const { text: p, lang, current, certificate, external } = Astro.props;
+const { director } = p;
+const photos = { routier: photoRoutier, maritime: photoMaritime, aerien: photoAerien };
+
+// The six parts, in the order of the document's summary: their name there, and an anchor made of
+// it ("Nos références" is #nos-references).
+const [about, services, skills, references, addresses, lead] = [
+	p.about.title,
+	p.services.title,
+	p.skills.title,
+	p.references.title,
+	p.addresses.title,
+	director.toc,
+].map((toc, index) => {
+	const id = slugify(toc);
+	return { id, toc, number: String(index + 1).padStart(2, '0'), heading: `${id}-title` };
+});
+const parts = [about, services, skills, references, addresses, lead];
+
+const tel = (number: string) => `tel:${number.replace(/\s/g, '')}`;
+---
+
+<section class="section page-body">
+	<div class="wrap">
+		<div class="wrap__in page-cols">
+			<div class="presentation" lang={lang}>
+				<Image
+					class="presentation__photo"
+					src={photo}
+					alt=""
+					widths={[640, 960, photo.width]}
+					sizes="(min-width: 64em) 62vw, 100vw"
+					loading="eager"
+				/>
+
+				<!-- The document's summary: its six parts. -->
+				<nav class="toc" aria-labelledby="sommaire">
+					<p class="toc__title" id="sommaire">{p.toc}</p>
+					<ol>
+						{
+							parts.map((part) => (
+								<li>
+									<a href={`#${part.id}`}>
+										<span class="toc__number">{part.number}</span>
+										{part.toc}
+									</a>
+								</li>
+							))
+						}
+					</ol>
+				</nav>
+
+				<!-- 01 Who we are: three statements, the last with the certification mark. -->
+				<section class="part" id={about.id} aria-labelledby={about.heading}>
+					<div class="part__head">
+						<span class="part__number" aria-hidden="true">{about.number}</span>
+						<h2 id={about.heading}>{p.about.title}</h2>
+					</div>
+					<ul class="facts">
+						{
+							p.about.items.map((item, index) => (
+								<li>
+									<span class="icon-tile">
+										<Icon name={item.icon} size={26} />
+									</span>
+									<div class="facts__text">
+										<p>{item.text}</p>
+										{index === p.about.items.length - 1 && (
+											<a class="facts__mark" href={site.certificate} target="_blank" rel="noopener">
+												<Image src={certificateMark} alt={certificate.alt} widths={[320, 640]} sizes="17rem" />
+												<span class="visually-hidden">
+													{certificate.verify} ({external})
+												</span>
+											</a>
+										)}
+									</div>
+								</li>
+							))
+						}
+					</ul>
+				</section>
+
+				<!-- 02 What we do: the list of services, then the three kinds of transport. -->
+				<section class="part" id={services.id} aria-labelledby={services.heading}>
+					<div class="part__head">
+						<span class="part__number" aria-hidden="true">{services.number}</span>
+						<h2 id={services.heading}>{p.services.title}</h2>
+					</div>
+					<div class="prose">
+						<p>{p.services.intro}</p>
+						<ul>
+							{p.services.list.map((item) => <li>{item}</li>)}
+						</ul>
+						<p>{p.services.transport}</p>
+					</div>
+					<ul class="modes">
+						{
+							p.services.modes.map((mode) => (
+								<li class="card mode">
+									<Image
+										class="mode__photo"
+										src={photos[mode.key as keyof typeof photos]}
+										alt=""
+										widths={[400, 640, 960]}
+										sizes="(min-width: 80em) 18vw, (min-width: 64em) 30vw, (min-width: 40em) 40vw, 100vw"
+									/>
+									<div class="mode__body">
+										<h3>
+											<a class="card__link" href={route(mode.key)}>
+												{mode.title}
+											</a>
+										</h3>
+										<p>{mode.text}</p>
+										<span class="disc" aria-hidden="true">
+											<Icon name="arrow-right" size={14} />
+										</span>
+									</div>
+								</li>
+							))
+						}
+					</ul>
+				</section>
+
+				<!-- 03 Skills. -->
+				<section class="part" id={skills.id} aria-labelledby={skills.heading}>
+					<div class="part__head">
+						<span class="part__number" aria-hidden="true">{skills.number}</span>
+						<h2 id={skills.heading}>{p.skills.title}</h2>
+					</div>
+					<div class="prose">
+						<p>{p.skills.text}</p>
+						<ul>
+							{p.skills.list.map((item) => <li>{item}</li>)}
+						</ul>
+					</div>
+				</section>
+
+				<!-- 04 References: the clients' logos, in colour. -->
+				<section class="part" id={references.id} aria-labelledby={references.heading}>
+					<div class="part__head">
+						<span class="part__number" aria-hidden="true">{references.number}</span>
+						<h2 id={references.heading}>{p.references.title}</h2>
+					</div>
+					<ul class="logos">
+						{
+							presentationClients.map((logo) => (
+								<li>
+									<Image src={logo.image} alt={logo.name} width={Math.min(logo.image.width, 300)} />
+								</li>
+							))
+						}
+					</ul>
+				</section>
+
+				<!-- 05 Addresses: the two offices. -->
+				<section class="part" id={addresses.id} aria-labelledby={addresses.heading}>
+					<div class="part__head">
+						<span class="part__number" aria-hidden="true">{addresses.number}</span>
+						<h2 id={addresses.heading}>{p.addresses.title}</h2>
+					</div>
+					<ul class="places">
+						{
+							p.addresses.cities.map((city, index) => (
+								<li class="card place">
+									<span class="icon-tile">
+										<Icon name="map-pin" size={26} />
+									</span>
+									<div>
+										<h3>{city}</h3>
+										<p>{p.addresses.lines?.[index] ?? site.addresses[index]}</p>
+									</div>
+								</li>
+							))
+						}
+					</ul>
+				</section>
+
+				<!-- 06 The general manager: his portrait, what he does, his degrees, how to reach him. -->
+				<section class="part" id={lead.id} aria-labelledby={lead.heading}>
+					<div class="part__head">
+						<span class="part__number" aria-hidden="true">{lead.number}</span>
+						<div>
+							<h2 id={lead.heading}>{director.name}</h2>
+							<p class="part__role">{director.role}</p>
+						</div>
+					</div>
+					<div class="director">
+						<Image
+							class="director__photo"
+							src={portrait}
+							alt={director.photoAlt}
+							widths={[320, portrait.width]}
+							sizes="(min-width: 40em) 15rem, 100vw"
+						/>
+						<div class="director__info">
+							<div class="prose director__box">
+								<ul>
+									{director.career.map((item) => <li>{item}</li>)}
+								</ul>
+							</div>
+							<div class="prose director__box">
+								<ul>
+									{director.education.map((item) => <li>{item}</li>)}
+								</ul>
+							</div>
+							<div class="director__contact">
+								<h3>{director.contact}</h3>
+								<ul>
+									<li>
+										<Icon name="phone" size={20} />
+										<span class="visually-hidden">{director.labels.phone}</span>
+										{director.phones.map((number, index) => (
+											<>
+												{index > 0 && <span aria-hidden="true">/</span>}
+												<a href={tel(number)}>{number}</a>
+											</>
+										))}
+									</li>
+									<li>
+										<Icon name="envelope" size={20} />
+										<span class="visually-hidden">{director.labels.email}</span>
+										<a href={`mailto:${director.email}`}>{director.email}</a>
+									</li>
+									<li>
+										<Icon name="linkedin" size={20} />
+										<a href={director.linkedin} target="_blank" rel="noopener">
+											{director.labels.linkedin}
+											<span class="visually-hidden">({external})</span>
+										</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<!-- The document's last slide. -->
+				<p class="motto">{p.motto}</p>
+			</div>
+
+			<ServiceAside current={current} />
+		</div>
+	</div>
+</section>
+
+<style>
+	/* The text column holds its own measures: the cards and the logos follow its width, not the
+	   screen's. */
+	.presentation {
+		display: grid;
+		gap: clamp(2.75rem, 2rem + 3vw, 4.5rem);
+		container: presentation / inline-size;
+	}
+
+	.presentation :global(.presentation__photo) {
+		width: 100%;
+		aspect-ratio: 16 / 8;
+		border-radius: var(--r-lg);
+		object-fit: cover;
+	}
+
+	/* ── The summary ───────────────────────────────────────── */
+	.toc {
+		padding: clamp(1.25rem, 0.9rem + 1.5vw, 2rem) clamp(1.25rem, 0.9rem + 1.5vw, 2.25rem);
+		border-radius: var(--r-lg);
+		background: var(--c-panel);
+	}
+
+	.toc__title {
+		color: var(--c-ink);
+		font-size: var(--fs-h3);
+		font-weight: 700;
+		letter-spacing: -0.01em;
+	}
+
+	.toc ol {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		column-gap: 2.5rem;
+		margin-top: 0.5rem;
+	}
+
+	/* Two columns, read down, as the document's list of six. */
+	@container presentation (min-width: 36rem) {
+		.toc ol {
+			grid-template-rows: repeat(3, auto);
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			grid-auto-flow: column;
+		}
+	}
+
+	.toc a {
+		display: flex;
+		align-items: baseline;
+		gap: 1rem;
+		padding-block: 0.85rem;
+		border-bottom: 1px solid var(--c-line);
+		color: var(--c-ink);
+		font-size: var(--fs-ui);
+		font-weight: 500;
+		line-height: 1.3;
+		transition: color 0.2s;
+	}
+
+	.toc__number {
+		flex: none;
+		min-width: 1.6em;
+		color: var(--c-label-soft);
+		font-weight: 700;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.toc a:hover {
+		color: var(--c-accent);
+	}
+
+	/* ── A part: its number in outline, then its title ─────── */
+	.part {
+		display: grid;
+		gap: clamp(1.5rem, 1.1rem + 1.25vw, 2.25rem);
+		/* When the summary leads here, the page's own scroll-padding (global.css) keeps the part
+		   clear of the floating menu bar. */
+	}
+
+	.part__head {
+		display: flex;
+		align-items: center;
+		gap: clamp(0.875rem, 0.6rem + 1vw, 1.5rem);
+	}
+
+	.part__number {
+		flex: none;
+		color: var(--c-ghost);
+		font-size: clamp(2.75rem, 2.1rem + 2.2vw, 4rem);
+		font-weight: 800;
+		letter-spacing: -0.04em;
+		line-height: 0.9;
+	}
+
+	@supports (-webkit-text-stroke: 1px black) {
+		.part__number {
+			color: transparent;
+			-webkit-text-stroke: 1.5px var(--c-stroke);
+		}
+	}
+
+	.part__head h2 {
+		font-size: clamp(1.875rem, 1.45rem + 1.5vw, 2.625rem);
+		font-weight: 700;
+		letter-spacing: -0.02em;
+		line-height: 1.1;
+	}
+
+	.part__role {
+		margin-top: 0.35rem;
+		font-size: var(--fs-ui);
+	}
+
+	/* ── 01: three statements, each with its icon ─────────── */
+	.facts {
+		display: grid;
+		max-width: 46rem;
+	}
+
+	/* The icon above its text on phones, beside it from there up. */
+	.facts li {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: 1rem;
+		padding-block: 1.5rem;
+		border-top: 1px solid var(--c-line);
+	}
+
+	@container presentation (min-width: 30rem) {
+		.facts li {
+			grid-template-columns: auto minmax(0, 1fr);
+			gap: 1.25rem;
+		}
+	}
+
+	.facts li:first-child {
+		padding-top: 0;
+		border-top: 0;
+	}
+
+	.facts p {
+		font-size: 1.3282rem;
+		line-height: 1.7;
+	}
+
+	/* The certification mark, whole and unchanged, leads to the certificate on TÜV's register. */
+	.facts__mark {
+		display: inline-block;
+		margin-top: 1.25rem;
+		border-radius: 0.5rem;
+	}
+
+	.facts__mark :global(img) {
+		display: block;
+		width: min(100%, 17rem);
+		height: auto;
+		border-radius: 0.5rem;
+	}
+
+	/* ── 02: three cards, one per kind of transport ─────────── */
+	.modes {
+		display: grid;
+		gap: 1.25rem;
+	}
+
+	.mode {
+		display: grid;
+		overflow: hidden;
+	}
+
+	.mode :global(.mode__photo) {
+		width: 100%;
+		aspect-ratio: 16 / 10;
+		object-fit: cover;
+	}
+
+	.mode__body {
+		display: grid;
+		align-content: start;
+		justify-items: start;
+		gap: 0.6rem;
+		padding: 1.25rem 1.5rem 1.5rem;
+	}
+
+	.mode h3 {
+		font-size: var(--fs-h3);
+		font-weight: 700;
+		letter-spacing: -0.01em;
+		line-height: 1.25;
+	}
+
+	.mode h3 a {
+		color: var(--c-ink);
+	}
+
+	.mode p {
+		line-height: 1.6;
+	}
+
+	.mode .disc {
+		margin-top: 0.4rem;
+	}
+
+	/* A card beside its photo while the column is too narrow for three side by side, then three. */
+	@container presentation (min-width: 30rem) {
+		.mode {
+			grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+		}
+
+		.mode :global(.mode__photo) {
+			height: 100%;
+			aspect-ratio: auto;
+		}
+	}
+
+	@container presentation (min-width: 46rem) {
+		.modes {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
+
+		.mode {
+			grid-template-columns: minmax(0, 1fr);
+			grid-template-rows: auto 1fr;
+		}
+
+		.mode :global(.mode__photo) {
+			height: auto;
+			aspect-ratio: 16 / 10;
+		}
+	}
+
+	/* ── 04: the logos on white tiles ──────────────────────── */
+	/* Three across, then five as in the document: the fifteen always fill their rows. */
+	.logos {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 0.625rem;
+	}
+
+	.logos li {
+		display: grid;
+		place-items: center;
+		height: 5.5rem;
+		padding: 0.75rem;
+		border: 1px solid var(--c-card-line);
+		border-radius: var(--r-md);
+		background: var(--c-card);
+	}
+
+	.logos :global(img) {
+		width: auto;
+		max-width: 100%;
+		height: auto;
+		max-height: 3.5rem;
+		object-fit: contain;
+	}
+
+	@container presentation (min-width: 36rem) {
+		.logos {
+			gap: 0.75rem;
+		}
+
+		.logos li {
+			height: 6.75rem;
+			padding: 1rem 1.25rem;
+		}
+
+		.logos :global(img) {
+			max-height: 4.25rem;
+		}
+	}
+
+	@container presentation (min-width: 44rem) {
+		.logos {
+			grid-template-columns: repeat(5, minmax(0, 1fr));
+		}
+	}
+
+	/* ── 05: the two offices ───────────────────────────────── */
+	.places {
+		display: grid;
+		gap: 1rem;
+	}
+
+	@container presentation (min-width: 34rem) {
+		.places {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	.place {
+		display: grid;
+		grid-template-columns: auto minmax(0, 1fr);
+		align-items: start;
+		gap: 1.25rem;
+		padding: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+	}
+
+	.place h3 {
+		font-size: var(--fs-h3);
+		font-weight: 700;
+		letter-spacing: -0.01em;
+		line-height: 1.25;
+	}
+
+	.place p {
+		margin-top: 0.35rem;
+		line-height: 1.6;
+	}
+
+	/* ── 06: the general manager ────────────────────────────── */
+	.director {
+		display: grid;
+		gap: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+	}
+
+	@container presentation (min-width: 40rem) {
+		.director {
+			grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
+			align-items: start;
+		}
+	}
+
+	.director :global(.director__photo) {
+		width: 100%;
+		max-width: 18rem;
+		height: auto;
+		border-radius: var(--r-lg);
+	}
+
+	.director__info {
+		display: grid;
+		gap: 1rem;
+	}
+
+	.director__box {
+		padding: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+		border-radius: var(--r-md);
+		background: var(--c-panel);
+		font-size: var(--fs-body);
+		line-height: 1.6;
+	}
+
+	.director__contact {
+		margin-top: 0.5rem;
+	}
+
+	.director__contact h3 {
+		font-size: var(--fs-h3);
+		font-weight: 700;
+		letter-spacing: -0.01em;
+	}
+
+	.director__contact ul {
+		display: grid;
+		gap: 0.6rem;
+		margin-top: 0.75rem;
+	}
+
+	.director__contact li {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.4rem 0.75rem;
+		color: var(--c-ink);
+	}
+
+	.director__contact :global(.icon) {
+		flex: none;
+		color: var(--c-label);
+	}
+
+	.director__contact a {
+		color: var(--c-ink);
+		text-decoration: underline;
+		text-decoration-color: var(--c-line-strong);
+		text-underline-offset: 0.22em;
+		overflow-wrap: anywhere;
+		transition:
+			color 0.2s,
+			text-decoration-color 0.2s;
+	}
+
+	.director__contact a:hover {
+		color: var(--c-accent);
+		text-decoration-color: currentColor;
+	}
+
+	/* ── The motto, which closes the document ───────────────── */
+	.motto {
+		display: flex;
+		align-items: center;
+		gap: 1.1rem;
+		color: var(--c-ink);
+		font-size: clamp(1.625rem, 1.3rem + 1.2vw, 2.375rem);
+		font-weight: 700;
+		letter-spacing: -0.01em;
+		line-height: 1.2;
+	}
+
+	/* The stroke leans: the margin keeps it inside the column. */
+	.motto::before {
+		content: '';
+		flex: none;
+		margin-left: 0.4em;
+		width: 3px;
+		height: 1.15em;
+		border-radius: 3px;
+		background: var(--g-bar);
+		rotate: calc(var(--slant) * -1);
+	}
+</style>

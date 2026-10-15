@@ -15,6 +15,11 @@ import oncf from '../assets/clients/oncf.png';
 import sofa from '../assets/clients/sofa.png';
 import canalfood from '../assets/clients/canalfood.png';
 import zicaffe from '../assets/clients/zicaffe.png';
+// Only in the company's presentation (cut out of reference/presentation-entreprise.pdf, at the size it
+// holds them): not on the current site.
+import ines from '../assets/clients/ines.png';
+import amiyasImport from '../assets/clients/amiyas-import.png';
+import clientA from '../assets/clients/client-a.png';
 
 import x2Elite from '../assets/partners/x2-elite.png';
 import atadm from '../assets/partners/atadm.png';
@@ -43,4 +48,26 @@ export const clients: Logo[] = [
 export const partners: Logo[] = [
 	{ name: 'X2 Elite', image: x2Elite },
 	{ name: 'ATADM', image: atadm },
+];
+
+// The references of the company's presentation (pages/presentation-de-l-entreprise.astro), in the
+// document's order: twelve of the clients above (not Al Itkane), and three that are only there.
+// The orange and green logo with an "A" has no name in the document: its name is to be asked of
+// the client, and until then it is shown without one (an empty alt).
+export const presentationClients: Logo[] = [
+	{ name: 'Aswak Assalam', image: aswakAssalam },
+	{ name: 'Sonacos', image: sonacos },
+	{ name: 'Alpha55', image: alpha55 },
+	{ name: 'Sofa', image: sofa },
+	{ name: '', image: clientA },
+	{ name: 'Ines', image: ines },
+	{ name: 'Systemair', image: systemair },
+	{ name: 'Canalfood', image: canalfood },
+	{ name: 'Bicafé', image: bicafe },
+	{ name: 'Amiyas Import', image: amiyasImport },
+	{ name: 'Indomie', image: indomie },
+	{ name: 'JEN Maroc', image: jenMaroc },
+	{ name: 'Zine Céréales', image: zineCereales },
+	{ name: 'Zicaffè', image: zicaffe },
+	{ name: 'ONCF', image: oncf },
 ];

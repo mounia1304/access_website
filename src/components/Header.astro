@@ -1,6 +1,8 @@
 ---
 // Logo, menu and quote button, on a white bar that stays at the top of the screen.
-// The bar is frosted once the page scrolls (the page blurs behind it) and gets a little lower.
+// At the top of a page it floats, a rounded bar of frosted glass a little below the top of the
+// screen. Once the page scrolls it docks: it runs the whole width from the very top, solid white,
+// so that no text shows above or behind it (the client's request). It keeps its height there.
 import { getCollection } from 'astro:content';
 import Icon from './Icon.astro';
 import Logo from './Logo.astro';
@@ -199,8 +201,8 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 </dialog>
 
 <script>
-	// Marks the page as scrolled: the bar then takes its lower height (browsers that can tie
-	// the change to the scrolling itself do so in CSS) and turns nearly opaque.
+	// Marks the page as scrolled: the bar then docks to the top of the screen (browsers that can
+	// tie the change to the scrolling itself do so in CSS).
 	const header = document.querySelector<HTMLElement>('[data-header]');
 	if (header) {
 		const onScroll = () => header.toggleAttribute('data-scrolled', window.scrollY > 48);
@@ -239,70 +241,87 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 
 <style>
 	/*
-	 * The menu floats over the page as a rounded bar of frosted glass, as in the third mockup of
-	 * the first screen. The header keeps one height in the page (so nothing jumps); the bar inside
-	 * it is what changes once the page has scrolled: it gets lower and nearly opaque.
+	 * At the top of a page the menu floats over it as a rounded bar of frosted glass, as in the
+	 * third mockup of the first screen. Once the page scrolls it docks: the client found that text
+	 * showed above it and round it, and asked for it to take the whole top of the screen. --dock
+	 * goes from 0 (floating) to 1 (docked): the bar loses its gap above, its margins and its
+	 * corners, and its glass turns solid white; it keeps its height (on phones it grows to 60px). What it holds keeps its place on the
+	 * screen meanwhile (its padding grows as its margins go). The header keeps one height in the
+	 * page, so nothing jumps.
 	 * Its measures follow the mockup (1717px wide) in hundredths of the screen's width, with floors.
 	 */
+	@property --dock {
+		syntax: '<number>';
+		inherits: true;
+		initial-value: 0;
+	}
+
 	.header {
 		--bar-inset: clamp(0.75rem, 3.96vw, 5rem); /* from the sides of the screen */
+		--bar-inset-end: calc(var(--bar-inset) * 0.84);
 		position: sticky;
 		top: 0;
 		z-index: 50;
 		height: var(--header-h-top);
 		pointer-events: none;
+		transition: --dock 0.3s var(--ease);
 	}
 
-	.header__bar {
-		position: relative;
-		isolation: isolate;
-		height: var(--bar-h);
-		margin: 0 calc(var(--bar-inset) * 0.84) 0 var(--bar-inset);
-		top: var(--header-gap);
-		pointer-events: auto;
-		transition: height 0.3s var(--ease);
+	.header[data-scrolled] {
+		--dock: 1;
 	}
 
-	/* The glass is on a layer of its own, so the drop-downs can be frosted too. */
-	.header__bar::before {
-		content: '';
-		position: absolute;
-		inset: 0;
-		z-index: -1;
-		border: 1px solid rgb(255 255 255 / 0.2);
-		border-radius: clamp(1.125rem, 1.5vw, 1.75rem);
-		background: rgb(255 255 255 / 0.56);
-		-webkit-backdrop-filter: blur(14px);
-		backdrop-filter: blur(14px);
-		box-shadow: 0 0.5rem 1.5rem transparent;
-		transition:
-			background-color 0.3s,
-			box-shadow 0.3s;
-	}
+	/* Tied to the scrolling itself where browsers can, over the first 160px. Both ends are given:
+	   without "from", the animation would start from the value [data-scrolled] sets (1). */
+	@keyframes header-dock {
+		from {
+			--dock: 0;
+		}
 
-	.header[data-scrolled] .header__bar {
-		height: var(--bar-h-low);
-	}
-
-	.header[data-scrolled] .header__bar::before {
-		background: var(--c-bar);
-		box-shadow: var(--shadow-soft);
-	}
-
-	@keyframes header-lower {
 		to {
-			height: var(--bar-h-low);
+			--dock: 1;
 		}
 	}
 
 	@media (prefers-reduced-motion: no-preference) {
 		@supports (animation-timeline: scroll()) {
-			.header__bar {
-				animation: header-lower linear both;
+			.header {
+				animation: header-dock linear both;
 				animation-timeline: scroll(root block);
-				animation-range: 0 200px;
+				animation-range: 0 160px;
 			}
 		}
+	}
+
+	.header__bar {
+		position: relative;
+		isolation: isolate;
+		top: calc(var(--header-gap) * (1 - var(--dock)));
+		height: calc(var(--bar-h) - (var(--bar-h) - var(--bar-h-low)) * var(--dock));
+		margin: 0 calc(var(--bar-inset-end) * (1 - var(--dock))) 0 calc(var(--bar-inset) * (1 - var(--dock)));
+		pointer-events: auto;
+	}
+
+	/* The glass is on a layer of its own, so the drop-downs can be frosted too. Docked, it is solid
+	   white with a hairline and a soft shadow under it. */
+	.header__bar::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		border: 1px solid rgb(255 255 255 / calc(0.2 * (1 - var(--dock))));
+		border-radius: calc(clamp(1.125rem, 1.5vw, 1.75rem) * (1 - var(--dock)));
+		background: color-mix(in srgb, var(--c-surface) calc(56% + 44% * var(--dock)), transparent);
+		-webkit-backdrop-filter: blur(14px);
+		backdrop-filter: blur(14px);
+		box-shadow: 0 0.5rem 1.5rem transparent;
+		transition: box-shadow 0.3s;
+	}
+
+	.header[data-scrolled] .header__bar::before {
+		box-shadow:
+			0 1px 0 var(--c-line),
+			var(--shadow-soft);
 	}
 
 	.header__inner {
@@ -311,7 +330,9 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 		justify-content: space-between;
 		gap: 1rem;
 		height: 100%;
-		padding-inline: clamp(0.85rem, 3.03vw, 3.75rem) clamp(0.5rem, 1.1vw, 1.375rem);
+		padding-inline:
+			calc(clamp(0.85rem, 3.03vw, 3.75rem) + var(--bar-inset) * var(--dock))
+			calc(clamp(0.5rem, 1.1vw, 1.375rem) + var(--bar-inset-end) * var(--dock));
 	}
 
 	/* The logo is as tall as the mockup's at the top of the page, and gets lower with the bar.
@@ -572,7 +593,7 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 		.header__inner {
 			display: grid;
 			grid-template-columns: auto minmax(0, 1fr) auto;
-			padding-left: clamp(1.25rem, min(3.03vw, 9vw - 5.7rem), 3.75rem);
+			padding-left: calc(clamp(1.25rem, min(3.03vw, 9vw - 5.7rem), 3.75rem) + var(--bar-inset) * var(--dock));
 		}
 
 		.nav {

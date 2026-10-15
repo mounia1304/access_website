@@ -18,11 +18,13 @@ interface Props {
 	trail?: readonly Crumb[];
 	/** Sets the title smaller, for a long one (an article). */
 	long?: boolean;
+	/** The title's language when it is not the page's ("en": the English presentation). */
+	lang?: string;
 }
 
 const t = useTranslations();
 const { ui } = t.pages;
-const { title, eyebrow, trail = [], long = false } = Astro.props;
+const { title, eyebrow, trail = [], long = false, lang } = Astro.props;
 const [lead, mark] = typeof title === 'string' ? ['', title] : title;
 const plain = typeof title === 'string' ? title : title.filter(Boolean).join(' ');
 const crumbs: Crumb[] = [{ label: ui.root, href: route('home') }, ...trail, { label: plain }];
@@ -48,7 +50,7 @@ const crumbs: Crumb[] = [{ label: ui.root, href: route('home') }, ...trail, { la
 				<ol>
 					{
 						crumbs.map((crumb, index) => (
-							<li aria-current={index === crumbs.length - 1 ? 'page' : undefined}>
+							<li aria-current={index === crumbs.length - 1 ? 'page' : undefined} lang={index === crumbs.length - 1 ? lang : undefined}>
 								{crumb.href ? <a href={crumb.href}>{crumb.label}</a> : crumb.label}
 							</li>
 						))
@@ -56,7 +58,7 @@ const crumbs: Crumb[] = [{ label: ui.root, href: route('home') }, ...trail, { la
 				</ol>
 			</nav>
 			{eyebrow && <p class="eyebrow eyebrow--lines">{eyebrow}</p>}
-			<h1>
+			<h1 lang={lang}>
 				{lead}{lead && mark && ' '}{mark && <span class="mark">{mark}</span>}
 			</h1>
 			<slot />

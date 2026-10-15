@@ -1,0 +1,28 @@
+---
+// The company's presentation in English: the client's English document
+// (reference/company-presentation-en.pdf), the translation of the French one, laid out the same
+// way (CompanyPresentation.astro), at the client's request. It is the one English page before the
+// English site (phase 3): the menu, the side column, the three commitments and the footer round it
+// are the French site's, and its own text is marked as English. Texts: i18n/en.pages.ts.
+import Assurances from '../../components/Assurances.astro';
+import CompanyPresentation from '../../components/CompanyPresentation.astro';
+import PageHead from '../../components/PageHead.astro';
+import Base from '../../layouts/Base.astro';
+import { site } from '../../data/site';
+import en from '../../i18n/en.pages';
+import { excerpt } from '../../utils/text';
+
+const { presentation } = en;
+---
+
+<Base title={`${presentation.title.join(' ')} | ${site.name}`} description={excerpt(presentation.about.items[0].text)}>
+	<PageHead title={presentation.title} lang="en" />
+	<CompanyPresentation
+		text={presentation}
+		lang="en"
+		current="presentationEn"
+		certificate={en.certificate}
+		external={en.external}
+	/>
+	<Assurances />
+</Base>

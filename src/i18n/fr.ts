@@ -66,7 +66,6 @@ const fr = {
 		// Read by search engines and screen readers; the slide titles are what is seen.
 		h1: 'Access Transit, transitaire au Maroc',
 		label: 'À la une',
-		tablist: 'Choisir un message',
 		// The texts below, down to the picture's description, are not on the current site: they come
 		// from the client's mockups of the first screen (the third one,
 		// reference/maquette-premier-ecran-3.webp, is the one that is built).
@@ -134,6 +133,8 @@ const fr = {
 			'Notre engagement en faveur de la célérité et de la transparence contribue à améliorer la compétitivité de nos clients dans un environnement de plus en plus concurrentiel.',
 		],
 		motto: 'Notre force, votre atout',
+		// The link to the company's presentation (a page of the site, made from its document).
+		more: 'En savoir plus',
 		ceo: { name: 'Mohamed EZZAHRAOUI', role: 'Directeur Général' },
 		imageAlt: 'Camion porte-conteneurs, navire chargé de conteneurs à quai, portiques et avion au décollage',
 	},

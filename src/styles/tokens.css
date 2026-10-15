@@ -157,7 +157,6 @@
 	/* ── Typography ────────────────────────────────────────── */
 	--font-sans: 'DM Sans Variable', 'DM Sans', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
 		Arial, sans-serif;
-	--font-script: 'La Belle Aurore', 'Segoe Script', 'Bradley Hand', cursive; /* the slogan only */
 
 	--fs-display: clamp(4rem, 2.4rem + 7.2vw, 7rem); /* giant figures */
 	--fs-h2: clamp(2rem, 1.6rem + 1.7vw, 2.875rem);
@@ -182,8 +181,10 @@
 	/* The menu is a bar that floats a little below the top of the screen (Header.astro). */
 	--header-gap: clamp(0.5rem, 1.165vw, 1.5rem); /* from the top of the screen to the bar */
 	--bar-h: clamp(3.5rem, 4.776vw, 6rem); /* the bar at the top of the page */
-	--bar-h-low: 3.75rem; /* the bar once the page has scrolled */
-	--header-h: calc(var(--header-gap) + var(--bar-h-low)); /* what the bar hides at the top of the screen then */
+	/* The bar once the page has scrolled (docked): as tall as at the top of the page, 60px at least.
+	   It was 60px everywhere; the client found it too thin on large screens ("make it bigger"). */
+	--bar-h-low: max(var(--bar-h), 3.75rem);
+	--header-h: var(--bar-h-low); /* what the bar hides at the top of the screen then: docked, it starts at the very top */
 	--header-h-top: calc(var(--header-gap) + var(--bar-h)); /* the same at the top of the page */
 
 	/* ── Shapes ────────────────────────────────────────────── */

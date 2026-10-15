@@ -2,27 +2,28 @@
 // Second screen, built after the client's mockup (reference/maquette-deuxieme-ecran.webp,
 // 1944 x 809): on the left a tag, the two-line title, the two paragraphs, then the motto with
 // the managing director's portrait, name and signature; on the right the picture in a slanted
-// frame, with round-ended bars, thin strokes and the handwritten slogan.
+// frame, with round-ended bars and thin strokes. (The mockup's handwritten slogan beside the
+// picture was removed at the client's request, 2026-10-15.)
 //
 // THE PICTURE is a short film supplied by the client (photos/presentation/transport.mp4,
 // 1280 x 720, 8 seconds, no sound), cut by the frame. Its first image (transport.webp) lies
 // under it: it is what shows until the film plays, and all that shows for visitors who asked
-// for less movement. The frame, the glass, the bars and the slogan are drawn here.
+// for less movement. The frame, the glass and the bars are drawn here.
 import { Image, getImage } from 'astro:assets';
+import Icon from './Icon.astro';
 import Title from './Title.astro';
 import film from '../assets/photos/presentation/transport.mp4?url';
 import still from '../assets/photos/presentation/transport.webp';
 import ceoPhoto from '../assets/team/mohamed-ezzahraoui.png';
 import ceoSignature from '../assets/team/signature-ezzahraoui.png';
 import { roundedShape } from './shapes';
-import { useTranslations } from '../i18n';
+import { route, useTranslations } from '../i18n';
 
 const t = useTranslations();
 const { about } = t;
-const { slogan } = t.hero;
 
 // The signature is black ink on a transparent background: it is used as a mask, so that it
-// takes the colour of the slogan.
+// takes the site's colour.
 const signature = await getImage({ src: ceoSignature, width: ceoSignature.width, format: 'png' });
 
 // The picture's box, measured on the mockup (in px): 926 x 640. The frame leans like the logo
@@ -91,6 +92,11 @@ const slabShape = roundedShape(
 				<div class="about__text">
 					{about.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
 				</div>
+				<!-- To the company's presentation, the page made from its document. -->
+				<a class="about__more" href={route('presentation')}>
+					{about.more}
+					<Icon name="arrow-right" />
+				</a>
 
 				<!-- Motto and signature of the managing director. -->
 				<div class="about__sign">
@@ -136,13 +142,6 @@ const slabShape = roundedShape(
 					<span class="about__stroke about__stroke--top" aria-hidden="true"></span>
 					<span class="about__stroke about__stroke--top-short" aria-hidden="true"></span>
 					<span class="about__stroke about__stroke--bottom" aria-hidden="true"></span>
-					<p class="about__slogan">
-						<span>{slogan[0]}</span>
-						<span>{slogan[1]}</span>
-						<svg viewBox="0 0 80 14" aria-hidden="true" focusable="false">
-							<path d="M2 9C26 7.6 52 6.6 78 6"></path>
-						</svg>
-					</p>
 				</div>
 			</div>
 		</div>
@@ -287,6 +286,29 @@ const slabShape = roundedShape(
 		line-height: 1.44;
 	}
 
+	/* A text link, like the one of the first screen's panel. */
+	.about__more {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45em;
+		width: fit-content;
+		margin-top: clamp(0.875rem, 1cqw, 1.25rem);
+		color: var(--c-accent);
+		font-size: clamp(1.1718rem, 1.21cqw, 1.4648rem);
+		font-weight: 600;
+		line-height: 1.3;
+	}
+
+	.about__more :global(.icon) {
+		width: 1.05em;
+		height: auto;
+		transition: transform 0.25s var(--ease);
+	}
+
+	.about__more:hover :global(.icon) {
+		transform: translateX(calc(var(--motion) * 3px));
+	}
+
 	.about__sign {
 		margin-top: clamp(1.5rem, 1.955cqw, 2.375rem);
 		padding-top: clamp(1.25rem, 1.49cqw, 1.8125rem);
@@ -329,7 +351,7 @@ const slabShape = roundedShape(
 		line-height: 1.42;
 	}
 
-	/* The signature, in the colour of the slogan, with a stroke under it. */
+	/* The signature, in a bright blue, with a stroke under it. */
 	.about__signature {
 		position: relative;
 		width: clamp(8rem, 9.31cqw, 11.3125rem);
@@ -357,21 +379,16 @@ const slabShape = roundedShape(
 		overflow: visible;
 	}
 
-	.about__signature path,
-	.about__slogan path {
+	.about__signature path {
 		fill: none;
 		stroke: var(--c-stroke);
 		stroke-linecap: round;
-		stroke-width: 2.2;
-	}
-
-	.about__signature path {
 		stroke-width: 0.9;
 	}
 
 	/* ── Picture ────────────────────────────────────────── */
 
-	/* The stage holds the frame, the bars, the strokes and the slogan, all placed in percentages
+	/* The stage holds the frame, the bars and the strokes, all placed in percentages
 	   of its box (1000 x 676 on the mockup), so the whole composition scales as one. */
 	.about__visual {
 		container-type: inline-size;
@@ -520,32 +537,6 @@ const slabShape = roundedShape(
 		height: 19.33%;
 	}
 
-	/* The handwritten slogan, in the corner the frame leaves free at the top right. */
-	.about__slogan {
-		position: absolute;
-		top: 18%;
-		right: 0;
-		display: grid;
-		justify-items: start;
-		color: var(--c-label-soft);
-		font-family: var(--font-script);
-		font-size: clamp(0.8125rem, 3.7cqw, 1.5rem);
-		letter-spacing: 0;
-		line-height: 1.27;
-		word-spacing: -0.22em;
-		white-space: nowrap;
-		/* The face only comes in one thin weight: a hairline stroke thickens it. */
-		-webkit-text-stroke: 0.04em currentColor;
-		transform: rotate(-16.5deg);
-		transform-origin: right center;
-	}
-
-	.about__slogan svg {
-		width: 3.1em;
-		margin: 0.13em 0 0 2.3em;
-		overflow: visible;
-	}
-
 	@media (min-width: 36em) {
 		.about__signature {
 			margin-left: auto;
@@ -565,14 +556,6 @@ const slabShape = roundedShape(
 			align-items: center;
 			gap: 0;
 			padding-inline: 6.173cqw 1.235cqw;
-		}
-
-		.about__slogan {
-			top: 26.6%;
-			right: auto;
-			left: 77.55%;
-			font-size: 2.75cqw;
-			transform-origin: left center;
 		}
 	}
 </style>

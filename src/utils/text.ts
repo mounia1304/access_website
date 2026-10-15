@@ -5,6 +5,17 @@ export function excerpt(text: string, max = 155): string {
 	return `${cut.slice(0, cut.lastIndexOf(' ')).replace(/[\s,;: ]+$/, '')}…`;
 }
 
+/** A text as an anchor or an address: no accents, lower case, words joined by hyphens
+ *  ("Nos références" gives nos-references, "Who Are We?" who-are-we). */
+export function slugify(text: string): string {
+	return text
+		.normalize('NFD')
+		.replace(/[\u0300-\u036f]/g, '')
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, '-')
+		.replace(/^-+|-+$/g, '');
+}
+
 /** A person's initials, as they stand in for a photo: the first name's (written last), then the
  *  family name's ("FAHMI Larbi" gives LF; a leading "M." is left out). */
 export function initialsOf(name: string): string {

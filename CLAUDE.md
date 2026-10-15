@@ -64,7 +64,7 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
   (`--c-ink`), with the second half of each title in orange (`--c-display`, large text only);
   paragraphs are slate; buttons, links and the footer are blue (`--c-accent`); small coloured
   text and icons use a deeper blue (`--c-label`), or a brighter one (`--c-label-soft`: the second
-  screen's tag, slogan and signature, small numbers); chips and the selected card are very pale blue
+  screen's tag and signature, small numbers); chips and the selected card are very pale blue
   (`--c-tint`), icon tiles and arrow discs a lighter mix (`--c-tile`), panels lighter still (`--c-panel`).
 - Every coloured fill has a partner for the text it carries: `--c-accent` / `--c-on-accent`,
   `--c-soft` / `--c-on-soft`, `--c-dark` / `--c-on-dark`.
@@ -78,8 +78,8 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
 
 - One typeface, DM Sans (variable): 400 for paragraphs, 500 for titles, menu, buttons and labels, 800 for
   the hero title, 700 for the second screen's tag, title and motto and for the third screen's label and
-  title (as in their mockups). La Belle Aurore (handwritten) is for
-  the slogan of the second screen only (on the first screen the slogan is set in DM Sans, as in its mockup).
+  title (as in their mockups). There is no handwritten face any more: La Belle Aurore set the second
+  screen's slogan, which the client asked to remove (2026-10-15); the first screen's slogan is DM Sans.
 - TEXT SIZES. The client found the texts too small, first in the menu bar, then everywhere else:
   every small text is 25% larger than the mockups set it (15% at first, then 22%, then 25%: menu, buttons, labels, paragraphs, card
   titles, names, the footer: the `--fs-…` tokens from `--fs-h3` down, and the sizes written in the
@@ -112,14 +112,20 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
   screen (`Header.astro`): logo, menu, FR/EN, quote button. The menu is the current site's, except
   that "Blog" became "Actualités" (see "Actualités"). There is no top bar any more (the third
   mockup has none): the phone, the e-mail and the city are in the mobile menu, the contact block and the
-  footer. Once the page has scrolled the bar gets lower (`--bar-h` to `--bar-h-low`) and nearly opaque;
-  the `<header>` itself keeps one height so the page never jumps. `--header-h` is what the bar hides at
-  the top of the screen then: use it for sticky tops and scroll margins.
+  footer. Once the page scrolls the bar docks, at the client's request (text showed above it and round
+  it): it runs the whole width from the very top of the screen, solid white with a hairline under it.
+  It keeps its height (`--bar-h-low` is `--bar-h`, 60px at least): it used to get lower, to 60px,
+  and the client asked for it bigger. One number drives it, `--dock` (0 floating, 1 docked), tied
+  to the first 160px of scrolling where browsers can (a class at 48px elsewhere, and for reduced
+  motion); the logo, the menu and the button keep their place on the screen meanwhile (the padding
+  grows as the margins go). The first screen at rest is unchanged. The `<header>` itself keeps one
+  height so the page never jumps. `--header-h` is what the docked bar hides at the top of the
+  screen (its height): use it for sticky tops and scroll margins.
 - The first screen is pulled up under the menu (`margin-top: calc(-1 * var(--header-h-top))`), so the
   photograph shows through the glass. Other pages simply start below it.
 - `Hero.astro` follows the third mockup: one wide photograph across the screen; over it a pale pane on
   the left, which carries the message (tagline, two-line title in extra-bold, text, button, a round
-  "play" link to the second screen, the numbers of the messages), a dark tint and a darker pane in the
+  "play" link to the second screen), a dark tint and a darker pane in the
   top right corner, which carry the slogan; an orange-then-blue line along the pale pane's edge. A white
   panel with a leaning left side overlaps the photograph's foot: its label, title and link, then four
   cards with small pictures.
@@ -132,10 +138,10 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
   width, with more sky and sea around it: `scripts/make-hero-scene.mjs` adds those margins by mirroring
   the photograph's edges (`port-scene.webp`), which puts the lorry, the ship and the plane where the
   mockup has them. Run it again if the photograph changes.
-- It is still the current site's slider: five messages, no auto-play, the same photograph for all. The
-  numbers (01 to 05; the mockup draws three) are its tab list: keep click, arrow keys, Home/End and
-  swipe working. The four cards are plain links to the pages (road, sea, air, ISO), as on the mockup;
-  customs clearance has no card there, it is the first message.
+- It shows one message: the first of the current site's slider ("Transit en douane"). The numbers
+  01 to 05 that chose among the five were removed at the client's request (2026-10-15), and the
+  slider with them; the five messages are still in `fr.ts`. The four cards are plain links to the
+  pages (road, sea, air, ISO), as on the mockup; customs clearance has no card, it is the message.
 - The small pictures on the cards (`photos/hero/cards/`): the lorry, the ship and the plane are the
   client's own (supplied with a transparent ground; only trimmed and reduced to 340px high). The
   client asked for these three a quarter smaller than the cards' pictures are by default
@@ -149,8 +155,7 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
 - A gradient text (`background-clip: text`) is cut at its line box: the orange word has a little
   bottom padding (and the same negative margin) so that descenders are not cut.
 - Check 1717x916 against the mockup (`previews/comparaison-maquette.jpg`), then 1920, 1536, 1366,
-  1280, 1024, a tablet and a phone; show the fifth message, which has the longest text and button;
-  scroll, to see the lowered bar and an open sub-menu.
+  1280, 1024, a tablet and a phone; scroll, to see the lowered bar and an open sub-menu.
 
 ### Second screen
 
@@ -160,7 +165,8 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
   (1cqw = 19.44px there), with floors on text sizes, so the screen scales as a whole.
 - The picture is a "stage" (1000 x 676 on the mockup) whose pieces are placed in percentages: a pale
   slab, the frame (an SVG clip path with seven rounded corners), a pane of glass at its top left, two
-  strong bars and two pale ones with round ends, three thin strokes, the slogan. Bars and strokes are
+  strong bars and two pale ones with round ends, three thin strokes. (The mockup's handwritten slogan
+  in its top right corner was removed at the client's request, 2026-10-15.) Bars and strokes are
   rotated by `--slant`.
 - Inside the frame plays the client's film (`photos/presentation/transport.mp4`, 1280 x 720, 8 seconds,
   no sound). The client asked for the frame to stay exactly as it is and to hide part of the film: the
@@ -346,8 +352,9 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
   in `src/i18n/fr.pages.ts` (`t.pages`), not in `fr.ts`.
 - Pages: the four services (`pages/services/[service].astro`), the quote request (a choice of three
   kinds, then one form per kind: `pages/e-services/demander-une-cotation/`), tracking, complaints,
-  the quality policy, the blog (see "Blog"), the news (see "Actualités"), and contact. Addresses are
-  those of the current site, except the news pages (new).
+  the quality policy, the company's presentation (see below), the blog (see "Blog"), the news (see
+  "Actualités"), and contact. Addresses are those of the current site, except the news pages and the
+  presentation (new).
 - They share: `PageHead.astro` (the trail, an optional label, the `h1` in the two colours of the
   homepage's titles), `ServiceAside.astro` (the four trades, the two presentations, a help card),
   `Assurances.astro` (the three commitments that close most pages of the current site),
@@ -374,14 +381,43 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
   block, and the contact page. It is fetched from Google only when the visitor scrolls near it.
   Google's card gives the address as "126 Bd Moulay Slimane", the site as "126 Avenue Ambassadeur
   Ben Aicha": the site's wording is the current site's and was not changed.
-- The two "presentations" are links to the company's files on Google Drive, as on the current site.
+- The two "presentations" are the company's files on Google Drive, as on the current site. Both are
+  pages now, made at the client's request from their two PDFs (eleven PowerPoint slides of January
+  2023 each) and laid out like a service page ("do you see the Transit en douane page design… i want
+  it as the page", then "same work for the english version"): `/presentation-de-l-entreprise/`
+  (`reference/presentation-entreprise.pdf`) and `/en/company-presentation/`
+  (`reference/company-presentation-en.pdf`). One component draws both, `CompanyPresentation.astro`
+  (the text column and the side column); the pages (`pages/presentation-de-l-entreprise.astro`,
+  `pages/en/company-presentation.astro`) add the head and the three commitments. Texts:
+  `presentation` in `fr.pages.ts` and in `en.pages.ts`, both of the shape `PresentationText`.
+  The "Documents" column leads to the pages; on each page it offers that page's PDF (`docs[].page`
+  and `.pdf` in `fr.pages.ts`); the news page's press corner keeps the files. The homepage's
+  second screen links to the French page ("En savoir plus", `about.more`).
+- The English page is the site's one English page until the English site is built (phase 3): its
+  route is `presentationEn` among the French routes, its address is under `/en/` where that site
+  will live. The menu, the side column, the three commitments and the footer round it are the
+  French site's; its own text (title, summary, parts, motto) is marked `lang="en"` (`lang` on
+  `PageHead` and on the component). Its transport cards lead to the French service pages.
+  Anchors are made from each part's name (`slugify`): #nos-references, #our-portfolio.
+- Each page's text is its PDF's, spelling and typography corrected (listed in the comments above
+  `presentation` in `fr.pages.ts` and `en.pages.ts`): its summary, then six parts numbered in outline as on the quality
+  page (who we are, services with three cards to the transport pages, skills, references, addresses,
+  the general manager), then the motto of its last slide. Its pictures are the site's where the PDF
+  shows the same ones smaller (the film's first image, the service photographs, the current TÜV mark,
+  the homepage's logos); three logos (Ines, Amiyas Import, an orange and green "A" whose name the PDF
+  does not give: empty alt until the client says) and the general manager's portrait were cut out of
+  the PDF. Its drawings of people and its "Merci" slide (an employee's Gmail address) are not used.
+  It shows the general manager's own mobile numbers, Gmail address and LinkedIn, as the PDF does;
+  the contact page still says "Coordonnées à venir" for him: the client is to confirm both. Its
+  measures follow the width of its text column (a container, `presentation`): the logos are three,
+  then five across (fifteen fill the rows); the transport cards are stacked, then three across.
 - The menu marks the page on screen (`aria-current`), and the group it belongs to (`data-current`
   on the buttons "Nos services" and "E-services").
 - The contact page: the team is the director's own diagram (sent as a picture, "look exactly like this"),
   in `TeamDiagram.astro`: the general manager in the middle over a blue plate, his number and address in
   a box under it, two hairline orbits round him; seven cards round him, each with a round photo facing
   the middle, the icon of the trade in a small square, name, role, number and address, and a line from
-  its photo to the orbit. The picture's green became the logo's orange (cards at the top and on the
+  its photo to the orbit (the two lower cards: into the box under him, see below). The picture's green became the logo's orange (cards at the top and on the
   right), its blue stayed (cards on the left). It replaced the grid of the current site's six people:
   those not in the diagram are gone, at the director's request.
 - A first version copied the picture's finish too (gradient discs with white rims, glows, capitals, a
@@ -392,7 +428,9 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
 - From 80em it is a stage in the picture's proportions (1536 by 1100, the rows a little further apart
   than in the picture because the site's lettering is wider), everything placed in the picture's px
   (`--u`, `PLACES`); a card's line belongs to the card and is aimed at the middle from its place, so it
-  stays on the photo when the card grows. Below 80em the cards are a list (two columns from 44em; on
+  stays on the photo when the card grows. The orbit's foot is hidden by his plate and box, so the
+  two lower lines run into that box and end behind it (`BOX_FOOT`), at the client's request (they
+  had stopped on the outer orbit, which looked unconnected). Below 80em the cards are a list (two columns from 44em; on
   phones the photo is above the text). Check 1920, 1536, 1366 and 1280 (no two cards may touch), a
   tablet and a phone.
 - No photos yet: each frame shows the person's initials until the client sends them. The picture's
@@ -486,9 +524,8 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
 - The film of the second screen follows the same three rules, in the script of `About.astro`: it is
   fetched and played only while its frame is on screen, stops when a pause button is pressed, and never
   plays for `prefers-reduced-motion` (the still stays).
-- The hero slider and the testimonials do not auto-play (neither does the original). Both are tab lists;
-  keep the keyboard, arrow and swipe controls working when changing them. `touch-action: pan-y` on the
-  hero's message and picture stops browsers from treating a sideways swipe as "go back".
+- The testimonials do not auto-play (neither did the current site's slider). They are a tab list:
+  keep the keyboard, arrow and swipe controls working when changing them.
 
 ### Kept from the previous design
 
@@ -505,7 +542,7 @@ colour of the banner's lanes and the pale cyan that of the second button.
 - Exceptions that came with the mockups (all marked in `fr.ts`): the tagline, the slogan, the panel's
   label and title, its link ("Découvrir tous nos services"), the play link ("Notre savoir-faire"), and
   the longer first message. The hero button reads "En savoir plus"; the service cards keep "Savoir
-  plus". The second mockup repeats the slogan beside its picture.
+  plus". The second mockup repeats the slogan beside its picture; the client had it removed there.
 - The third mockup changed the sentences of three services (douane, routier, aérien). They were
   taken over, with "une acheminement" corrected to "un acheminement"; the current site's sentences are
   kept in a comment above them in `fr.ts`, should the client want them back.
@@ -513,6 +550,7 @@ colour of the banner's lanes and the pale cyan that of the second button.
   was not added; the third mockup no longer shows it.
 - All visible French text lives in `src/i18n/fr.ts` (homepage and shared layout) and
   `src/i18n/fr.pages.ts` (inner pages, reached as `t.pages`); components contain no hard-coded copy.
+  The only English text so far is the English presentation's, in `src/i18n/en.pages.ts`.
 - Company facts (phones, addresses, figures) come from the current site. Do not invent claims, numbers or services.
 - French typography: non-breaking space before `: ; ! ?` (` `), narrow one in thousands (` `).
 - Titles use normal French capitalisation ("Nos services"); the current site capitalises every word only through CSS.
@@ -522,9 +560,9 @@ colour of the banner's lanes and the pale cyan that of the second button.
 
 - **Logo**: no longer a placeholder. `Logo.astro` shows the client's own logo (blue and orange, with
   gradients; `src/assets/brand/logo-source.webp`, trimmed into `logo.png` by `scripts/make-logo.mjs`),
-  in the header, the mobile menu and the footer. The client asked for it to be used exactly as supplied:
-  do not redraw or recolour it. Its blue would not show on the footer's blue, so there it sits on a
-  white plate (`<Logo plate />`). It is sized by its height (`--logo-h`). In the header its box keeps
+  in the header and the mobile menu. The client asked for it to be used exactly as supplied:
+  do not redraw or recolour it. The footer had it on a white plate (`<Logo plate />`); the client
+  asked for it to be removed from there (2026-10-15). It is sized by its height (`--logo-h`). In the header its box keeps
   the width of the earlier stand-in, so that the menu stays where the first mockup puts it.
   The favicon (`public/favicon.png`) is the logo's "A" on a white rounded square.
 - **Chevrons and slant**: the double chevron of the trails and of the testimonials' guillemet, and

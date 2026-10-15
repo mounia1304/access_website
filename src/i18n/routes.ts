@@ -15,6 +15,11 @@ export const routes = {
 		tracking: '/e-services/tracking/',
 		reclamation: '/e-services/reclamations/',
 		qualite: '/notre-politique-qualite/',
+		// New: the company's presentation, which the current site only offers as a PDF on Google Drive.
+		presentation: '/presentation-de-l-entreprise/',
+		// Its English version: the one English page until the English site is built (phase 3), when
+		// it moves to that site's routes. Under /en/, where the English site will live.
+		presentationEn: '/en/company-presentation/',
 		blog: '/blog/',
 		actualites: '/actualites/',
 		contact: '/contact/',

@@ -1,0 +1,27 @@
+---
+// The company's presentation in French: the client's own document
+// (reference/presentation-entreprise.pdf), turned into a page at their request and laid out like a
+// service page (CompanyPresentation.astro). Texts: t.pages.presentation. Its English version is
+// pages/en/company-presentation.astro.
+import Assurances from '../components/Assurances.astro';
+import CompanyPresentation from '../components/CompanyPresentation.astro';
+import PageHead from '../components/PageHead.astro';
+import Base from '../layouts/Base.astro';
+import { site } from '../data/site';
+import { useTranslations } from '../i18n';
+import { excerpt } from '../utils/text';
+
+const t = useTranslations();
+const { presentation, qualite, ui } = t.pages;
+---
+
+<Base title={`${presentation.title.join(' ')} | ${site.name}`} description={excerpt(presentation.about.items[0].text)}>
+	<PageHead title={presentation.title} />
+	<CompanyPresentation
+		text={presentation}
+		current="presentation"
+		certificate={{ alt: qualite.certificate.alt, verify: `${qualite.certificate.verify} ${qualite.certificate.verifyNote}` }}
+		external={ui.external}
+	/>
+	<Assurances />
+</Base>

@@ -1,6 +1,7 @@
 ---
 // The column beside the text of an inner page, as on the current site: the four trades, the
-// company's two presentations, and a card that offers help with the phone number.
+// company's two presentations (the French one is a page of the site, the English one a file),
+// and a card that offers help with the phone number.
 // `trades` and `documents` can be left out (the pages of the online services only keep the card).
 import Icon from './Icon.astro';
 import ServiceIcon from './ServiceIcon.astro';
@@ -45,15 +46,27 @@ const { current, trades = true, documents = true } = Astro.props;
 			<div class="aside__block">
 				<h2>{aside.documents}</h2>
 				<ul class="aside__docs">
-					{aside.docs.map((doc) => (
-						<li>
-							<a href={doc.href} target="_blank" rel="noopener">
-								{doc.label}
-								<span class="visually-hidden">({ui.external})</span>
-								<Icon name="arrow-up-right" size={14} />
-							</a>
-						</li>
-					))}
+					{aside.docs.map((doc) => {
+						// The French presentation is also a page of the site: the column leads to it, and on
+						// that page to the file.
+						const page = 'page' in doc ? doc.page : undefined;
+						return page && page !== current ? (
+							<li>
+								<a href={route(page)}>
+									{doc.label}
+									<Icon name="arrow-right" size={14} />
+								</a>
+							</li>
+						) : (
+							<li>
+								<a href={doc.href} target="_blank" rel="noopener">
+									{page && 'pdf' in doc ? doc.pdf : doc.label}
+									<span class="visually-hidden">({ui.external})</span>
+									<Icon name="arrow-up-right" size={14} />
+								</a>
+							</li>
+						);
+					})}
 				</ul>
 			</div>
 		)
@@ -135,7 +148,8 @@ const { current, trades = true, documents = true } = Astro.props;
 		background: var(--c-tint);
 	}
 
-	.aside__trades a:hover :global(.icon) {
+	.aside__trades a:hover :global(.icon),
+	.aside__docs a:not([target]):hover :global(.icon) {
 		translate: calc(var(--motion) * 0.1875rem) 0;
 	}
 

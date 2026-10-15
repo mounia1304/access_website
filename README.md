@@ -59,7 +59,7 @@ npm run check:palette
 | ------------------------------------ | ------------------------------------------------------ |
 | Colours, fonts, spacing              | `src/styles/tokens.css`                                |
 | French texts of the homepage, menu and footer | `src/i18n/fr.ts`                              |
-| French texts of the inner pages (services, forms, quality policy, blog, team) | `src/i18n/fr.pages.ts` |
+| French texts of the inner pages (services, forms, quality policy, company presentation, blog, team) | `src/i18n/fr.pages.ts` |
 | Phone, e-mail, addresses             | `src/data/site.ts`                                     |
 | Client and partner logos             | `src/data/references.ts` + `src/assets/`               |
 | Page addresses (URLs)                | `src/i18n/routes.ts`                                   |
@@ -74,6 +74,7 @@ npm run check:palette
 | How they look (size, colours, the orange strokes) | the "Key figures" block of `src/components/Why.astro`; their gradient is `--g-figure` in `tokens.css` |
 | The second screen's film             | `src/assets/photos/presentation/transport.mp4` (+ its first image, `transport.webp`) |
 | A section of the homepage            | `src/components/<Section>.astro`                       |
+| The company's presentation, French and English (the pages made from the client's two PDFs) | drawn by `src/components/CompanyPresentation.astro`; texts `presentation` in `src/i18n/fr.pages.ts` and `src/i18n/en.pages.ts`; its logos `presentationClients` in `src/data/references.ts`; the PDFs `reference/presentation-entreprise.pdf` and `reference/company-presentation-en.pdf` |
 | A blog article                       | `src/content/blog/`: one file each (see "Writing an article" below) |
 | A news item (Actualités page)        | `src/content/actualites/`: one file each (see "Writing a news item" below) |
 | The kinds of news                    | `src/data/actualites.ts` (icons, colours), names in `src/i18n/fr.pages.ts` (`actualites.types`) |
@@ -119,7 +120,12 @@ npm run check:palette
   list with "À la une", four categories, and an article page; its articles are written in code
   (see "Writing an article"). The Actualités page (news, notices to clients, press corner) is built
   the same way (see "Writing a news item"); it has no news yet. In the menu, "Blog" became
-  "Actualités", with the Actualités page and the blog under it.
+  "Actualités", with the Actualités page and the blog under it. The company's presentation is a page
+  too, in French (`/presentation-de-l-entreprise/`) and in English (`/en/company-presentation/`),
+  made from the client's two PDFs and laid out like a service page; they are linked from the
+  "Documents" column of the inner pages, and the French one from the homepage's "Présentation de
+  l'entreprise" ("En savoir plus"). The English one is the site's only English page so far: the
+  menu, the side column and the footer round it stay French until phase 3.
 - **Next**: the Logistique part (two platforms), once the director has filled in
   `informations-logistique-et-actualites.xlsx`; then the homepage (latest news, logistics).
 - Phase 3 — English version.
@@ -131,10 +137,11 @@ anything until phase 4: they show a notice saying so. The "EN" of the menu is no
 
 ## Placeholders and open points
 
-- **Logo**: the client's own logo, in the header, the mobile menu and the footer (on a white plate there,
-  as its blue would not show on the blue footer).
-- **Messages of the first screen**: the mockup draws three numbers; the site has five messages, so five
-  numbers are shown. The four cards under them are links (road, sea, air, ISO), as on the mockup.
+- **Logo**: the client's own logo, in the header and the mobile menu (removed from the footer at the
+  client's request).
+- **Messages of the first screen**: only the first message ("Transit en douane") is shown: the numbers
+  that chose among the five were removed at the client's request. The four cards under it are links
+  (road, sea, air, ISO), as on the mockup.
 - **Photos**: the first screen uses the photograph supplied by the client; on its four cards, the
   lorry, the ship and the plane are pictures supplied by the client; the ISO badge is still cut out of
   the mockup and is coarse on dense screens, pending the original file. The second
@@ -164,6 +171,13 @@ anything until phase 4: they show a notice saying so. The "EN" of the menu is no
   the blog article (to be supplied or downloaded with the client's go-ahead); the map of the contact
   page, which shows another country there (the homepage's map, which shows the company, is used on
   both pages instead).
-- **Typefaces**: DM Sans, and La Belle Aurore for the handwritten slogan (both free).
+- **Company presentation**: the two pages follow the client's two PDFs (January 2023), wording kept,
+  only spelling and typography corrected. To confirm with the client: the name of the orange and green
+  logo with an "A" among the references (the PDF does not give it); that the general manager's own
+  mobile numbers, Gmail address and LinkedIn may be shown (they are, as in the PDF, while the contact
+  page still says "Coordonnées à venir" for him). The Ines and Amiyas Import logos were cut out of the
+  PDF and are small; better files are welcome. The PDF's cover shows an older TÜV mark: the page shows
+  the current one.
+- **Typefaces**: DM Sans (free).
 - **Contact form**: shows a demo message instead of sending.
 - **Favicon**: the "A" of the logo on a white rounded square.

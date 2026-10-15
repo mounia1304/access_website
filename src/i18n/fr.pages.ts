@@ -20,6 +20,43 @@ export interface FormField {
 	options?: readonly string[];
 }
 
+/** The texts of the company's presentation, in French here and in English in en.pages.ts
+ *  (CompanyPresentation.astro shows them). */
+export interface PresentationText {
+	title: readonly [string, string];
+	/** The label of the summary. */
+	toc: string;
+	about: { title: string; items: ReadonlyArray<{ icon: IconName; text: string }> };
+	services: {
+		title: string;
+		intro: string;
+		list: readonly string[];
+		transport: string;
+		/** The three cards: each leads to the page of its service. */
+		modes: ReadonlyArray<{ key: RouteKey; title: string; text: string }>;
+	};
+	skills: { title: string; text: string; list: readonly string[] };
+	references: { title: string };
+	/** The cities; their addresses are the site's (data/site.ts) unless `lines` gives them. */
+	addresses: { title: string; cities: readonly string[]; lines?: readonly string[] };
+	director: {
+		/** His part's name in the summary. */
+		toc: string;
+		name: string;
+		role: string;
+		photoAlt: string;
+		career: readonly string[];
+		education: readonly string[];
+		contact: string;
+		phones: readonly string[];
+		email: string;
+		linkedin: string;
+		/** Read out before each line of his contact. */
+		labels: { phone: string; email: string; linkedin: string };
+	};
+	motto: string;
+}
+
 /** A block of running text: a paragraph, a list, or a list whose items start with a term. */
 export type Block =
 	| { p: string }
@@ -58,14 +95,20 @@ const pages = {
 		trades: 'Nos métiers',
 		documents: 'Documents',
 		// The two presentations are files the company keeps on Google Drive, as on the current site.
+		// Both are also pages of the site now (`page`), the English one in English: the column links
+		// to the page, and on the page itself to the file, under `pdf`.
 		docs: [
 			{
 				label: 'Présentation de l’entreprise',
 				href: 'https://drive.google.com/file/d/1NPpABoMdnETy7ZdpV42HDBiguGsxajar/view?usp=share_link',
+				page: 'presentation' satisfies RouteKey,
+				pdf: 'Présentation de l’entreprise (PDF)',
 			},
 			{
 				label: 'Company’s presentation',
 				href: 'https://drive.google.com/file/d/1MsBOBOedBKk8GbWUzJyXjSgnAjvETXo4/view?usp=share_link',
+				page: 'presentationEn' satisfies RouteKey,
+				pdf: 'Company’s presentation (PDF)',
 			},
 		],
 		help: 'Comment pouvons-nous vous aider ?',
@@ -336,6 +379,94 @@ const pages = {
 		conclusion:
 			'En somme, notre politique qualité vise à assurer la satisfaction de tous nos partenaires tout en garantissant la pérennité et la croissance de notre entreprise. Nous nous basons sur des valeurs clés telles que la satisfaction des clients, la réalisation de prestations fiables, le développement des compétences de nos collaborateurs et l’amélioration continue des performances. Nous avons mis en place cette politique avec des objectifs précis et des moyens concrets pour les atteindre. Elle ne peut être mise en œuvre que grâce à l’implication de tous les acteurs de notre entreprise.',
 	},
+
+	// The company's presentation (pages/presentation-de-l-entreprise.astro): the client's own
+	// document, "Présentation de l’entreprise version française VF" (PowerPoint, January 2023,
+	// kept as reference/presentation-entreprise.pdf), turned into a page at the client's request.
+	// Its six parts follow the document's summary. Its wording is the document's, with only
+	// spelling, accents, capitals and typography corrected: "Qui somme nous" is "Qui sommes-nous",
+	// "TUV" is "TÜV", "A travers" is "À travers", "permet" is "permettent" after its two subjects,
+	// "EX-Inspecteur des Douanes" is "Ex-inspecteur des douanes", numbers are written as on the
+	// rest of the site. Where the document sets the logo inside a sentence, the company's name
+	// stands, as on the homepage. Its cover and its last slide (the logo with the motto) are the
+	// page's head and its closing line; its "Merci" slide, with the contacts, is the column's help
+	// card (its e-mail address, manal.accesstransit@gmail.com, is not the site's).
+	presentation: {
+		title: ['Présentation de', 'l’entreprise'],
+		toc: 'Sommaire',
+		about: {
+			title: 'Qui sommes-nous ?',
+			items: [
+				{
+					icon: 'users-three',
+					text: 'Dès sa création, ACCESS TRANSIT regroupe une équipe de cadres expérimentés ayant une grande maîtrise des procédures et réglementations relatives aux techniques douanières et au commerce international. Cela nous permet d’occuper une position de leader dans notre secteur d’activité.',
+				},
+				{
+					icon: 'chart-line-up',
+					text: 'Notre engagement en faveur de la célérité et de la transparence contribue à améliorer la compétitivité de nos clients dans un environnement de plus en plus concurrentiel.',
+				},
+				{
+					icon: 'shield-check',
+					text: 'Notre certification ISO 9001 version 2015 de TÜV Maroc, filiale de TÜV Rheinland Allemagne, témoigne de notre engagement en faveur de la qualité de nos services.',
+				},
+			] satisfies ReadonlyArray<{ icon: IconName; text: string }>,
+		},
+		services: {
+			title: 'Nos prestations',
+			intro: 'Nous offrons à nos clients des services personnalisés et un pilotage systématique de chaque opération en totale conformité avec les réglementations en vigueur et en application des normes et des bonnes pratiques professionnelles :',
+			list: [
+				'Dédouanement import',
+				'Dédouanement export',
+				'Conseil en négoce international',
+				'Conseil & rédaction de contrats internationaux',
+				'Conseil en commerce international',
+				'Choix des fournisseurs',
+				'Simulations des coûts',
+				'Conseil en gestion de chaîne logistique',
+				'Conseil et accompagnement des investissements d’envergure',
+			],
+			transport: 'Notre société offre aussi une large gamme de services en transport international & national pour répondre à tous vos besoins. À travers son réseau d’agents et ses partenaires nationaux & internationaux, soigneusement sélectionnés et répartis sur tous les continents.',
+			// The three cards lead to the pages of the services.
+			modes: [
+				{ key: 'routier', title: 'Transport routier', text: 'Nous garantissons un service de transport terrestre régulier entre le Maroc et l’Europe.' },
+				{ key: 'maritime', title: 'Transport maritime', text: 'Nous assurons vos opérations de transport maritime par mer depuis les différents ports du monde.' },
+				{ key: 'aerien', title: 'Transport aérien', text: 'Notre équipe en fret aérien vous offre un service personnalisé sur tous les aéroports européens et internationaux.' },
+			] satisfies ReadonlyArray<{ key: RouteKey; title: string; text: string }>,
+		},
+		skills: {
+			title: 'Nos compétences',
+			text: 'ACCESS TRANSIT tire sa force de l’expertise et de la coordination de ses filiales. Une parfaite maîtrise des procédures et un degré de synergie très élevé entre les filiales permettent au groupe d’offrir des prestations de qualité à des coûts compétitifs.',
+			list: ['Freight forwarding', 'Transit', 'Transport & affrètement', 'Logistique d’entreposage', 'Logistique de distribution'],
+		},
+		// The logos are listed in data/references.ts (presentationClients), in the document's order.
+		references: { title: 'Nos références' },
+		// The addresses are the site's (data/site.ts), which are the document's.
+		addresses: { title: 'Nos adresses', cities: ['Casablanca', 'Tanger'] },
+		director: {
+			toc: 'Directeur général',
+			name: 'Mohamed EZZAHRAOUI',
+			role: 'Directeur général',
+			photoAlt: 'Mohamed EZZAHRAOUI, directeur général d’ACCESS TRANSIT',
+			// The document's two boxes: what he does, then his degrees. They have no titles there.
+			career: [
+				'Auditeur international certifié IRCA ISO 9001, 14001, 45001 (TÜV Rheinland).',
+				'Consultant en commerce international.',
+				'Ex-inspecteur des douanes (1998–2008).',
+			],
+			education: [
+				'Titulaire d’un mastère en Commerce & Management des affaires internationales à l’université de Lille I.',
+				'Diplômé du cycle supérieur de Commerce International à l’ISCAE.',
+				'Titulaire d’un CES ès Relations Économiques Internationales à l’université Hassan II à Casablanca.',
+			],
+			// His own numbers and addresses, as the document gives them (2023).
+			contact: 'Contact',
+			phones: ['+212 6 67 12 23 53', '+212 6 61 33 93 56'],
+			email: 'ezzahraoui1@gmail.com',
+			linkedin: 'https://www.linkedin.com/in/mohamed-ezzahraoui-11ab9960/',
+			labels: { phone: 'Téléphone :', email: 'E-mail :', linkedin: 'LinkedIn' },
+		},
+		motto: 'Notre force, votre atout',
+	} satisfies PresentationText,
 
 	// The blog's own texts. The articles are not here: each is a Markdown file in src/content/blog/
 	// (README.md, "Writing an article"). The intro and the categories' lines came with the blog's
