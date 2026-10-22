@@ -462,16 +462,22 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
   `t.pages.blog.categories`. Their pages are `/category/<key>/` (`import-export` is the current
   site's address). Authors are the people of the contact page, by their `key` in `fr.pages.ts`; an
   article without an author is signed ACCESS TRANSIT (the logo's "A" stands for a photo).
-- The blog's first page opens on the article "À la une" (`featured: true`, or the newest) beside
-  "Access Transit en bref" (the about paragraph, "Depuis 2010", the certificate and its link, the key
-  figures `why.stats`, quote and contact); then the category pills and the other articles, nine to a
+- The blog's first page opens on the article "À la une" (`featured: true`, or the newest), across the
+  width: from 64em its picture stands beside its text (halves, the picture a little wider from 90em).
+  A panel "Access Transit en bref" stood beside it (the about paragraph, "Depuis 2010", the
+  certificate, the key figures, quote and contact); the client asked for it to be removed
+  (2026-10-22): do not bring it back. Then the category pills and the other articles, nine to a
   page (`/blog/2/`…), then the help band. An article page: category, title, author, date and reading
   time; its picture; its text beside a column with the summary (from three `##` intertitles) and the
   share buttons (LinkedIn, WhatsApp, copy link); its author; the service it leads to (`service`) or
   help offered; three related articles. It tells search engines it is an article (`og:type`,
   BlogPosting data, `og:image` from its cover).
 - Until an article has a photo (`cover`), `BlogCover.astro` shows its category's drawn icon on a pale
-  ground with the thin orange stroke, lower than a photo would be (`--cover-ratio-empty`). The finish
+  ground with the thin orange stroke, lower than a photo would be (`--cover-ratio-empty`). The one
+  article (the current site's) has a photo since October 2026, supplied by the client
+  (`src/assets/blog/porte-conteneurs-vue-aerienne.webp`, kept as it came). The `sizes` of the covers
+  match their real widths (cards two across up to 80em, the article's cover about 72vw): check which
+  file the browser picks when changing a layout. The finish
   is the quiet one the client accepts (no box round the cards, hairlines, the orange stroke as the one
   accent): keep it.
 - Check the blog at 1420 and on a phone with one article and with several (add a temporary article

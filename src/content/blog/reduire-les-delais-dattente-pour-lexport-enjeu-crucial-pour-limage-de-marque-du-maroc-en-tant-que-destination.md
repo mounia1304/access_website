@@ -6,6 +6,9 @@ description: "Les délais d’attente sur les plateformes d’exportation au niv
 date: 2023-02-22
 category: import-export
 service: douane
+# Its photo, supplied by the client (October 2026), as it came.
+cover: ../../assets/blog/porte-conteneurs-vue-aerienne.webp
+coverAlt: "Porte-conteneurs chargé de conteneurs de couleur, vu du ciel en pleine mer"
 ---
 
 ## File d’attente au port de Tanger Med

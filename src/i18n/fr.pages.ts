@@ -496,7 +496,6 @@ const pages = {
 		page: 'Page',
 		service: 'Notre service',
 		discoverService: 'Découvrir le service',
-		brief: 'Access Transit en bref',
 		// The categories (approved by the client; the company's news have since moved to the
 		// Actualités page). Their keys are the end of their address, /category/<key>/:
 		// "import-export" is the current site's.
