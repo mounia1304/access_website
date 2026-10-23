@@ -1,6 +1,7 @@
 ---
 // Client logos on a conveyor, always in their own colours (the client asked for them never to
-// be shown in grey). Pointing at the strip stops it.
+// be shown in grey). Pointing at the strip stops it. Twice as many pixels are offered to
+// high-density screens, as far as each file has them (vector files are sharp at any size).
 import { Image } from 'astro:assets';
 import Marquee from './Marquee.astro';
 import MotionToggle from './MotionToggle.astro';
@@ -25,7 +26,7 @@ const { references } = t;
 			{
 				clients.map((client) => (
 					<li>
-						<Image src={client.image} alt={client.name} width={300} loading="lazy" />
+						<Image src={client.image} alt={client.name} width={300} densities={[1, 2]} loading="lazy" />
 					</li>
 				))
 			}

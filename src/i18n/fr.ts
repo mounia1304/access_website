@@ -41,6 +41,9 @@ const fr = {
 		news: 'Actualités',
 		quality: 'Notre politique qualité',
 		contact: 'Contact',
+		// The last item of "Nos services": the company's presentation (its French page). The client moved
+		// it there from the column of the service pages (2026-10-22).
+		presentation: 'Présentation de l’entreprise',
 		serviceItems: [
 			{ key: 'douane', label: 'Transit en douane' },
 			{ key: 'routier', label: 'Transport routier' },

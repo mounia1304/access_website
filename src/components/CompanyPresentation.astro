@@ -2,95 +2,100 @@
 // The company's presentation, in either language: the client supplied it as two PDFs, French and
 // English (reference/presentation-entreprise.pdf, reference/company-presentation-en.pdf, eleven
 // slides each, January 2023), and asked for each to be a page laid out like a service page. This is
-// the text column and the side column; the pages (pages/presentation-de-l-entreprise.astro,
+// the page's body; the pages (pages/presentation-de-l-entreprise.astro,
 // pages/en/company-presentation.astro) add the head and the three commitments. The text opens on
-// the document's summary; its six parts follow, each starting with its number, drawn in outline
-// as on the quality page. Texts: `presentation` in fr.pages.ts and en.pages.ts.
+// the document's summary; its parts follow, each starting with its number, drawn in outline
+// as on the quality page. Texts: `presentation` in fr.pages.ts and en.pages.ts. The document's
+// references (the clients' logos) are left out: the homepage's conveyor shows them, and the client
+// did not want them twice (2026-10-22).
+//
+// There is no side column: the client had its contents removed (2026-10-22), then asked for the
+// room it left to be used. On large screens the photograph has the summary beside it (it is too
+// small a file to run the whole width), the three statements of "who we are" stand side by side,
+// the texts of the services and the skills have their lists beside them, and the director's two
+// lists stand side by side.
 //
 // The pictures are the site's own where the document shows the same ones, which it holds small:
 // the photograph is that of the homepage's second screen (the first image of the client's film),
 // the three transport cards carry the photographs of the service pages, the certificate is the
-// current TÜV mark (the document's cover shows an older one), the logos are those of the
-// homepage. Three logos and the director's portrait are only in the document and were cut out of
-// it. Its drawings of people at work are not used.
+// current TÜV mark (the document's cover shows an older one). The director's portrait is only in
+// the document and was cut out of it. Its drawings of people at work are not used.
 import { Image } from 'astro:assets';
 import Icon from './Icon.astro';
-import ServiceAside from './ServiceAside.astro';
 import photo from '../assets/photos/presentation/transport.webp';
-import photoRoutier from '../assets/photos/slides/enlarged/routier.jpg';
-import photoMaritime from '../assets/photos/slides/enlarged/maritime.jpg';
-import photoAerien from '../assets/photos/slides/enlarged/aerien.jpg';
+import photoRoutier from '../assets/photos/services/routier.webp';
+import photoMaritime from '../assets/photos/services/maritime.jpg';
+import photoAerien from '../assets/photos/services/aerien.jpg';
 import certificateMark from '../assets/quality/tuv-iso9001.png';
 import portrait from '../assets/team/mohamed-ezzahraoui-portrait.jpg';
-import { presentationClients } from '../data/references';
 import { site } from '../data/site';
-import { route, type RouteKey } from '../i18n';
+import { route } from '../i18n';
 import type { PresentationText } from '../i18n/fr.pages';
 import { slugify } from '../utils/text';
 
 interface Props {
 	text: PresentationText;
-	/** The text's language when it is not the page's ("en": the menu and the side column stay French). */
+	/** The text's language when it is not the page's ("en": the menu and the footer stay French). */
 	lang?: string;
-	/** This page, for the side column. */
-	current: RouteKey;
 	/** The certification mark's description, and the label read out on its link. */
 	certificate: { alt: string; verify: string };
 	/** "Opens in a new tab", in the text's language. */
 	external: string;
 }
 
-const { text: p, lang, current, certificate, external } = Astro.props;
+const { text: p, lang, certificate, external } = Astro.props;
 const { director } = p;
 const photos = { routier: photoRoutier, maritime: photoMaritime, aerien: photoAerien };
 
-// The six parts, in the order of the document's summary: their name there, and an anchor made of
-// it ("Nos références" is #nos-references).
-const [about, services, skills, references, addresses, lead] = [
+// The parts, in the order of the document's summary, numbered in that order (its references are
+// left out, see above): their name there, and an anchor made of it ("Nos adresses" is
+// #nos-adresses).
+const [about, services, skills, addresses, lead] = [
 	p.about.title,
 	p.services.title,
 	p.skills.title,
-	p.references.title,
 	p.addresses.title,
 	director.toc,
 ].map((toc, index) => {
 	const id = slugify(toc);
 	return { id, toc, number: String(index + 1).padStart(2, '0'), heading: `${id}-title` };
 });
-const parts = [about, services, skills, references, addresses, lead];
+const parts = [about, services, skills, addresses, lead];
 
 const tel = (number: string) => `tel:${number.replace(/\s/g, '')}`;
 ---
 
 <section class="section page-body">
 	<div class="wrap">
-		<div class="wrap__in page-cols">
+		<div class="wrap__in">
 			<div class="presentation" lang={lang}>
-				<Image
-					class="presentation__photo"
-					src={photo}
-					alt=""
-					widths={[640, 960, photo.width]}
-					sizes="(min-width: 64em) 62vw, 100vw"
-					loading="eager"
-				/>
+				<div class="presentation__top">
+					<Image
+						class="presentation__photo"
+						src={photo}
+						alt=""
+						widths={[640, 960, photo.width]}
+						sizes="(min-width: 81em) 56vw, 100vw"
+						loading="eager"
+					/>
 
-				<!-- The document's summary: its six parts. -->
-				<nav class="toc" aria-labelledby="sommaire">
-					<p class="toc__title" id="sommaire">{p.toc}</p>
-					<ol>
-						{
-							parts.map((part) => (
-								<li>
-									<a href={`#${part.id}`}>
-										<span class="toc__number">{part.number}</span>
-										{part.toc}
-									</a>
-								</li>
-							))
-						}
-					</ol>
-				</nav>
+					<!-- The document's summary: its six parts. -->
+					<nav class="toc" aria-labelledby="sommaire">
+						<p class="toc__title" id="sommaire">{p.toc}</p>
+						<ol>
+							{
+								parts.map((part) => (
+									<li>
+										<a href={`#${part.id}`}>
+											<span class="toc__number">{part.number}</span>
+											{part.toc}
+										</a>
+									</li>
+								))
+							}
+						</ol>
+					</nav>
+				</div>
 
 				<!-- 01 Who we are: three statements, the last with the certification mark. -->
 				<section class="part" id={about.id} aria-labelledby={about.heading}>
@@ -128,12 +133,21 @@ const tel = (number: string) => `tel:${number.replace(/\s/g, '')}`;
 						<span class="part__number" aria-hidden="true">{services.number}</span>
 						<h2 id={services.heading}>{p.services.title}</h2>
 					</div>
-					<div class="prose">
-						<p>{p.services.intro}</p>
-						<ul>
-							{p.services.list.map((item) => <li>{item}</li>)}
-						</ul>
-						<p>{p.services.transport}</p>
+					<!-- The sentence that ends with a colon and the list it introduces; then the
+					     sentence that leads to the three cards. On large screens the list stands beside
+					     the two sentences. -->
+					<div class="services-text">
+						<div class="prose services-text__intro">
+							<p>{p.services.intro}</p>
+						</div>
+						<div class="prose services-text__list">
+							<ul>
+								{p.services.list.map((item) => <li>{item}</li>)}
+							</ul>
+						</div>
+						<div class="prose services-text__more">
+							<p>{p.services.transport}</p>
+						</div>
 					</div>
 					<ul class="modes">
 						{
@@ -144,7 +158,8 @@ const tel = (number: string) => `tel:${number.replace(/\s/g, '')}`;
 										src={photos[mode.key as keyof typeof photos]}
 										alt=""
 										widths={[400, 640, 960]}
-										sizes="(min-width: 80em) 18vw, (min-width: 64em) 30vw, (min-width: 40em) 40vw, 100vw"
+										sizes="(min-width: 64em) 30vw, (min-width: 40em) 40vw, 100vw"
+										quality={90}
 									/>
 									<div class="mode__body">
 										<h3>
@@ -169,32 +184,19 @@ const tel = (number: string) => `tel:${number.replace(/\s/g, '')}`;
 						<span class="part__number" aria-hidden="true">{skills.number}</span>
 						<h2 id={skills.heading}>{p.skills.title}</h2>
 					</div>
-					<div class="prose">
-						<p>{p.skills.text}</p>
-						<ul>
-							{p.skills.list.map((item) => <li>{item}</li>)}
-						</ul>
+					<div class="prose-pair">
+						<div class="prose">
+							<p>{p.skills.text}</p>
+						</div>
+						<div class="prose">
+							<ul>
+								{p.skills.list.map((item) => <li>{item}</li>)}
+							</ul>
+						</div>
 					</div>
 				</section>
 
-				<!-- 04 References: the clients' logos, in colour. -->
-				<section class="part" id={references.id} aria-labelledby={references.heading}>
-					<div class="part__head">
-						<span class="part__number" aria-hidden="true">{references.number}</span>
-						<h2 id={references.heading}>{p.references.title}</h2>
-					</div>
-					<ul class="logos">
-						{
-							presentationClients.map((logo) => (
-								<li>
-									<Image src={logo.image} alt={logo.name} width={Math.min(logo.image.width, 300)} />
-								</li>
-							))
-						}
-					</ul>
-				</section>
-
-				<!-- 05 Addresses: the two offices. -->
+				<!-- 04 Addresses: the two offices. -->
 				<section class="part" id={addresses.id} aria-labelledby={addresses.heading}>
 					<div class="part__head">
 						<span class="part__number" aria-hidden="true">{addresses.number}</span>
@@ -217,7 +219,7 @@ const tel = (number: string) => `tel:${number.replace(/\s/g, '')}`;
 					</ul>
 				</section>
 
-				<!-- 06 The general manager: his portrait, what he does, his degrees, how to reach him. -->
+				<!-- 05 The general manager: his portrait, what he does, his degrees, how to reach him. -->
 				<section class="part" id={lead.id} aria-labelledby={lead.heading}>
 					<div class="part__head">
 						<span class="part__number" aria-hidden="true">{lead.number}</span>
@@ -279,14 +281,12 @@ const tel = (number: string) => `tel:${number.replace(/\s/g, '')}`;
 				<!-- The document's last slide. -->
 				<p class="motto">{p.motto}</p>
 			</div>
-
-			<ServiceAside current={current} />
 		</div>
 	</div>
 </section>
 
 <style>
-	/* The text column holds its own measures: the cards and the logos follow its width, not the
+	/* The body holds its own measures: what it shows side by side follows its width, not the
 	   screen's. */
 	.presentation {
 		display: grid;
@@ -299,6 +299,26 @@ const tel = (number: string) => `tel:${number.replace(/\s/g, '')}`;
 		aspect-ratio: 16 / 8;
 		border-radius: var(--r-lg);
 		object-fit: cover;
+	}
+
+	/* The photograph, then the summary; side by side once there is room. There the photograph's
+	   frame takes the picture's own proportions (16:9: it is the film's first image), so that it
+	   shows whole, and the summary's panel is as tall as it. */
+	.presentation__top {
+		display: grid;
+		gap: clamp(2.75rem, 2rem + 3vw, 4.5rem);
+	}
+
+	@container presentation (min-width: 72rem) {
+		.presentation__top {
+			grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+			column-gap: clamp(1.5rem, 1rem + 1.5vw, 2.5rem);
+		}
+
+		.presentation :global(.presentation__photo) {
+			height: 100%;
+			aspect-ratio: 16 / 9;
+		}
 	}
 
 	/* ── The summary ───────────────────────────────────────── */
@@ -354,6 +374,21 @@ const tel = (number: string) => `tel:${number.replace(/\s/g, '')}`;
 
 	.toc a:hover {
 		color: var(--c-accent);
+	}
+
+	/* Beside the photograph: one column of six, in the middle of the panel's height. */
+	@container presentation (min-width: 72rem) {
+		.toc {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+		}
+
+		.toc ol {
+			grid-template-rows: none;
+			grid-template-columns: minmax(0, 1fr);
+			grid-auto-flow: row;
+		}
 	}
 
 	/* ── A part: its number in outline, then its title ─────── */
@@ -444,6 +479,59 @@ const tel = (number: string) => `tel:${number.replace(/\s/g, '')}`;
 		border-radius: 0.5rem;
 	}
 
+	/* Side by side once there is room, each its icon above its text, a hairline between them. */
+	@container presentation (min-width: 68rem) {
+		.facts {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+			max-width: none;
+		}
+
+		.facts li {
+			grid-template-columns: minmax(0, 1fr);
+			align-content: start;
+			padding: 0 clamp(1.5rem, 0.5rem + 2vw, 3rem);
+			border-top: 0;
+			border-left: 1px solid var(--c-line);
+		}
+
+		.facts li:first-child {
+			padding-left: 0;
+			border-left: 0;
+		}
+
+		.facts li:last-child {
+			padding-right: 0;
+		}
+	}
+
+	/* ── 02: the two sentences, the list beside them once there is room (as `.prose-pair`) ── */
+	.services-text {
+		display: grid;
+		gap: 1.15rem;
+	}
+
+	@container presentation (min-width: 68rem) {
+		.services-text {
+			grid-template-columns: repeat(2, minmax(0, 46rem));
+			grid-template-rows: auto 1fr;
+			justify-content: space-between;
+			align-items: start;
+			column-gap: clamp(3rem, 1rem + 4vw, 6rem);
+		}
+
+		.services-text__intro {
+			grid-area: 1 / 1;
+		}
+
+		.services-text__list {
+			grid-area: 1 / 2 / 3;
+		}
+
+		.services-text__more {
+			grid-area: 2 / 1;
+		}
+	}
+
 	/* ── 02: three cards, one per kind of transport ─────────── */
 	.modes {
 		display: grid;
@@ -516,54 +604,7 @@ const tel = (number: string) => `tel:${number.replace(/\s/g, '')}`;
 		}
 	}
 
-	/* ── 04: the logos on white tiles ──────────────────────── */
-	/* Three across, then five as in the document: the fifteen always fill their rows. */
-	.logos {
-		display: grid;
-		grid-template-columns: repeat(3, minmax(0, 1fr));
-		gap: 0.625rem;
-	}
-
-	.logos li {
-		display: grid;
-		place-items: center;
-		height: 5.5rem;
-		padding: 0.75rem;
-		border: 1px solid var(--c-card-line);
-		border-radius: var(--r-md);
-		background: var(--c-card);
-	}
-
-	.logos :global(img) {
-		width: auto;
-		max-width: 100%;
-		height: auto;
-		max-height: 3.5rem;
-		object-fit: contain;
-	}
-
-	@container presentation (min-width: 36rem) {
-		.logos {
-			gap: 0.75rem;
-		}
-
-		.logos li {
-			height: 6.75rem;
-			padding: 1rem 1.25rem;
-		}
-
-		.logos :global(img) {
-			max-height: 4.25rem;
-		}
-	}
-
-	@container presentation (min-width: 44rem) {
-		.logos {
-			grid-template-columns: repeat(5, minmax(0, 1fr));
-		}
-	}
-
-	/* ── 05: the two offices ───────────────────────────────── */
+	/* ── 04: the two offices ───────────────────────────────── */
 	.places {
 		display: grid;
 		gap: 1rem;
@@ -595,7 +636,7 @@ const tel = (number: string) => `tel:${number.replace(/\s/g, '')}`;
 		line-height: 1.6;
 	}
 
-	/* ── 06: the general manager ────────────────────────────── */
+	/* ── 05: the general manager ────────────────────────────── */
 	.director {
 		display: grid;
 		gap: clamp(1.5rem, 1rem + 2vw, 2.5rem);
@@ -618,6 +659,17 @@ const tel = (number: string) => `tel:${number.replace(/\s/g, '')}`;
 	.director__info {
 		display: grid;
 		gap: 1rem;
+	}
+
+	/* His two lists side by side once there is room, as tall as each other; his contact under them. */
+	@container presentation (min-width: 68rem) {
+		.director__info {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+
+		.director__contact {
+			grid-column: 1 / -1;
+		}
 	}
 
 	.director__box {

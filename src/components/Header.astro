@@ -21,7 +21,9 @@ const within = (href: string) => (path.startsWith(href) || (inBlog && href === r
 
 // The current site's menu (Accueil, Nos services, E-services, Blog, Notre politique qualité, Contact),
 // except that "Blog" became "Actualités", a small menu that holds the Actualités page and the blog
-// (the client's decision: there is no room in the bar for one more item).
+// (the client's decision: there is no room in the bar for one more item), and that "Nos services"
+// ends with the company's presentation (its French page; the English one is to be reached through
+// FR/EN), which the client moved there from the column of the service pages (2026-10-22).
 const serviceIcons = Object.fromEntries(t.services.items.map((item) => [item.key, item.icon]));
 const eserviceIcons = Object.fromEntries(t.eservices.items.map((item) => [item.key, item.icon]));
 
@@ -29,7 +31,10 @@ const groups = [
 	{
 		id: 'menu-services',
 		label: t.nav.services,
-		items: t.nav.serviceItems.map((item) => ({ ...item, href: route(item.key), icon: serviceIcons[item.key] })),
+		items: [
+			...t.nav.serviceItems.map((item) => ({ ...item, href: route(item.key), icon: serviceIcons[item.key] })),
+			{ label: t.nav.presentation, href: route('presentation'), icon: 'buildings' as IconName },
+		],
 	},
 	{
 		id: 'menu-eservices',
@@ -544,8 +549,10 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 		}
 	}
 
+	/* As wide as its longest label ("Présentation de l’entreprise"), which stays on one line; 19rem at least. */
 	.nav__panel {
-		width: 19rem;
+		width: max-content;
+		min-width: 19rem;
 		padding: 0.5rem;
 		border: 1px solid var(--c-card-line);
 		border-radius: var(--r-md);
@@ -564,6 +571,7 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 		color: var(--c-ink);
 		font-size: var(--fs-ui);
 		font-weight: 500;
+		white-space: nowrap;
 		transition: background-color 0.1s ease-out;
 	}
 

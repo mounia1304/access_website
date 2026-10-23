@@ -61,7 +61,6 @@ const pages = {
 			text: 'ACCESS TRANSIT draws its strength from the expertise and coordination of its subsidiaries. Perfect mastery of procedures and a high degree of synergy between subsidiaries allow the group to offer high-quality services at competitive costs.',
 			list: ['Freight Forwarding', 'Customs Clearance', 'Transportation & Chartering', 'Warehousing', 'Distribution'],
 		},
-		references: { title: 'Our Portfolio' },
 		// The document's own English wording of the two addresses.
 		addresses: {
 			title: 'Our Locations',

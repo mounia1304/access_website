@@ -36,7 +36,6 @@ export interface PresentationText {
 		modes: ReadonlyArray<{ key: RouteKey; title: string; text: string }>;
 	};
 	skills: { title: string; text: string; list: readonly string[] };
-	references: { title: string };
 	/** The cities; their addresses are the site's (data/site.ts) unless `lines` gives them. */
 	addresses: { title: string; cities: readonly string[]; lines?: readonly string[] };
 	director: {
@@ -90,25 +89,19 @@ const pages = {
 		},
 	],
 
-	// The column beside the text of a service page.
+	// The card that offers help, beside the text of the inner pages and at the foot of others.
 	aside: {
-		trades: 'Nos métiers',
-		documents: 'Documents',
-		// The two presentations are files the company keeps on Google Drive, as on the current site.
-		// Both are also pages of the site now (`page`), the English one in English: the column links
-		// to the page, and on the page itself to the file, under `pdf`.
+		// The company's two presentations, files it keeps on Google Drive, as on the current site: the
+		// news page's press corner offers them. (Both are pages of the site too: routes `presentation`
+		// and `presentationEn`.)
 		docs: [
 			{
 				label: 'Présentation de l’entreprise',
 				href: 'https://drive.google.com/file/d/1NPpABoMdnETy7ZdpV42HDBiguGsxajar/view?usp=share_link',
-				page: 'presentation' satisfies RouteKey,
-				pdf: 'Présentation de l’entreprise (PDF)',
 			},
 			{
 				label: 'Company’s presentation',
 				href: 'https://drive.google.com/file/d/1MsBOBOedBKk8GbWUzJyXjSgnAjvETXo4/view?usp=share_link',
-				page: 'presentationEn' satisfies RouteKey,
-				pdf: 'Company’s presentation (PDF)',
 			},
 		],
 		help: 'Comment pouvons-nous vous aider ?',
@@ -438,8 +431,6 @@ const pages = {
 			text: 'ACCESS TRANSIT tire sa force de l’expertise et de la coordination de ses filiales. Une parfaite maîtrise des procédures et un degré de synergie très élevé entre les filiales permettent au groupe d’offrir des prestations de qualité à des coûts compétitifs.',
 			list: ['Freight forwarding', 'Transit', 'Transport & affrètement', 'Logistique d’entreposage', 'Logistique de distribution'],
 		},
-		// The logos are listed in data/references.ts (presentationClients), in the document's order.
-		references: { title: 'Nos références' },
 		// The addresses are the site's (data/site.ts), which are the document's.
 		addresses: { title: 'Nos adresses', cities: ['Casablanca', 'Tanger'] },
 		director: {

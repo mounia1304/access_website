@@ -14,6 +14,8 @@ French is the default locale, English comes later. See `README.md` for the file 
   client's picture (only if the client sends a new one)
 - `node scripts/make-logo.mjs` — trims the client's logo file and makes the favicon from its "A" (only when
   the client sends a new logo)
+- `node scripts/make-client-logos.mjs` — prepares the eight client logos the client supplied as files
+  (`reference/logos-clients/`) for the logo conveyor (only if the client sends new ones)
 - `node scripts/make-chevron-trail.mjs` — redraws the trail of chevrons that runs between sections, and the
   guillemet of the testimonials, which is made of the same chevron (only to change them)
 
@@ -110,7 +112,11 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
 
 - The menu is a rounded bar of frosted glass that floats over the page, a little below the top of the
   screen (`Header.astro`): logo, menu, FR/EN, quote button. The menu is the current site's, except
-  that "Blog" became "Actualités" (see "Actualités"). There is no top bar any more (the third
+  that "Blog" became "Actualités" (see "Actualités") and that "Nos services" ends with "Présentation
+  de l’entreprise" (`nav.presentation`), the French page of the company's presentation, which the
+  client moved there from the column of the service pages (2026-10-22); the English one is to be
+  reached through FR/EN once the English site is built. The services panel is as wide as that label,
+  which stays on one line (`width: max-content`, 19rem at least, like the other two panels). There is no top bar any more (the third
   mockup has none): the phone, the e-mail and the city are in the mobile menu, the contact block and the
   footer. Once the page scrolls the bar docks, at the client's request (text showed above it and round
   it): it runs the whole width from the very top of the screen, solid white with a hairline under it.
@@ -359,12 +365,23 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
   "Actualités"), and contact. Addresses are those of the current site, except the news pages and the
   presentation (new).
 - They share: `PageHead.astro` (the trail, an optional label, the `h1` in the two colours of the
-  homepage's titles), `ServiceAside.astro` (the four trades, the two presentations, a help card),
+  homepage's titles), `ServiceAside.astro` (the column beside the quote forms: a card that offers
+  help. As on the current site it also listed the four trades and the two presentations, and it
+  stood beside the service pages and the presentation; the client had all of it removed from those
+  on 2026-10-22, see below; commit f0051bd has the lists if they are wanted back),
   `Assurances.astro` (the three commitments that close most pages of the current site),
   `RequestForm.astro` (a form drawn from a list of fields) and `Prose.astro` (running text from a
   list of blocks). They are laid out in `.wrap` / `.wrap__in`, which is the block of the homepage's
   screens (1921px at most, `cqw`, the same margins); lists in running text start with the thin
   orange stroke (`.prose`).
+- The service pages and the presentation have no side column. The client had its contents removed
+  one after the other, found the page "like an empty place" and asked for the room to be used
+  (2026-10-22, on a 1920-wide screen). On a service page the photo runs the block's whole width
+  (the client's files are 1774 to 2000px wide, enough for it), and from a block of 68rem the text
+  runs in two columns (`.prose-pair`, global): it is cut between two of its blocks where the
+  columns come out closest in length, never just after a sentence ending with a colon (see
+  `pages/services/[service].astro`). Do not bring back a side column, or a text that leaves the
+  right half of the block empty.
 - FORMS DO NOT SEND ANYTHING YET. Each shows a notice saying so when its button is pressed
   (`contact.form.demo`); they are to be wired to e-mail delivery in phase 4. Do not tell the client
   they work. The contact block of the homepage uses the same form component.
@@ -393,27 +410,35 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
   (the text column and the side column); the pages (`pages/presentation-de-l-entreprise.astro`,
   `pages/en/company-presentation.astro`) add the head and the three commitments. Texts:
   `presentation` in `fr.pages.ts` and in `en.pages.ts`, both of the shape `PresentationText`.
-  The "Documents" column leads to the pages; on each page it offers that page's PDF (`docs[].page`
-  and `.pdf` in `fr.pages.ts`); the news page's press corner keeps the files. The homepage's
-  second screen links to the French page ("En savoir plus", `about.more`).
+  They have no side column either (see above): on large screens the photograph has the summary
+  beside it (its file is 1280px wide, too small to run the whole width; the frame takes the film's
+  16:9 there, from a body of 72rem), the three statements of part 01 stand side by side, parts 02
+  and 03 have their lists beside their sentences (in 02 both sentences go on the left), and the
+  director's two lists stand side by side (from a body of 68rem). The French page is in the menu ("Nos
+  services") and the homepage's second screen links to it ("En savoir plus", `about.more`). No link
+  leads to the English one: the client wants it reached through FR/EN once that works (phase 3), so
+  following the site's links does not reach it; check its address directly. The news page's press
+  corner offers the two PDFs (`aside.docs` in `fr.pages.ts`).
 - The English page is the site's one English page until the English site is built (phase 3): its
   route is `presentationEn` among the French routes, its address is under `/en/` where that site
   will live. The menu, the side column, the three commitments and the footer round it are the
   French site's; its own text (title, summary, parts, motto) is marked `lang="en"` (`lang` on
   `PageHead` and on the component). Its transport cards lead to the French service pages.
-  Anchors are made from each part's name (`slugify`): #nos-references, #our-portfolio.
+  Anchors are made from each part's name (`slugify`): #nos-competences, #our-competencies.
 - Each page's text is its PDF's, spelling and typography corrected (listed in the comments above
-  `presentation` in `fr.pages.ts` and `en.pages.ts`): its summary, then six parts numbered in outline as on the quality
-  page (who we are, services with three cards to the transport pages, skills, references, addresses,
-  the general manager), then the motto of its last slide. Its pictures are the site's where the PDF
-  shows the same ones smaller (the film's first image, the service photographs, the current TÜV mark,
-  the homepage's logos); three logos (Ines, Amiyas Import, an orange and green "A" whose name the PDF
-  does not give: empty alt until the client says) and the general manager's portrait were cut out of
-  the PDF. Its drawings of people and its "Merci" slide (an employee's Gmail address) are not used.
+  `presentation` in `fr.pages.ts` and `en.pages.ts`): its summary, then five parts numbered in outline as on the quality
+  page (who we are, services with three cards to the transport pages, skills, addresses, the
+  general manager), then the motto of its last slide. The PDF's sixth part, its references (the
+  clients' logos), is left out: the homepage's conveyor shows them, and the client did not want them
+  twice (2026-10-22). Two of its logos are not in the conveyor and so are on no page now: Amiyas
+  Import and an orange and green "A" whose name the PDF does not give (cut out of the PDF, kept in
+  `assets/clients/amiyas-import.png` and `client-a.png`). Its pictures are the site's where the PDF
+  shows the same ones smaller (the film's first image, the service photographs, the current TÜV
+  mark); the general manager's portrait was cut out of the PDF. Its drawings of people and its "Merci" slide (an employee's Gmail address) are not used.
   It shows the general manager's own mobile numbers, Gmail address and LinkedIn, as the PDF does;
   the contact page still says "Coordonnées à venir" for him: the client is to confirm both. Its
-  measures follow the width of its text column (a container, `presentation`): the logos are three,
-  then five across (fifteen fill the rows); the transport cards are stacked, then three across.
+  measures follow the width of its body (a container, `presentation`): the transport cards are
+  stacked, then three across.
 - The menu marks the page on screen (`aria-current`), and the group it belongs to (`data-current`
   on the buttons "Nos services" and "E-services").
 - The contact page: the team is the director's own diagram (sent as a picture, "look exactly like this"),
@@ -443,8 +468,9 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
 - As the page opens the general manager appears and the cards come out one after the other (large
   screens; on small ones each card comes up as it is scrolled to): the one place where something
   plays as a page opens, the client asked for animation on this page.
-- Check a service page, a quote form, tracking, the quality policy and contact at 1536, 1024 and a
-  phone; after touching a link or a route, follow every link of the site (all must answer 200).
+- Check a service page, a quote form, tracking, the quality policy and contact at 1920 (the client's
+  screen), 1536, 1024 and a phone; after touching a link or a route, follow every link of the site
+  (all must answer 200).
 
 ### Blog
 
@@ -519,7 +545,18 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
   travelling dashes, which had been taken from another website. Do not bring that line back.
 - The drawing is a stencil (`src/assets/decor/chevron-trail.svg`, used as a CSS mask) made by
   `scripts/make-chevron-trail.mjs`; its colours are `--c-trail` and `--c-trail-light`.
-- The logo conveyor (`Marquee.astro`) glides at about the same speed. Movement is slow, constant and
+- The logo conveyor (`Marquee.astro`, logos `clients` in `src/data/references.ts`) shows the current site's
+  thirteen clients, then eleven more the client asked for (October 2026) from a picture of their
+  references (Oland Group, PERI, Ines, Euro Couleur, Electro Tadart, BMZ, Roca, Aphysem, Pharma 5, OCP,
+  Somapex), in high quality. PERI, Roca and OCP are the companies' own files, downloaded with the
+  client's go-ahead from Wikimedia Commons and kept as they came (sources and the credit Roca's file
+  asks for: `src/data/references.ts`). The eight others are the companies' files supplied by the
+  client (`reference/logos-clients/`, as they came: PNGs 600 to 825px wide on white);
+  `scripts/make-client-logos.mjs` trims them and turns their off-white grounds to pure white (the
+  conveyor blends white into the page, any grey would show as a box). Electro Tadart's file was
+  cropped tight: the circle round its emblem is cut at the file's edges; a version with a margin
+  would be better. The conveyor offers 2x files to high-density screens (`densities`).
+- The logo conveyor glides at about the same speed. Movement is slow, constant and
   linear: nothing bounces, flies in or plays on page load (one exception, asked for by the client:
   the cards of the contact page, see "Inner pages"). The key figures used to glide the same way;
   the client asked for them to stand still (see "Fourth screen").
@@ -581,10 +618,15 @@ colour of the banner's lanes and the pale cyan that of the second button.
 - **Photos**: the first screen uses the client's photograph of the port (see "Header and first screen");
   three of the small pictures on its cards are the client's too (the ISO badge is cut out of the
   mockup). The second screen shows the client's film (see "Second screen"); it is not the picture
-  of the mockup, which was never supplied as a file. The other photos are the current site's, to be
-  replaced later.
-  `photos/entreprise.jpg` (the previous picture of the second screen) and the old slider photos in
-  `src/assets/photos/slides/` are no longer on the homepage; the latter are kept for the service pages.
+  of the mockup, which was never supplied as a file. The four service pages show photographs the
+  client supplied (October 2026, `photos/services/`, as they came); the road, sea and air ones are also
+  on the presentation pages' transport cards, which show the service pages' photos. The client asked
+  for their quality to be kept ("keep this quality", with the air one): the service pages offer them
+  up to their full width, and both they and the cards ask for quality 90, as the first screen does.
+  Do not lower either. The blog's
+  article has the client's photo too (see "Blog"). No photo of the current site is used any more:
+  `photos/entreprise.jpg` (the previous picture of the second screen), `photos/inner-pages/` and the
+  old slider photos in `photos/slides/` are not imported anywhere (kept in case they are wanted back).
 
 ## Conventions
 
@@ -595,6 +637,7 @@ colour of the banner's lanes and the pale cyan that of the second button.
   `.disc`, `.card` (+ `.card__link`), `.glow`, `.reveal`,
   `.section`, `.section-head` (+ `--center`), `.on-dark`, `.on-accent`, `.container`, `.container--wide`;
   for the inner pages `.wrap` (+ `.wrap__in`), `.page-body`, `.page-cols`, `.split`, `.lead`, `.prose`,
+  `.prose-pair` (two pieces of running text side by side once their container has room),
   and the forms (`.form`, `.form__row`, `.field`, `.form__status`).
 - Icons: add the Phosphor SVG import (regular weight) to `src/components/icons.ts`, then `<Icon name="…" />`.
   Two exceptions: `play-solid` (fill weight), and `customs-file`, drawn by hand after the third mockup

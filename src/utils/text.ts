@@ -6,7 +6,7 @@ export function excerpt(text: string, max = 155): string {
 }
 
 /** A text as an anchor or an address: no accents, lower case, words joined by hyphens
- *  ("Nos références" gives nos-references, "Who Are We?" who-are-we). */
+ *  ("Nos compétences" gives nos-competences, "Who Are We?" who-are-we). */
 export function slugify(text: string): string {
 	return text
 		.normalize('NFD')

@@ -19,7 +19,6 @@ const { presentation, qualite, ui } = t.pages;
 	<PageHead title={presentation.title} />
 	<CompanyPresentation
 		text={presentation}
-		current="presentation"
 		certificate={{ alt: qualite.certificate.alt, verify: `${qualite.certificate.verify} ${qualite.certificate.verifyNote}` }}
 		external={ui.external}
 	/>

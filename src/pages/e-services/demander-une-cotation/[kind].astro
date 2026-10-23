@@ -39,7 +39,7 @@ const hasForm = kind.fields.length > 0;
 				hasForm ? (
 					<div class="wrap__in page-cols">
 						<RequestForm id={`cotation-${kind.slug}`} title={kind.formTitle} fields={kind.fields} submit={cotation.submit} />
-						<ServiceAside trades={false} documents={false} />
+						<ServiceAside />
 					</div>
 				) : (
 					<div class="wrap__in empty">

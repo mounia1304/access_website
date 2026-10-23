@@ -61,7 +61,7 @@ npm run check:palette
 | French texts of the homepage, menu and footer | `src/i18n/fr.ts`                              |
 | French texts of the inner pages (services, forms, quality policy, company presentation, blog, team) | `src/i18n/fr.pages.ts` |
 | Phone, e-mail, addresses             | `src/data/site.ts`                                     |
-| Client and partner logos             | `src/data/references.ts` + `src/assets/`               |
+| Client and partner logos             | `src/data/references.ts` + `src/assets/`; the eight supplied as files (`reference/logos-clients/`) are prepared by `node scripts/make-client-logos.mjs` |
 | Page addresses (URLs)                | `src/i18n/routes.ts`                                   |
 | The logo                             | `src/assets/brand/logo-source.webp`, then `node scripts/make-logo.mjs` (shown by `src/components/Logo.astro`) |
 | The first screen's photograph        | `src/assets/photos/hero/port.webp`, then `node scripts/make-hero-scene.mjs` |
@@ -74,7 +74,7 @@ npm run check:palette
 | How they look (size, colours, the orange strokes) | the "Key figures" block of `src/components/Why.astro`; their gradient is `--g-figure` in `tokens.css` |
 | The second screen's film             | `src/assets/photos/presentation/transport.mp4` (+ its first image, `transport.webp`) |
 | A section of the homepage            | `src/components/<Section>.astro`                       |
-| The company's presentation, French and English (the pages made from the client's two PDFs) | drawn by `src/components/CompanyPresentation.astro`; texts `presentation` in `src/i18n/fr.pages.ts` and `src/i18n/en.pages.ts`; its logos `presentationClients` in `src/data/references.ts`; the PDFs `reference/presentation-entreprise.pdf` and `reference/company-presentation-en.pdf` |
+| The company's presentation, French and English (the pages made from the client's two PDFs) | drawn by `src/components/CompanyPresentation.astro`; texts `presentation` in `src/i18n/fr.pages.ts` and `src/i18n/en.pages.ts`; the PDFs `reference/presentation-entreprise.pdf` and `reference/company-presentation-en.pdf` |
 | A blog article                       | `src/content/blog/`: one file each (see "Writing an article" below) |
 | A news item (Actualités page)        | `src/content/actualites/`: one file each (see "Writing a news item" below) |
 | The kinds of news                    | `src/data/actualites.ts` (icons, colours), names in `src/i18n/fr.pages.ts` (`actualites.types`) |
@@ -122,9 +122,14 @@ npm run check:palette
   the same way (see "Writing a news item"); it has no news yet. In the menu, "Blog" became
   "Actualités", with the Actualités page and the blog under it. The company's presentation is a page
   too, in French (`/presentation-de-l-entreprise/`) and in English (`/en/company-presentation/`),
-  made from the client's two PDFs and laid out like a service page; they are linked from the
-  "Documents" column of the inner pages, and the French one from the homepage's "Présentation de
-  l'entreprise" ("En savoir plus"). The English one is the site's only English page so far: the
+  made from the client's two PDFs and laid out like a service page. The French one is in the menu,
+  at the end of "Nos services", and the homepage's "Présentation de l'entreprise" links to it ("En
+  savoir plus"). No link leads to the English one yet: it will be reached through FR/EN (phase 3).
+  The service pages and the presentation have no side column any more (the client had its contents
+  removed, then asked for the room to be used): their photo and text use the whole width, the text
+  in two columns on large screens. The quote forms keep its help card. The two PDFs are in the news
+  page's press corner. The English one is the
+  site's only English page so far: the
   menu, the side column and the footer round it stay French until phase 3.
 - **Next**: the Logistique part (two platforms), once the director has filled in
   `informations-logistique-et-actualites.xlsx`; then the homepage (latest news, logistics).
@@ -146,8 +151,10 @@ anything until phase 4: they show a notice saying so. The "EN" of the menu is no
   lorry, the ship and the plane are pictures supplied by the client; the ISO badge is still cut out of
   the mockup and is coarse on dense screens, pending the original file. The second
   screen shows the film supplied by the client inside the mockup's frame (3.5 MB, loaded only when the
-  frame comes on screen). The other photos are the current site's; swap the files in
-  `src/assets/photos/` to replace them.
+  frame comes on screen). The four service pages show photographs supplied by the client
+  (`src/assets/photos/services/`); swap a file there to replace one (and its import, if the file's
+  type changes). They are offered up to their full width at a high quality setting, at the client's
+  request. The current site's photos are no longer used.
 - **Service sentences**: three of the four sentences of the services now follow the third mockup
   (the current site's wording is kept in a comment in `src/i18n/fr.ts`). To be confirmed by the client.
 - **"Pourquoi choisir"**: no mockup was supplied for this block. Its four reasons are four containers
@@ -172,12 +179,18 @@ anything until phase 4: they show a notice saying so. The "EN" of the menu is no
   page, which shows another country there (the homepage's map, which shows the company, is used on
   both pages instead).
 - **Company presentation**: the two pages follow the client's two PDFs (January 2023), wording kept,
-  only spelling and typography corrected. To confirm with the client: the name of the orange and green
-  logo with an "A" among the references (the PDF does not give it); that the general manager's own
+  only spelling and typography corrected. To confirm with the client: that the general manager's own
   mobile numbers, Gmail address and LinkedIn may be shown (they are, as in the PDF, while the contact
-  page still says "Coordonnées à venir" for him). The Ines and Amiyas Import logos were cut out of the
-  PDF and are small; better files are welcome. The PDF's cover shows an older TÜV mark: the page shows
+  page still says "Coordonnées à venir" for him). The PDF's references (the clients' logos) are not
+  shown, at the client's request: the homepage's moving strip has them, except Amiyas Import and an
+  orange and green "A" whose name the PDF does not give (their logos, cut out of the PDF, are kept in
+  `src/assets/clients/`). The PDF's cover shows an older TÜV mark: the page shows
   the current one.
+- **Client logos**: eleven were added to the moving strip at the client's request, all in high quality.
+  PERI, Roca and OCP are the companies' own files (Wikimedia Commons; Roca's file is credited to
+  Donperfectodewiki, CC BY-SA 3.0, in `src/data/references.ts`); the eight others were supplied by
+  the client (`reference/logos-clients/`). Electro Tadart's file is cropped tight (the circle round
+  its emblem is cut at its edges): a version with a margin would be better.
 - **Typefaces**: DM Sans (free).
 - **Contact form**: shows a demo message instead of sending.
 - **Favicon**: the "A" of the logo on a white rounded square.
