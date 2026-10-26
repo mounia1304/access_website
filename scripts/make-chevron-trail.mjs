@@ -8,16 +8,12 @@
 // It writes src/assets/decor/chevron-trail.svg. The component uses that file as a stencil (a
 // CSS mask) and gives it its colours, so the drawing itself has none. If WIDTH or HEIGHT change
 // here, change them in the component too.
-//
-// It also writes chevron-guillemet.svg: one pair pointing left, cut close, which is the French
-// opening quotation mark of the fifth screen (src/components/Testimonials.astro).
 
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const out = fileURLToPath(new URL('../src/assets/decor/chevron-trail.svg', import.meta.url));
-const outGuillemet = fileURLToPath(new URL('../src/assets/decor/chevron-guillemet.svg', import.meta.url));
 
 const WIDTH = 3840; // wider than any screen: the page shows the middle of it
 const RISE = 84; // how much higher the trail runs after the step
@@ -103,15 +99,3 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${
 mkdirSync(dirname(out), { recursive: true });
 writeFileSync(out, svg);
 console.log(`${pairs} pairs of chevrons, ${WIDTH} x ${HEIGHT}, ${(svg.length / 1024).toFixed(1)} kB -> ${out}`);
-
-// The pair pointing left, in a box cut close to it: an opening guillemet. The box is as wide
-// as the two chevrons and the gap between them (19.12) and as tall as a chevron (13).
-const BOX = { width: Number((PAIR_GAP + 10.12).toFixed(2)), height: 13 };
-const left = (x) => chevron({ x, y: BOX.height / 2, heading: Math.PI });
-const guillemet = left(BOX.width / 2 - PAIR_GAP / 2) + left(BOX.width / 2 + PAIR_GAP / 2);
-writeFileSync(
-	outGuillemet,
-	`<svg xmlns="http://www.w3.org/2000/svg" width="${BOX.width}" height="${BOX.height}" viewBox="0 0 ${BOX.width} ${BOX.height}"><path d="${guillemet}"/></svg>
-`,
-);
-console.log(`guillemet, ${BOX.width} x ${BOX.height} -> ${outGuillemet}`);

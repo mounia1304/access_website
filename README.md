@@ -162,7 +162,7 @@ anything until phase 4: they show a notice saying so. The "EN" of the menu is no
 - **Key figures**: they no longer glide by. At the client's request the four stand still, all in view
   at once, as large numbers in the logo's blue, each with a thin orange stroke. (A first version put
   them on a ship; the client asked for just the numbers.) Awaiting approval.
-- **"30 900" banner**: redesigned at the client's request, with its animation kept and improved (the
+- **"41 200" banner** (30 900 on the current site, updated by the client): redesigned at the client's request, with its animation kept and improved (the
   lights on the lanes now have tails; the lanes are drawn as the banner scrolls in). Awaiting approval.
 - **E-services**: the three cards were replaced, at the client's request, by three very large pill
   buttons that step down the block, with icons drawn for the site. Awaiting approval.

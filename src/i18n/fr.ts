@@ -208,44 +208,9 @@ const fr = {
 		] satisfies ReadonlyArray<{ icon: IconName; value: string; label: string }>,
 	},
 
-	testimonials: {
-		eyebrow: 'Témoignages',
-		title: ['Avis de', 'nos clients'], // "Client Feedbacks" on the current site
-		tablist: 'Choisir un témoignage',
-		prev: 'Témoignage précédent',
-		next: 'Témoignage suivant',
-		items: [
-			{
-				quote:
-					'Satisfaction pour les services de dédouanement et de transit. Votre professionnalisme, votre diligence et votre expertise ont été très appréciés. Merci !',
-				name: 'M. Rachid ASSAKOUR',
-				role: 'Directeur Général',
-			},
-			{
-				quote: 'Service de dédouanement rapide et professionnel, merci pour votre excellent travail !',
-				name: 'Jaber HADDOU',
-				role: 'General Manager Services',
-			},
-			{
-				quote: 'Impressionné par l’expertise de votre entreprise en matière de dédouanement et de transit.',
-				name: 'M. Yassine ILZEN',
-				role: 'Directeur Technique',
-			},
-			{
-				quote: 'Expérience de dédouanement agréable et sans stress, merci pour votre professionnalisme.',
-				name: 'M. Chaouki HAMKOUR',
-				role: 'Cogérant',
-			},
-			{
-				quote: 'Communication claire et rapide, nous sommes très satisfaits de vos services.',
-				name: 'M. Yassine ELKARTI',
-				role: 'Directeur Général',
-			},
-		],
-	},
-
 	bigNumber: {
-		value: '30 900',
+		// The client updated the figure (2026-10-26): the current site shows 30 900.
+		value: '41 200',
 		label: 'Opérations de transit effectuées par notre équipe',
 	},
 

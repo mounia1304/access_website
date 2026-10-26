@@ -539,22 +539,23 @@ const pages = {
 		// The team, as the director drew it (TeamDiagram.astro): the general manager in the middle,
 		// seven people round him. Names and roles are the director's diagram, spelled out ("DG" is
 		// "directeur général", "ex" is "exploitation", as on the current site); names are written
-		// family name first, in capitals, as on the current site's contact page. The diagram's numbers and addresses (all "@societe.ma", numbers that run
-		// 12 34 56 78) are samples: they are not used. Where the current site gives a person's real
-		// number and address, they are used; elsewhere they are null and an empty line stands in
-		// their place until the client sends them. The same goes for the photos.
+		// family name first, in capitals, as on the current site's contact page. The diagram's numbers
+		// and addresses (all "@societe.ma", numbers that run 12 34 56 78) are samples: they are not
+		// used. The seven's own mobile numbers and addresses were sent by the client (2026-10-26). The
+		// director's are still to come: null, and `pending` stands in their place. The photos are still
+		// to come too.
 		// "key" is how an article of the blog names its author (author: fahmi-larbi).
 		director: { key: 'ezzahraoui-mohamed', name: 'M. EZZAHRAOUI Mohamed', role: 'Directeur général', phone: null, email: null },
 		// Shown in place of a number and an address not sent yet.
 		pending: 'Coordonnées à venir',
 		members: [
-			{ key: 'fahmi-larbi', name: 'FAHMI Larbi', role: 'Directeur général délégué', icon: 'users-three', phone: '+212 5 22 24 17 17', email: 'fahmilarbi@gmail.com' },
-			{ key: 'fahmi-omar', name: 'FAHMI Omar', role: 'Chef des déclarants', icon: 'customs-file', phone: null, email: null },
-			{ key: 'beidouri-zohra', name: 'BEIDOURI Zohra', role: 'Responsable d’exploitation commerciale', icon: 'chart-line-up', phone: '+212 5 22 24 17 17', email: 'z.accesstransit@gmail.com' },
-			{ key: 'boussry-khadija', name: 'BOUSSRY Khadija', role: 'Responsable transport national', icon: 'truck', phone: null, email: null },
-			{ key: 'ouatid-ghizlane', name: 'OUATID Ghizlane', role: 'Suppléante, exploitation commerciale', icon: 'users-three', phone: null, email: null },
-			{ key: 'sabir-hind', name: 'SABIR Hind', role: 'Responsable administrative et financière', icon: 'coins', phone: null, email: null },
-			{ key: 'laaraj-ibtissam', name: 'LAARAJ Ibtissam', role: 'Responsable transport international', icon: 'globe', phone: '+212 5 22 24 17 17', email: 'ibtissamlj.accesstransit@gmail.com' },
+			{ key: 'fahmi-larbi', name: 'FAHMI Larbi', role: 'Directeur général délégué', icon: 'users-three', phone: '+212 6 61 95 39 47', email: 'fahmilarbi@gmail.com' },
+			{ key: 'fahmi-omar', name: 'FAHMI Omar', role: 'Chef des déclarants', icon: 'customs-file', phone: '+212 6 61 30 19 41', email: 'omarfahmi49@gmail.com' },
+			{ key: 'beidouri-zohra', name: 'BEIDOURI Zohra', role: 'Responsable d’exploitation commerciale', icon: 'chart-line-up', phone: '+212 6 61 33 89 64', email: 'z.access21@gmail.com' },
+			{ key: 'boussry-khadija', name: 'BOUSSRY Khadija', role: 'Responsable transport national', icon: 'truck', phone: '+212 6 62 37 54 98', email: 'khadijabousry25@gmail.com' },
+			{ key: 'ouatid-ghizlane', name: 'OUATID Ghizlane', role: 'Suppléante, exploitation commerciale', icon: 'users-three', phone: '+212 6 61 39 25 03', email: 'gouatid@gmail.com' },
+			{ key: 'sabir-hind', name: 'SABIR Hind', role: 'Responsable administrative et financière', icon: 'coins', phone: '+212 6 62 38 05 33', email: 'sabir.accesstransit@gmail.com' },
+			{ key: 'laaraj-ibtissam', name: 'LAARAJ Ibtissam', role: 'Responsable transport international', icon: 'globe', phone: '+212 6 61 83 16 39', email: 'ibtissamlj.accesstransit@gmail.com' },
 		] satisfies ReadonlyArray<{ key: string; name: string; role: string; icon: IconName; phone: string | null; email: string | null }>,
 	},
 };

@@ -96,8 +96,6 @@ const pairs = [
 	['text on the dark banner', colour('c-on-dark'), colour('c-dark'), TEXT],
 	['text on the glow of the dark banner', colour('c-on-dark'), over(colour('c-dark-glow'), colour('c-dark-end')), TEXT],
 	['print behind the figure of the dark banner', white, colour('c-dark-print'), LARGE],
-	['initials of the testimonial on screen', colour('c-on-accent'), colour('c-accent-top'), TEXT],
-	['initials of the other testimonials', colour('c-accent'), colour('c-tint'), TEXT],
 	['second button label', colour('c-on-soft'), colour('c-soft'), TEXT],
 	['second button label, hover', colour('c-on-soft'), colour('c-soft-hover'), TEXT],
 	['title on the pale container', colour('c-ink'), colour('c-box-pale'), TEXT],

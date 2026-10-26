@@ -1,5 +1,6 @@
 ---
-// Homepage: same blocks, in the same order, as the current access-transit.com homepage.
+// Homepage: same blocks, in the same order, as the current access-transit.com homepage, except
+// its testimonials, which the client had removed (2026-10-26).
 // Under the second screen, a trail of chevrons (decoration) runs in the gaps between them,
 // coming from the left and from the right in turn on its way down the page.
 import Base from '../layouts/Base.astro';
@@ -8,7 +9,6 @@ import Hero from '../components/Hero.astro';
 import About from '../components/About.astro';
 import Services from '../components/Services.astro';
 import Why from '../components/Why.astro';
-import Testimonials from '../components/Testimonials.astro';
 import BigNumber from '../components/BigNumber.astro';
 import References from '../components/References.astro';
 import Partners from '../components/Partners.astro';
@@ -25,7 +25,6 @@ import LocationMap from '../components/LocationMap.astro';
 	<ChevronTrail from="right" />
 	<Why />
 	<ChevronTrail from="left" />
-	<Testimonials />
 	<BigNumber />
 	<ChevronTrail from="right" />
 	<References />

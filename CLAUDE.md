@@ -16,8 +16,8 @@ French is the default locale, English comes later. See `README.md` for the file 
   the client sends a new logo)
 - `node scripts/make-client-logos.mjs` — prepares the eight client logos the client supplied as files
   (`reference/logos-clients/`) for the logo conveyor (only if the client sends new ones)
-- `node scripts/make-chevron-trail.mjs` — redraws the trail of chevrons that runs between sections, and the
-  guillemet of the testimonials, which is made of the same chevron (only to change them)
+- `node scripts/make-chevron-trail.mjs` — redraws the trail of chevrons that runs between sections (only to
+  change it)
 
 Restart the dev server after renaming tokens or classes across several components: it keeps serving
 the old scoped CSS for some of them, which shows up as cards with no background or text in the wrong colour.
@@ -37,9 +37,9 @@ The second screen ("Présentation de l'entreprise") has its own mockup from the 
 `reference/maquette-deuxieme-ecran.webp` (1944 x 809), also to be reproduced exactly: see "Second screen".
 The third ("Découvrez nos services") had one too, `reference/maquette-troisieme-ecran.webp` (1921 x 819):
 its label, title and background shapes still follow it, but its cards were redesigned at the client's
-request, see "Third screen". The fourth ("Pourquoi choisir") and the fifth ("Avis de nos clients") have
-no mockup: the client asked for designs an expert would make, each around one idea, see "Fourth screen"
-and "Fifth screen". The mockups are pictures: where their lettering is garbled (the third one reads
+request, see "Third screen". The fourth ("Pourquoi choisir") has no mockup: the client asked for a design an
+expert would make, around one idea, see "Fourth screen". The fifth ("Avis de nos clients", the
+testimonials) is gone, at the client's request: see "Fifth screen". The mockups are pictures: where their lettering is garbled (the third one reads
 "NOS MÉTIEPS"), the site's own text stands.
 
 ### Colours
@@ -285,29 +285,18 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
 
 ### Fifth screen
 
-- `Testimonials.astro` has no mockup. A first version (a tilted quote card and a
-  list of names with initials) was turned down by the client as looking "AI generated": they asked for
-  something an expert designer would make, and creative. Do not go back to a plain card beside a list.
-- The design takes its idea from the trade. The testimonials are a pile of sheets, like papers on a
-  customs desk: the top one is read, the next two show under it. A large French opening quotation
-  mark sits astride the pile's corner, drawn with the site's own double chevron (a guillemet is one:
-  `chevron-guillemet.svg`, made by `scripts/make-chevron-trail.mjs`, used as a mask over `--g-bar`).
-  A round stamp in one ink, like a customs stamp, carries the sheet's number.
-- Each sheet has `--pos` (0 on top); its place, turn, shade, edge colour, opacity and layer are all
-  worked out from it in CSS. Moving on slides the top sheet away to the left, then under the pile
-  (`quote-leave`); coming back slides it in again (`quote-enter`); the stamp is pressed again
-  (`stamp-press`, no bounce). These only play when the visitor asks for another sheet, never by
-  themselves, and not at all for `prefers-reduced-motion`.
-- The five names on the left, down a line, are the tab list (click, arrow keys, Home and End); the
-  arrows under the pile and a sideways swipe change the sheet too. Keep all of them working.
-- The sheets share one grid cell, so the pile keeps the height of the longest testimonial.
-- Texts, names and roles are the current site's: no ratings, photos or companies were added. The words
-  round the stamp are the section's label and the company's name.
-- It replaced a sky-blue card: `--c-feature` and its partners are gone.
+- There is none any more. The testimonials ("Avis de nos clients", the current site's five, in
+  `Testimonials.astro`: a pile of sheets like papers on a customs desk, a French opening quotation
+  mark made of the double chevron, a round stamp with the sheet's number) were removed at the
+  client's request on 2026-10-26 ("remove this whole part from the app, we don't want it to stay
+  anymore"), with their texts and the quotation mark's drawing (`chevron-guillemet.svg`). Commit
+  8084229 has all of it. Do not bring them back unless the client asks: the homepage goes from the
+  fourth screen to the dark banner.
 
 ### Dark banner
 
-- `BigNumber.astro`: the "30 900 opérations" figure, on the one dark banner of the page. The client
+- `BigNumber.astro`: the "41 200 opérations" figure (30 900 on the current site: the client updated
+  it on 2026-10-26), on the one dark banner of the page. The client
   liked its animation (five lanes that come in from the right, take a bend together and leave at the
   bottom, a light running along each) and asked for the banner to be redesigned with that animation
   kept, "just improved". Keep the lanes, their bend and their lights.
@@ -462,9 +451,10 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
   phones the photo is above the text). Check 1920, 1536, 1366 and 1280 (no two cards may touch), a
   tablet and a phone.
 - No photos yet: each frame shows the person's initials until the client sends them. The picture's
-  numbers and addresses are samples (all "@societe.ma", numbers running 12 34 56 78) and are not used:
-  where the current site gives a person's real ones they are shown, elsewhere "Coordonnées à venir"
-  (null in `fr.pages.ts`).
+  numbers and addresses are samples (all "@societe.ma", numbers running 12 34 56 78) and are not used.
+  The seven's own mobile numbers and e-mail addresses were sent by the client (2026-10-26) and are
+  shown; the general manager's are still "Coordonnées à venir" on this page (null in `fr.pages.ts`),
+  though the presentation shows his.
 - As the page opens the general manager appears and the cards come out one after the other (large
   screens; on small ones each card comes up as it is scrolled to): the one place where something
   plays as a page opens, the client asked for animation on this page.
@@ -570,8 +560,6 @@ and "Fifth screen". The mockups are pictures: where their lettering is garbled (
 - The film of the second screen follows the same three rules, in the script of `About.astro`: it is
   fetched and played only while its frame is on screen, stops when a pause button is pressed, and never
   plays for `prefers-reduced-motion` (the still stays).
-- The testimonials do not auto-play (neither did the current site's slider). They are a tab list:
-  keep the keyboard, arrow and swipe controls working when changing them.
 
 ### Kept from the previous design
 
@@ -585,6 +573,8 @@ colour of the banner's lanes and the pale cyan that of the second button.
 - The client asked for the new site to match the current one in content: same blocks in the same order,
   same wording, same menu, same figures, same slider messages. Only spelling, typography and stray
   English are corrected. Do not rewrite, add or drop copy, sections or figures without being asked.
+  The client has since dropped some (the testimonials, the presentation's references) and changed
+  one figure (41 200 operations): each is noted where it was.
 - Exceptions that came with the mockups (all marked in `fr.ts`): the tagline, the slogan, the panel's
   label and title, its link ("Découvrir tous nos services"), the play link ("Notre savoir-faire"), and
   the longer first message. The hero button reads "En savoir plus"; the service cards keep "Savoir
@@ -611,7 +601,7 @@ colour of the banner's lanes and the pale cyan that of the second button.
   asked for it to be removed from there (2026-10-15). It is sized by its height (`--logo-h`). In the header its box keeps
   the width of the earlier stand-in, so that the menu stays where the first mockup puts it.
   The favicon (`public/favicon.png`) is the logo's "A" on a white rounded square.
-- **Chevrons and slant**: the double chevron of the trails and of the testimonials' guillemet, and
+- **Chevrons and slant**: the double chevron of the trails, and
   `--slant`, came from the stand-in logo that was there before. They are not in the client's logo
   (the chevron is still on the lorry's container in the pictures). They stay until the client says
   otherwise; where the files say "the logo's chevron" or "the slant of the logo", read it that way.
