@@ -331,7 +331,9 @@ const pages = {
 			text: 'Notre certification ISO 9001 version 2015 de TÜV Maroc, filiale de TÜV Rheinland Allemagne, témoigne de notre engagement en faveur de la qualité de nos services.',
 			facts: [
 				{ term: 'Organisme certificateur', value: 'TÜV Rheinland' },
-				{ term: 'N° de certificat', value: '9000026569' },
+				// The certificate's number on TÜV Rheinland's register (Certipedia). 9000026569, which this
+				// page gave until 2026-10-26, is the ID of the certification mark, where its QR code leads.
+				{ term: 'N° de certificat', value: '01 100 2315350' },
 				{ term: 'Périmètre', value: 'Dédouanement à l’import et à l’export' },
 			],
 			verify: 'Vérifier le certificat',

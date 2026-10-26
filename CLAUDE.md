@@ -384,7 +384,9 @@ testimonials) is gone, at the client's request: see "Fifth screen". The mockups 
   client trusts the company"): the TÜV Rheinland ISO 9001:2015 mark supplied by the client
   (`src/assets/quality/tuv-iso9001.png`), whole and unchanged (TÜV asks for that: never crop or
   recolour it), beside what it certifies and a button to the certificate on TÜV Rheinland's register
-  (`site.certificate`, Certipedia, where its QR code leads). The facts are the register's.
+  (`site.certificate`, Certipedia, where its QR code leads). The facts are the register's: the
+  certificate's number is 01 100 2315350; 9000026569 is the ID of the mark, not of the certificate
+  (the page called it the certificate's number until 2026-10-26).
 - The map (`LocationMap.astro`) is Google's map of the company, the same embed as on the current
   site's homepage (`site.map`); the client asked for it. It closes the homepage, after the contact
   block, and the contact page. It is fetched from Google only when the visitor scrolls near it.
@@ -515,8 +517,17 @@ testimonials) is gone, at the client's request: see "Fifth screen". The mockups 
   `t.pages.actualites.types`.
 - The list's pieces are `NewsItem.astro` (lead, row, compact); the picture, the text and the share
   buttons are shared with the blog (`BlogCover`, `ArticleText`, `ShareLinks`).
-- There is no news yet: the page shows "Les premières actualités paraîtront ici." and the press corner.
-  The director is asked for the first items and the press contact in
+- The first two items were written on 2026-10-26, at the client's request ("search on what the big
+  companies in Morocco publish, and do two actualities"), for the client to check: the new website
+  (`nouveau-site-internet.md`, entreprise) and the ISO 9001:2015 certificate
+  (`certification-iso-9001-2015.md`, certifications), the two kinds of news the sector's large
+  companies publish most (certifications and labels, new online services) that can be told from
+  facts. Their facts are the site's and TÜV Rheinland's register only: no quote, figure or date was
+  made up (the register gives none). The website item presents the online forms: it can only be
+  published once they are connected (phase 4). Both are dated 2026-10-26; with one date, the
+  certificate comes first (the list is ordered by date only). Without any item, the page shows "Les
+  premières actualités paraîtront ici." and the press corner.
+  The director is asked for more items and the press contact in
   `informations-logistique-et-actualites.xlsx` (kept out of git: `.git/info/exclude`).
 - In the menu, "Blog" became "Actualités", a small menu with the Actualités page and the blog (the
   client's decision): there is no room in the bar for one more item. The longer word took the bar's
