@@ -87,8 +87,9 @@ testimonials) is gone, at the client's request: see "Fifth screen". The mockups 
   titles, names, the footer: the `--fs-…` tokens from `--fs-h3` down, and the sizes written in the
   components). The large titles, the big figures and the quotes kept their size. Do not bring a
   text back to its mockup size; when adding a text, take a token or a neighbour's size. In the menu
-  bar the gaps close up faster on laptops to make the room (see `Header.astro`): at 1280 wide
-  there is nothing left to give, so measure the bar before adding a word to it. On the first
+  bar the gaps close up faster on laptops to make the room (see `Header.astro`). It was full until
+  FR/EN left it (2026-10-29): 89px are left before the quote button at 1280, and none of it is
+  to spare for a whole new word, so measure the bar before adding one. On the first
   screen the button and the play link sit closer for the same reason, and their smallest sizes
   were kept lower than 25%.
 - Section titles are set in two colours, navy then orange:
@@ -111,8 +112,12 @@ testimonials) is gone, at the client's request: see "Fifth screen". The mockups 
 ### Header and first screen
 
 - The menu is a rounded bar of frosted glass that floats over the page, a little below the top of the
-  screen (`Header.astro`): logo, menu, FR/EN, quote button. The menu is the current site's, except
-  that "Blog" became "Actualités" (see "Actualités") and that "Nos services" ends with "Présentation
+  screen (`Header.astro`): logo, menu, quote button. The language switch FR/EN was taken out of the
+  bar at the client's request (2026-10-29), to come back with the English site (phase 3). The menu
+  is the current site's, except that "Blog" became "Actualités" (see "Actualités"), that
+  "E-services" ends with "Simulateur" and "Actualités" with "Réglementation" (2026-10-29, the
+  client's: two pages to be built, which say meanwhile that they are being prepared, through
+  `ComingSoon.astro`, kept out of search engines; there was no room in the bar for them), and that "Nos services" ends with "Présentation
   de l’entreprise" (`nav.presentation`), the French page of the company's presentation, which the
   client moved there from the column of the service pages (2026-10-22); the English one is to be
   reached through FR/EN once the English site is built. The services panel is as wide as that label,
@@ -516,24 +521,30 @@ testimonials) is gone, at the client's request: see "Fifth screen". The mockups 
   a drawn icon, two of them drawn for this page: `entreprise`, `calendrier`), their names
   `t.pages.actualites.types`.
 - The list's pieces are `NewsItem.astro` (lead, row, compact); the picture, the text and the share
-  buttons are shared with the blog (`BlogCover`, `ArticleText`, `ShareLinks`).
-- The first two items were written on 2026-10-26, at the client's request ("search on what the big
-  companies in Morocco publish, and do two actualities"), for the client to check: the new website
-  (`nouveau-site-internet.md`, entreprise) and the ISO 9001:2015 certificate
-  (`certification-iso-9001-2015.md`, certifications), the two kinds of news the sector's large
-  companies publish most (certifications and labels, new online services) that can be told from
-  facts. Their facts are the site's and TÜV Rheinland's register only: no quote, figure or date was
-  made up (the register gives none). The website item presents the online forms: it can only be
-  published once they are connected (phase 4). Both are dated 2026-10-26; with one date, the
-  certificate comes first (the list is ordered by date only). Without any item, the page shows "Les
-  premières actualités paraîtront ici." and the press corner.
+  buttons are shared with the blog (`BlogCover`, `ArticleText`, `ShareLinks`). A news item's picture
+  is shown whole, its frame taking the picture's own shape (`BlogCover` `whole`), everywhere it
+  appears: the client's pictures are banners with lettering close to their edges, which a 16:9 or
+  3:2 frame would cut (adapt the frame, not the picture). The blog keeps its fixed frames.
+- The first item is the client's own (2026-10-29): their infographic "PLF 2027 – Importations :
+  avance fiscale de 5 %", all its information as text, in its order
+  (`plf-2027-avance-fiscale-importations.md`, avis-clients); the client asked for the infographic
+  itself not to be shown. Its picture came the same day: a banner of the client's (logo, title, a
+  "sous réserve d'adoption" stamp), `src/assets/actualites/plf-2027-avance-fiscale-importations.webp`,
+  kept as it came. The measure is a bill's (the PLF 2027, before Parliament since 2026-10-23), "sous réserve
+  d'adoption": update the item once the law is passed. Two items written earlier from the site's
+  facts (the new website, the ISO 9001:2015 certificate) were removed at the client's request the
+  same day (commit c03964f has them); the client's picture of the port with the logo, made for one
+  of them, is kept unused (`src/assets/actualites/port-access-transit.webp`). Without any item, the
+  page shows "Les premières actualités paraîtront ici." and the press corner.
   The director is asked for more items and the press contact in
   `informations-logistique-et-actualites.xlsx` (kept out of git: `.git/info/exclude`).
 - In the menu, "Blog" became "Actualités", a small menu with the Actualités page and the blog (the
-  client's decision): there is no room in the bar for one more item. The longer word took the bar's
-  last room: its gaps and the distance from the logo close up more, the carets are smaller, and
-  between 80em and 86em the menu's text is 15px (instead of 16.25px) and the quote button narrower.
-  At least 15px must stay before FR/EN at every width: measure 1280, 1366, 1376, 1420, 1536 and 1920.
+  client's decision), and since 2026-10-29 "Réglementation" (see "Header and first screen"). The
+  longer word took the bar's last room then: its gaps and the distance from the logo close up
+  more and the carets are smaller. Between 80em and 86em the menu's text was 15px and the quote
+  button narrower; that went when FR/EN left the bar, and the text is 16.25px on every laptop. At
+  least 15px must stay before the quote button at every width: measure 1280, 1366, 1376, 1420,
+  1536 and 1920.
 - Still to come (approved): a "Dernières actualités" block on the homepage, once this page is
   approved; and the Logistique part, once the director has filled in the Excel file.
 

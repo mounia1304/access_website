@@ -23,7 +23,10 @@ const within = (href: string) => (path.startsWith(href) || (inBlog && href === r
 // except that "Blog" became "Actualités", a small menu that holds the Actualités page and the blog
 // (the client's decision: there is no room in the bar for one more item), and that "Nos services"
 // ends with the company's presentation (its French page; the English one is to be reached through
-// FR/EN), which the client moved there from the column of the service pages (2026-10-22).
+// FR/EN), which the client moved there from the column of the service pages (2026-10-22). On
+// 2026-10-29 the client added "Simulateur" to E-services and "Réglementation" to Actualités (two
+// pages to be built: each says meanwhile that it is being prepared), and had the language switch
+// FR/EN taken out of the bar: it is to come back with the English site (phase 3).
 const serviceIcons = Object.fromEntries(t.services.items.map((item) => [item.key, item.icon]));
 const eserviceIcons = Object.fromEntries(t.eservices.items.map((item) => [item.key, item.icon]));
 
@@ -39,7 +42,10 @@ const groups = [
 	{
 		id: 'menu-eservices',
 		label: t.nav.eservices,
-		items: t.nav.eserviceItems.map((item) => ({ ...item, href: route(item.key), icon: eserviceIcons[item.key] })),
+		items: [
+			...t.nav.eserviceItems.map((item) => ({ ...item, href: route(item.key), icon: eserviceIcons[item.key] })),
+			{ label: t.nav.simulateur, href: route('simulateur'), icon: 'percent' as IconName },
+		],
 	},
 	{
 		id: 'menu-actualites',
@@ -47,6 +53,7 @@ const groups = [
 		items: [
 			{ label: t.nav.news, href: route('actualites'), icon: 'newspaper' as IconName },
 			{ label: t.nav.blog, href: route('blog'), icon: 'article' as IconName },
+			{ label: t.nav.reglementation, href: route('reglementation'), icon: 'scales' as IconName },
 		],
 	},
 ];
@@ -123,10 +130,6 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 			</nav>
 
 			<div class="header__actions">
-				<span class="lang" role="group" aria-label={t.common.langSwitch}>
-					<span class="lang__current" aria-current="true">FR</span>
-					<span class="lang__soon" title={t.common.langSoon}>EN</span>
-				</span>
 				<a class="btn btn--accent btn--sm header__cta" href={route('cotation')}>
 					{t.common.quoteCta}
 					<Icon name="arrow-right" size={14} />
@@ -367,52 +370,6 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 		gap: clamp(0.5rem, 2.27vw, 2.75rem);
 	}
 
-	/* FR / EN: a pill of glass; the language on screen sits in a lighter capsule. */
-	.lang {
-		display: inline-flex;
-		align-items: center;
-		padding: 0.1875rem;
-		border: 1px solid rgb(255 255 255 / 0.38);
-		border-radius: var(--r-pill);
-		background: rgb(255 255 255 / 0.12);
-		color: var(--c-ink);
-		font-size: clamp(0.9375rem, 0.95vw, 1.1719rem);
-		line-height: 1;
-	}
-
-	.lang > span {
-		padding: 0.5em 0.95em;
-		border-radius: var(--r-pill);
-	}
-
-	.lang__current {
-		background: rgb(255 255 255 / 0.34);
-		font-weight: 700;
-	}
-
-	.lang__soon {
-		font-weight: 500;
-		opacity: 0.75;
-		cursor: not-allowed;
-	}
-
-	/* Once the bar is white, glass on it would not show: the pill takes the pale tint instead. */
-	.lang,
-	.lang__current {
-		transition:
-			background-color 0.3s,
-			border-color 0.3s;
-	}
-
-	.header[data-scrolled] .lang {
-		border-color: transparent;
-		background: var(--c-tile);
-	}
-
-	.header[data-scrolled] .lang__current {
-		background: var(--c-surface);
-	}
-
 	.header__cta {
 		display: none;
 		gap: 0.9em;
@@ -444,11 +401,11 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 		display: none;
 		align-self: stretch;
 		/* The menu starts at a distance from the logo, which closes up on narrower screens, as do
-		   the gaps between its items, so that the menu never reaches the language switch. The bar
-		   is full: the client asked for its texts larger (25%) and bold, and "Blog" became
-		   "Actualités", a longer word with a caret. On the narrowest laptops (80em to 86em) the
-		   menu's text is a little smaller (see below). Measure the bar at 1280, 1366, 1420, 1536
-		   and 1920 after changing a size or a word in it: at least 15px must stay before FR/EN. */
+		   the gaps between its items, so that the menu never reaches the quote button. The client
+		   asked for its texts larger (25%) and bold, and "Blog" became "Actualités", a longer word
+		   with a caret; FR/EN left the bar on 2026-10-29, which gave room back (89px before the quote
+		   button at 1280, 256px at 1920, with the larger text on every laptop). Measure the bar at 1280, 1366, 1420, 1536
+		   and 1920 after changing a size or a word in it: at least 15px must stay before the quote button. */
 		margin-left: clamp(0.25rem, 22vw - 17.6rem, 6.5rem);
 	}
 
@@ -616,22 +573,6 @@ const info: { icon: IconName; label: string; value: string; href?: string }[] = 
 			display: none;
 		}
 
-		/* The language switch and the button sit closer on the narrowest of these screens,
-		   where the menu needs the room. */
-		.header__actions {
-			gap: clamp(0.75rem, 11.43vw - 8.39rem, 2.75rem);
-		}
-	}
-
-	/* The narrowest laptops: the menu's text is a little smaller, or it would reach FR/EN. */
-	@media (min-width: 80em) and (max-width: 85.99em) {
-		.nav__link {
-			font-size: 0.9375rem;
-		}
-
-		.header__cta {
-			padding-inline: 0.9rem;
-		}
 	}
 
 	/* ── Mobile menu ─────────────────────────────────────── */

@@ -535,6 +535,11 @@ const pages = {
 		},
 	},
 
+	// The pages added to the menu and still to be built (ComingSoon.astro): what they say meanwhile.
+	soon: {
+		text: 'Cette page est en cours de préparation. Elle sera bientôt disponible.',
+	},
+
 	contact: {
 		title: 'Contact',
 		team: 'Contactez notre équipe :',

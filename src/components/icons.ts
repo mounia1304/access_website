@@ -45,6 +45,8 @@ import download from '@phosphor-icons/core/assets/regular/download-simple.svg?ra
 import calendar from '@phosphor-icons/core/assets/regular/calendar-blank.svg?raw';
 import info from '@phosphor-icons/core/assets/regular/info.svg?raw';
 import buildings from '@phosphor-icons/core/assets/regular/buildings.svg?raw';
+import percent from '@phosphor-icons/core/assets/regular/percent.svg?raw';
+import scales from '@phosphor-icons/core/assets/regular/scales.svg?raw';
 
 
 // A page with a folded corner and three lines, and a round badge that carries a figure.
@@ -101,6 +103,8 @@ export const icons = {
 	calendar: inner(calendar),
 	info: inner(info),
 	buildings: inner(buildings),
+	percent: inner(percent),
+	scales: inner(scales),
 	'customs-file': customsFile,
 } as const;
 

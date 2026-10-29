@@ -119,8 +119,8 @@ npm run check:palette
   built with the content of the current site, awaiting approval.** The blog has its own pages: the
   list with "À la une", four categories, and an article page; its articles are written in code
   (see "Writing an article"). The Actualités page (news, notices to clients, press corner) is built
-  the same way (see "Writing a news item"); its first two items (the new website, the ISO
-  9001:2015 certificate) await the client's check. In the menu, "Blog" became
+  the same way (see "Writing a news item"); its first item is a notice to clients on the PLF 2027,
+  made from the client's infographic, with the client's banner as its picture. In the menu, "Blog" became
   "Actualités", with the Actualités page and the blog under it. The company's presentation is a page
   too, in French (`/presentation-de-l-entreprise/`) and in English (`/en/company-presentation/`),
   made from the client's two PDFs and laid out like a service page. The French one is in the menu,
@@ -139,7 +139,9 @@ npm run check:palette
 - Phase 5 — go live.
 
 Every link of the site leads to a page. The forms (quote, tracking, complaint, contact) do not send
-anything until phase 4: they show a notice saying so. The "EN" of the menu is not a link yet (phase 3).
+anything until phase 4: they show a notice saying so. The FR/EN switch was taken out of the menu bar at the client's
+request; it comes back with the English site (phase 3). "Simulateur" (E-services) and
+"Réglementation" (Actualités) are in the menu, their pages to be built: each says it is being prepared.
 
 ## Placeholders and open points
 

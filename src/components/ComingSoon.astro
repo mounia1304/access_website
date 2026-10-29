@@ -1,0 +1,33 @@
+---
+// A page the client added to the menu and that is still to be built (2026-10-29: the simulator,
+// the regulations): its head, a sentence that says it is being prepared, then the band that offers
+// help. It is kept out of search engines until it has its content.
+import Base from '../layouts/Base.astro';
+import HelpBand from './HelpBand.astro';
+import PageHead from './PageHead.astro';
+import { site } from '../data/site';
+import { useTranslations } from '../i18n';
+
+interface Props {
+	title: string;
+	/** The pages between the homepage and this one (the menu group it is in). */
+	trail?: readonly { label: string; href?: string }[];
+}
+
+const { title, trail } = Astro.props;
+const t = useTranslations();
+---
+
+<Base title={`${title} | ${site.name}`} noindex>
+	<PageHead title={title} trail={trail} />
+
+	<section class="section page-body">
+		<div class="wrap">
+			<div class="wrap__in">
+				<p class="lead">{t.pages.soon.text}</p>
+			</div>
+		</div>
+	</section>
+
+	<HelpBand />
+</Base>

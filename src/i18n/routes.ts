@@ -14,6 +14,9 @@ export const routes = {
 		cotationNational: '/e-services/demander-une-cotation/transport-national/',
 		tracking: '/e-services/tracking/',
 		reclamation: '/e-services/reclamations/',
+		// New (2026-10-29): two pages the client added to the menu, to be built; for now each says it is
+		// being prepared.
+		simulateur: '/e-services/simulateur/',
 		qualite: '/notre-politique-qualite/',
 		// New: the company's presentation, which the current site only offers as a PDF on Google Drive.
 		presentation: '/presentation-de-l-entreprise/',
@@ -22,6 +25,7 @@ export const routes = {
 		presentationEn: '/en/company-presentation/',
 		blog: '/blog/',
 		actualites: '/actualites/',
+		reglementation: '/reglementation/',
 		contact: '/contact/',
 	},
 } as const;

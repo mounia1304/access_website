@@ -25,8 +25,6 @@ const fr = {
 		close: 'Fermer',
 		mainNav: 'Navigation principale',
 		quickInfo: 'Informations pratiques',
-		langSwitch: 'Langue',
-		langSoon: 'Version anglaise bientôt disponible',
 		quoteCta: 'Demander une cotation',
 		learnMore: 'Savoir plus',
 		pauseMotion: 'Mettre les animations en pause',
@@ -44,6 +42,9 @@ const fr = {
 		// The last item of "Nos services": the company's presentation (its French page). The client moved
 		// it there from the column of the service pages (2026-10-22).
 		presentation: 'Présentation de l’entreprise',
+		// In "E-services" and in "Actualités": two pages the client added on 2026-10-29, to be built.
+		simulateur: 'Simulateur',
+		reglementation: 'Réglementation',
 		serviceItems: [
 			{ key: 'douane', label: 'Transit en douane' },
 			{ key: 'routier', label: 'Transport routier' },

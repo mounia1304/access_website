@@ -1,0 +1,10 @@
+---
+// The regulations, in the Actualités menu: a page the client added on 2026-10-29, to be built.
+// Until then it says that it is being prepared.
+import ComingSoon from '../components/ComingSoon.astro';
+import { useTranslations } from '../i18n';
+
+const t = useTranslations();
+---
+
+<ComingSoon title={t.nav.reglementation} />
