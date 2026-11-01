@@ -1,10 +1,1059 @@
 ---
-// The simulator, in the E-services menu: a page the client added on 2026-10-29, to be built.
-// Until then it says that it is being prepared.
-import ComingSoon from '../../components/ComingSoon.astro';
+// The import duties simulator, in the E-services menu (asked for by the client on 2026-11-01). Its
+// fields are those of Mirage's calculator, which the client gave as the reference (invoice and
+// exchange, Incoterm and customs value, import duty, other duties and taxes, VAT); its calculation
+// is the company's own, the L99 rules (R5, R6, R7, R8/R9, R13, R14, R15): see data/simulateur.ts.
+//
+// The client wants it plain: short labels, and a short note in small type only where the visitor
+// needs it. Each step is a row (its title on the left, its fields on the right from 64em; stacked
+// below). The result shows only once "Estimer les coûts" is pressed with every required field
+// filled in (otherwise a line under the button says what is missing); it then follows the form.
+// The result card shows the amount and the calculation line by line; then, for an exact figure,
+// the company's e-mail and phone as links. Under the tool, a FAQ (also given to search engines).
+//
+// Three files: the numbers are the rules of data/simulateur.ts, the arithmetic is
+// utils/simulateur.ts, the texts are `simulateur` in fr.pages.ts. The calculation runs in the
+// browser: nothing is sent.
+import Assurances from '../../components/Assurances.astro';
+import Icon from '../../components/Icon.astro';
+import PageHead from '../../components/PageHead.astro';
+import Title from '../../components/Title.astro';
+import Base from '../../layouts/Base.astro';
+import { aconageEstimate, currencies, incoterms, taxes, type CurrencyCode, type IncotermCode } from '../../data/simulateur';
+import { site } from '../../data/site';
 import { useTranslations } from '../../i18n';
 
 const t = useTranslations();
+const { simulateur: s, ui } = t.pages;
+const f = s.fields;
+const r = s.result;
+
+const codes = Object.keys(currencies) as CurrencyCode[];
+const firstCurrency: CurrencyCode = 'EUR';
+const fill = (text: string, values: Record<string, string>) => text.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? '');
+const money = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 });
+const decimal = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 4, useGrouping: false });
+// Amounts and rates are plain text fields (no arrows that change the figure): figures, spaces, a
+// comma or a point. utils/simulateur.ts reads them (parseAmount).
+const numberPattern = '[0-9 .,]*[0-9][0-9 .,]*';
+
+// The texts and values the script needs, which it reads from the page instead of bundling them.
+const data = {
+	rates: currencies,
+	missing: r.missing,
+	short: r.short,
+	saving: r.saving,
+	total: r.total,
+	totalBySeller: r.totalBySeller,
+	basis: r.insuranceBasis,
+	aconageEstimated: r.aconageEstimated,
+	included: r.included,
+};
+
+const lines = ['goods', 'freight', 'insurance', 'aconage', 'ved', 'duty', 'pfi', 'tic', 'otherDuties', 'vatBase', 'vat', 'total'] as const;
+const sums: readonly string[] = ['ved', 'total'];
+
+// The links of the contact block: the visitor's mail opens on an e-mail to the company, with a subject.
+const mailto = `mailto:${site.email}?subject=${encodeURIComponent(s.contact.subject)}`;
+
+// The FAQ, also given to search engines (FAQPage).
+const faqData = {
+	'@context': 'https://schema.org',
+	'@type': 'FAQPage',
+	mainEntity: s.faq.items.map((item) => ({
+		'@type': 'Question',
+		name: item.q,
+		acceptedAnswer: { '@type': 'Answer', text: item.a },
+	})),
+};
 ---
 
-<ComingSoon title={t.nav.simulateur} trail={[{ label: t.pages.ui.eservices }]} />
+<Base title={`${s.title.join(' ')} | ${site.name}`} description={s.description}>
+	<PageHead title={s.title} trail={[{ label: ui.eservices }]} />
+
+	<section class="section page-body">
+		<div class="wrap">
+			<div class="wrap__in sim">
+				<p class="lead sim__intro">{s.intro}</p>
+
+					<form class="card sim__form" data-sim-form novalidate>
+						<fieldset class="sim__step">
+							<legend class="sim__legend"><span class="sim__num">01</span>{s.steps.invoice}</legend>
+							<div class="sim__fields">
+								<div class="field">
+									<label for="sim-invoice"><span data-currency-text={f.invoice}>{fill(f.invoice, { currency: firstCurrency })}</span><span class="sim__req" aria-hidden="true">*</span></label>
+									<input id="sim-invoice" name="invoice" type="text" inputmode="decimal" autocomplete="off" pattern={numberPattern} required placeholder="10 000" />
+								</div>
+								<div class="field">
+									<label for="sim-currency">{f.currency}<span class="sim__req" aria-hidden="true">*</span></label>
+									<select id="sim-currency" name="currency" required>
+										{codes.map((code) => (
+											<option value={code} selected={code === firstCurrency}>{s.currencies[code]}</option>
+										))}
+									</select>
+								</div>
+								<fieldset class="field sim__group" data-sim-rate>
+									<label for="sim-rate"><span data-currency-text={f.rate}>{fill(f.rate, { currency: firstCurrency })}</span><span class="sim__req" aria-hidden="true">*</span></label>
+									<input id="sim-rate" name="rate" type="text" inputmode="decimal" autocomplete="off" pattern={numberPattern} required value={decimal.format(currencies[firstCurrency])} aria-describedby="sim-rate-hint" />
+									<p class="sim__hint" id="sim-rate-hint">{f.rateHint}</p>
+								</fieldset>
+							</div>
+						</fieldset>
+
+						<fieldset class="sim__step">
+							<legend class="sim__legend"><span class="sim__num">02</span>{s.steps.value}</legend>
+							<div class="sim__fields">
+								<div class="field sim__wide">
+									<label for="sim-incoterm">{f.incoterm}<span class="sim__req" aria-hidden="true">*</span></label>
+									<select id="sim-incoterm" name="incoterm" required>
+										<option value="">{ui.selectPlaceholder}</option>
+										{(Object.keys(incoterms) as IncotermCode[]).map((code) => <option value={code}>{s.incoterms[code]}</option>)}
+									</select>
+								</div>
+
+								{
+									(['freight', 'insurance'] as const).map((name) => (
+										<fieldset class="sim__group sim__wide sim__pair" data-sim-extra={name} hidden disabled>
+											<div class="field">
+												<label for={`sim-${name}`}>
+													{f[name]}
+													{name === 'freight' && <span class="sim__req" aria-hidden="true">*</span>}
+												</label>
+												<input
+													id={`sim-${name}`}
+													name={name}
+													type="text"
+													inputmode="decimal"
+													autocomplete="off"
+													pattern={numberPattern}
+													required={name === 'freight'}
+													aria-describedby={name === 'insurance' ? 'sim-insurance-hint' : undefined}
+												/>
+											</div>
+											<div class="field">
+												<label for={`sim-${name}-currency`}>{f.amountCurrency}</label>
+												<select id={`sim-${name}-currency`} name={`${name}Currency`}>
+													<option value="invoice" data-currency-text="{currency}">{firstCurrency}</option>
+													<option value="MAD">{f.mad}</option>
+												</select>
+											</div>
+											{name === 'insurance' && (
+												<p class="sim__hint sim__wide" id="sim-insurance-hint">{f.insuranceHint}</p>
+											)}
+											{name === 'insurance' && (
+												<label class="sim__check sim__wide">
+													<input type="checkbox" name="glass" />
+													<span>{f.glass}</span>
+												</label>
+											)}
+										</fieldset>
+									))
+								}
+
+								<div class="field">
+									<label for="sim-aconage">{f.aconage}</label>
+									<input id="sim-aconage" name="aconage" type="text" inputmode="decimal" autocomplete="off" pattern={numberPattern} placeholder={money.format(aconageEstimate)} aria-describedby="sim-aconage-hint" />
+									<p class="sim__hint" id="sim-aconage-hint">{f.aconageHint}</p>
+								</div>
+							</div>
+						</fieldset>
+
+						<fieldset class="sim__step">
+							<legend class="sim__legend"><span class="sim__num">03</span>{s.steps.duty}</legend>
+							<div class="sim__fields">
+								<div class="field">
+									<label for="sim-dutyRate">{f.dutyRate}<span class="sim__req" aria-hidden="true">*</span></label>
+									<input id="sim-dutyRate" name="dutyRate" type="text" inputmode="decimal" autocomplete="off" pattern={numberPattern} required aria-describedby="sim-dutyRate-hint" />
+									<p class="sim__hint" id="sim-dutyRate-hint">{f.dutyRateHint}</p>
+								</div>
+
+								<fieldset class="sim__choice">
+									<legend class="sim__label">{f.origin}</legend>
+									<div class="sim__options">
+										<label class="sim__option">
+											<input type="radio" name="origin" value="common" checked />
+											<span>{f.originCommon}</span>
+										</label>
+										<label class="sim__option">
+											<input type="radio" name="origin" value="preferential" />
+											<span>{f.originPreferential}</span>
+										</label>
+									</div>
+								</fieldset>
+
+								<fieldset class="field sim__group" data-sim-preferential hidden disabled>
+									<label for="sim-preferentialRate">{f.preferentialRate}<span class="sim__req" aria-hidden="true">*</span></label>
+									<input
+										id="sim-preferentialRate"
+										name="preferentialRate"
+										type="text"
+										inputmode="decimal"
+										autocomplete="off"
+										pattern={numberPattern}
+										required
+										value={decimal.format(taxes.preferentialRate * 100)}
+										aria-describedby="sim-preferential-hint"
+									/>
+									<p class="sim__hint" id="sim-preferential-hint">{f.preferentialHint}</p>
+								</fieldset>
+							</div>
+						</fieldset>
+
+						<fieldset class="sim__step">
+							<legend class="sim__legend"><span class="sim__num">04</span>{s.steps.other}</legend>
+							<div class="sim__fields">
+								<div class="sim__wide">
+									<label class="sim__check">
+										<input type="checkbox" name="pfi" checked aria-describedby="sim-pfi-hint" />
+										<span>{f.pfi}</span>
+									</label>
+									<p class="sim__hint sim__hint--check" id="sim-pfi-hint">{f.pfiHint}</p>
+								</div>
+								<div class="field">
+									<label for="sim-tic">{f.tic}</label>
+									<input id="sim-tic" name="tic" type="text" inputmode="decimal" autocomplete="off" pattern={numberPattern} placeholder="0" aria-describedby="sim-tic-hint" />
+									<p class="sim__hint" id="sim-tic-hint">{f.ticHint}</p>
+								</div>
+								<div class="field">
+									<label for="sim-otherDuties">{f.otherDuties}</label>
+									<input id="sim-otherDuties" name="otherDuties" type="text" inputmode="decimal" autocomplete="off" pattern={numberPattern} placeholder="0" />
+								</div>
+							</div>
+						</fieldset>
+
+						<fieldset class="sim__step">
+							<legend class="sim__legend"><span class="sim__num">05</span>{s.steps.vat}</legend>
+							<div class="sim__fields">
+								<div class="field">
+									<label for="sim-vatRate">{f.vatRate}<span class="sim__req" aria-hidden="true">*</span></label>
+									<select id="sim-vatRate" name="vatRate" required>
+										{taxes.vatRates.map((rate, index) => <option value={rate}>{s.vatRates[index]}</option>)}
+									</select>
+								</div>
+							</div>
+						</fieldset>
+						<div class="sim__actions">
+							<div class="sim__actions-in">
+								<button class="btn btn--accent" type="submit">
+									{s.submit}
+									<Icon name="calculator" size={18} />
+								</button>
+								<p class="sim__missing" role="status" data-sim-missing hidden></p>
+							</div>
+						</div>
+					</form>
+
+				<section class="card sim__result" id="sim-result" aria-labelledby="sim-result-title" aria-live="polite" tabindex="-1" data-sim-result hidden>
+					<h2 class="form__title" id="sim-result-title">{r.title}</h2>
+
+					<div class="sim__body" data-sim-body>
+						<div class="sim__total">
+							<p class="sim__total-label" data-sim-total-label>{r.total}</p>
+							<p class="sim__figure"><span data-sim-total></span> <span class="sim__unit">{r.unit}</span></p>
+							<dl class="sim__stats">
+								<div>
+									<dt>{r.ved}</dt>
+									<dd><span data-sim-ved></span> {r.unit}</dd>
+								</div>
+								<div>
+									<dt>{r.landed}</dt>
+									<dd><span data-sim-landed></span> {r.unit}</dd>
+								</div>
+							</dl>
+							<p class="sim__saving" data-sim-saving hidden></p>
+							<p class="sim__disclaimer">{r.disclaimer}</p>
+						</div>
+
+						<details class="sim__details" open>
+							<summary>{r.details}</summary>
+							<dl>
+								{lines.map((key) => (
+									<div class:list={['sim__line', { 'sim__line--sum': sums.includes(key) }]} data-line={key}>
+										<dt>
+											{r.lines[key]}
+											<span class="sim__basis" data-basis />
+										</dt>
+										<dd data-amount />
+									</div>
+								))}
+							</dl>
+						</details>
+					</div>
+				</section>
+
+				<div class="card sim__contact" data-sim-contact hidden>
+					<div class="sim__contact-head">
+						<h2 class="form__title">{s.contact.title}</h2>
+						<p>{s.contact.text}</p>
+					</div>
+					<div class="sim__reach">
+						<a class="sim__reach-link" href={mailto}>
+							<span class="sim__reach-icon"><Icon name="envelope" size={22} /></span>
+							<span class="sim__reach-text">
+								<span class="sim__reach-label">{s.contact.emailLabel}</span>
+								<span class="sim__reach-value">{site.email}</span>
+							</span>
+						</a>
+						<a class="sim__reach-link" href={site.phone.href}>
+							<span class="sim__reach-icon"><Icon name="phone" size={22} /></span>
+							<span class="sim__reach-text">
+								<span class="sim__reach-label">{s.contact.phoneLabel}</span>
+								<span class="sim__reach-value">{site.phone.display}</span>
+							</span>
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<div class="wrap__in split sim-faq">
+				<Title parts={s.faq.title} stack />
+				<div class="sim-faq__list">
+					{
+						s.faq.items.map((item) => (
+							<details class="sim-faq__item">
+								<summary>
+									<span>{item.q}</span>
+									<Icon name="caret-down" size={16} />
+								</summary>
+								<p>{item.a}</p>
+							</details>
+						))
+					}
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<Assurances />
+
+	<script type="application/json" id="sim-data" set:html={JSON.stringify(data)} />
+	<script type="application/ld+json" set:html={JSON.stringify(faqData)} />
+</Base>
+
+<script>
+	import { incoterms, type CurrencyCode, type IncotermCode } from '../../data/simulateur';
+	import { parseAmount, simulate, type SimulationResult } from '../../utils/simulateur';
+
+	const form = document.querySelector<HTMLFormElement>('[data-sim-form]');
+	const result = document.querySelector<HTMLElement>('[data-sim-result]');
+	const data = JSON.parse(document.getElementById('sim-data')?.textContent ?? '{}');
+
+	const money = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 });
+	const decimal = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 4, useGrouping: false });
+	const percent = new Intl.NumberFormat('fr-FR', { style: 'percent', maximumFractionDigits: 2 });
+	const fill = (text: string, values: Record<string, string>) =>
+		text.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? '');
+
+	// A group of fields shown only when it is needed; hidden, it is disabled, so it is neither
+	// checked nor read.
+	const toggle = (group: Element | null | undefined, on: boolean) => {
+		if (!(group instanceof HTMLFieldSetElement)) return;
+		group.hidden = !on;
+		group.disabled = !on;
+	};
+
+	const control = (name: string) =>
+		form?.querySelector<HTMLInputElement | HTMLSelectElement>(`[name="${name}"]:enabled`) ?? null;
+	const value = (name: string) => control(name)?.value ?? '';
+	const number = (name: string) => parseAmount(value(name));
+	const checked = (name: string) => !!form?.querySelector<HTMLInputElement>(`[name="${name}"]:checked`);
+	const choice = (name: string) => form?.querySelector<HTMLInputElement>(`[name="${name}"]:checked`)?.value ?? '';
+
+	// The currency: in the labels, and the exchange rate asked only for a foreign one, filled in
+	// with the rules' rate whenever the currency changes.
+	function onCurrency() {
+		if (!form) return;
+		const currency = form.querySelector<HTMLSelectElement>('[name="currency"]')!.value as CurrencyCode;
+		toggle(form.querySelector('[data-sim-rate]'), currency !== 'MAD');
+		form.querySelector<HTMLInputElement>('[name="rate"]')!.value = decimal.format(data.rates[currency]);
+		for (const element of form.querySelectorAll<HTMLElement>('[data-currency-text]')) {
+			element.textContent = fill(element.dataset.currencyText ?? '', { currency });
+		}
+	}
+
+	// Freight and insurance: asked only when the Incoterm does not cover them.
+	function onIncoterm() {
+		if (!form) return;
+		const covers = incoterms[form.querySelector<HTMLSelectElement>('[name="incoterm"]')!.value as IncotermCode];
+		toggle(form.querySelector('[data-sim-extra="freight"]'), !!covers && !covers.freight);
+		toggle(form.querySelector('[data-sim-extra="insurance"]'), !!covers && !covers.insurance);
+	}
+
+	// The preferential rate: asked only for a preferential origin.
+	function onOrigin() {
+		toggle(form?.querySelector('[data-sim-preferential]'), choice('origin') === 'preferential');
+	}
+
+	// What is still to fill in, or holds something other than a figure, named as in data.short.
+	function missingFields(): string[] {
+		if (!form) return [];
+		return [...form.querySelectorAll<HTMLInputElement | HTMLSelectElement>('[required]:enabled, [pattern]:enabled')]
+			.filter((element) => !element.validity.valid)
+			.map((element) => data.short[element.name] ?? element.name);
+	}
+
+	let shown = false;
+
+	function show(out: SimulationResult, incoterm: IncotermCode) {
+		if (!result) return;
+		const amounts: Record<string, number | null> = {
+			goods: out.goods,
+			freight: out.freight,
+			insurance: out.insurance,
+			aconage: out.aconage,
+			ved: out.ved,
+			duty: out.duty,
+			pfi: out.pfi,
+			tic: out.tic,
+			otherDuties: out.otherDuties,
+			vatBase: out.vatBase,
+			vat: out.vat,
+			total: out.total,
+		};
+		for (const [key, figure] of Object.entries(amounts)) {
+			const row = result.querySelector<HTMLElement>(`[data-line="${key}"]`)!;
+			row.querySelector('[data-amount]')!.textContent = figure === null ? data.included : money.format(figure);
+			row.classList.toggle('is-included', figure === null);
+			// TIC and other duties only when there are some.
+			row.hidden = (key === 'tic' || key === 'otherDuties') && figure === 0;
+		}
+
+		// What each line rests on: the insurance's flat rate, the aconage estimate, the rates.
+		const basis: Record<string, string> = {
+			insurance: data.basis[out.insuranceBasis] ?? '',
+			aconage: out.aconageEstimated ? data.aconageEstimated : '',
+			duty: percent.format(out.dutyRate),
+			vat: percent.format(number('vatRate')),
+		};
+		for (const [key, text] of Object.entries(basis)) {
+			result.querySelector(`[data-line="${key}"] [data-basis]`)!.textContent = text ? ` (${text})` : '';
+		}
+
+		result.querySelector('[data-sim-total-label]')!.textContent = incoterms[incoterm].duties ? data.totalBySeller : data.total;
+		result.querySelector('[data-sim-total]')!.textContent = money.format(out.total);
+		result.querySelector('[data-sim-ved]')!.textContent = money.format(out.ved);
+		result.querySelector('[data-sim-landed]')!.textContent = money.format(out.landed);
+
+		const saving = result.querySelector<HTMLElement>('[data-sim-saving]')!;
+		saving.hidden = !out.saving;
+		saving.textContent = out.saving ? fill(data.saving, { amount: money.format(out.saving) }) : '';
+	}
+
+	// The line under the button: what is still to fill in.
+	const missingLine = form?.querySelector<HTMLElement>('[data-sim-missing]') ?? null;
+
+	function sayMissing(missing: string[]) {
+		if (!missingLine) return;
+		missingLine.hidden = missing.length === 0;
+		missingLine.textContent = missing.length ? fill(data.missing, { fields: missing.join(', ') }) : '';
+	}
+
+	// Works the estimate out and fills the result in; false when a field is still missing.
+	function calculate(): boolean {
+		if (!form || !result) return false;
+		const missing = missingFields();
+		sayMissing(missing);
+		if (missing.length > 0) return false;
+
+		const amount = (name: string) =>
+			value(name) === '' ? undefined : { amount: parseAmount(value(name)), inMad: value(`${name}Currency`) === 'MAD' };
+		const incoterm = value('incoterm') as IncotermCode;
+		const out = simulate({
+			invoice: number('invoice'),
+			currency: value('currency') as CurrencyCode,
+			rate: number('rate') || 1,
+			incoterm,
+			freight: amount('freight'),
+			insurance: amount('insurance'),
+			glass: checked('glass'),
+			aconage: value('aconage') === '' ? undefined : number('aconage'),
+			dutyRate: number('dutyRate') / 100,
+			preferential: choice('origin') === 'preferential',
+			preferentialRate: number('preferentialRate') / 100,
+			pfi: checked('pfi'),
+			tic: number('tic'),
+			otherDuties: number('otherDuties'),
+			vatRate: number('vatRate'),
+		});
+		show(out, incoterm);
+		return true;
+	}
+
+	// The button: the result shows only once it is pressed with every required field filled in;
+	// otherwise the line under it says what is missing and the first such field takes the focus.
+	form?.addEventListener('submit', (event) => {
+		event.preventDefault();
+		if (!result) return;
+		if (!calculate()) {
+			form.querySelector<HTMLElement>(':is([required], [pattern]):enabled:invalid')?.focus();
+			return;
+		}
+		result.hidden = false;
+		document.querySelector<HTMLElement>('[data-sim-contact]')!.hidden = false;
+		shown = true;
+		result.focus({ preventScroll: true });
+		result.scrollIntoView({ block: 'start' });
+	});
+
+	// Once shown, the result follows the changes of the form; it goes away if a required field is
+	// emptied, until the button is pressed again. Before that, the line under the button keeps up.
+	function onChange() {
+		if (shown) {
+			if (!calculate() && result) {
+				result.hidden = true;
+				shown = false;
+			}
+		} else if (missingLine && !missingLine.hidden) {
+			sayMissing(missingFields());
+		}
+	}
+
+	form?.querySelector('[name="currency"]')?.addEventListener('change', onCurrency);
+	form?.querySelector('[name="incoterm"]')?.addEventListener('change', onIncoterm);
+	for (const radio of form?.querySelectorAll('[name="origin"]') ?? []) radio.addEventListener('change', onOrigin);
+	form?.addEventListener('input', onChange);
+	form?.addEventListener('change', onChange);
+	onCurrency();
+	onIncoterm();
+	onOrigin();
+</script>
+
+<style>
+	.sim {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: clamp(2rem, 1.5rem + 1.5vw, 3rem);
+	}
+
+	/* ── The form ── */
+
+	.sim__form {
+		display: grid;
+		padding: 0 clamp(1.25rem, 0.5rem + 3vw, 3.5rem);
+	}
+
+	/* A step: its title, then its fields; a hairline between two steps. From 64em the title stands
+	   on the left of the fields. */
+	.sim__step {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: 1.25rem 0;
+		min-width: 0;
+		margin: 0;
+		padding: clamp(1.75rem, 1.25rem + 1.5vw, 2.5rem) 0;
+		border: 0;
+	}
+
+	.sim__step + .sim__step {
+		border-top: 1px solid var(--c-line);
+	}
+
+	.sim__legend {
+		display: flex;
+		align-items: baseline;
+		gap: 0.75rem;
+		float: left; /* lets the legend sit in the grid like any child */
+		width: 100%;
+		padding: 0;
+		color: var(--c-ink);
+		font-size: var(--fs-h3);
+		font-weight: 700;
+		letter-spacing: -0.01em;
+		line-height: 1.3;
+	}
+
+	.sim__num {
+		color: var(--c-label-soft);
+		font-size: var(--fs-label);
+		font-variant-numeric: tabular-nums;
+	}
+
+	/* The fields of a step: two side by side from 36em; long ones across. */
+	.sim__fields {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: 1.5rem 2rem;
+		align-items: start;
+	}
+
+	@media (min-width: 36em) {
+		.sim__fields,
+		.sim__pair {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+
+		.sim__wide {
+			grid-column: 1 / -1;
+		}
+	}
+
+	/* A group of fields shown on demand: no frame of its own. */
+	.sim__group,
+	.sim__choice {
+		min-width: 0;
+		margin: 0;
+		padding: 0;
+		border: 0;
+	}
+
+	.sim__group[hidden] {
+		display: none;
+	}
+
+	/* A short note under a field, where the visitor needs it: small and quiet. */
+	.sim__hint {
+		margin-top: 0.4rem;
+		color: var(--c-text);
+		font-size: var(--fs-micro);
+		line-height: 1.45;
+	}
+
+	.sim__fields > .sim__hint,
+	.sim__pair > .sim__hint {
+		margin-top: -0.85rem;
+	}
+
+	.sim__hint--check {
+		padding-left: 1.9rem;
+	}
+
+	/* Freight or insurance: the amount and its currency side by side. */
+	.sim__pair {
+		display: grid;
+		gap: 1.25rem 2rem;
+	}
+
+	/* The label of a choice, set like the labels of the fields. */
+	.sim__label {
+		margin-bottom: 0.5rem;
+		padding: 0;
+		color: var(--c-ink);
+		font-size: var(--fs-label);
+		font-weight: 500;
+	}
+
+	/* The star of a required field. */
+	.sim__req {
+		margin-left: 0.2em;
+		color: var(--c-required);
+		font-weight: 700;
+	}
+
+	/* A box to tick: the box, then its words. */
+	.sim__check {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		color: var(--c-ink);
+		font-size: var(--fs-label);
+		cursor: pointer;
+	}
+
+	.sim__check input,
+	.sim__option input {
+		flex: none;
+		width: 1.15rem;
+		height: 1.15rem;
+		margin: 0;
+		accent-color: var(--c-accent);
+		cursor: pointer;
+	}
+
+	/* The origin: two small tiles side by side, the chosen one outlined in blue. */
+	.sim__options {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+
+	.sim__option {
+		display: flex;
+		align-items: center;
+		gap: 0.6rem;
+		padding: 0.55rem 0.9rem;
+		border: 1px solid var(--c-line-strong);
+		border-radius: var(--r-sm);
+		color: var(--c-ink);
+		font-size: var(--fs-label);
+		cursor: pointer;
+		transition:
+			border-color 0.15s ease-in-out,
+			background-color 0.15s ease-in-out;
+	}
+
+	.sim__option:hover {
+		border-color: var(--c-ink);
+	}
+
+	.sim__option:has(input:checked) {
+		border-color: var(--c-accent);
+		background: var(--c-tint);
+	}
+
+	/* ── The button ── */
+
+	/* Under the last step, after a hairline; from 64em in line with the fields. */
+	.sim__actions {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		padding: clamp(1.75rem, 1.25rem + 1.5vw, 2.5rem) 0;
+		border-top: 1px solid var(--c-line);
+	}
+
+	.sim__actions-in {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.75rem 1.5rem;
+	}
+
+	.sim__missing {
+		color: var(--c-text);
+		font-size: var(--fs-small);
+	}
+
+	/* ── The result ── */
+
+	.sim__result {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		align-content: start;
+		gap: 1.5rem;
+		padding: clamp(1.5rem, 1rem + 2.5vw, 3rem);
+		scroll-margin-top: calc(var(--header-h) + 1.5rem);
+	}
+
+	.sim__result[hidden],
+	.sim__missing[hidden],
+	.sim__body[hidden],
+	.sim__contact[hidden],
+	.sim__saving[hidden],
+	.sim__line[hidden] {
+		display: none;
+	}
+
+	.sim__body {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: 1.5rem;
+	}
+
+	/* The amount, set like the key figures: the thin orange stroke, then the number. */
+	.sim__total {
+		display: grid;
+		align-content: start;
+		gap: 0.4rem;
+		padding: clamp(1.25rem, 1rem + 1vw, 2rem);
+		border-radius: var(--r-sm);
+		background: var(--c-panel);
+	}
+
+	.sim__total-label {
+		color: var(--c-label);
+		font-size: var(--fs-label);
+		font-weight: 500;
+	}
+
+	.sim__figure {
+		position: relative;
+		padding-left: 1.1rem;
+		color: var(--c-ink);
+		font-size: clamp(2.25rem, 1.8rem + 1.6vw, 3.5rem);
+		font-weight: 700;
+		letter-spacing: -0.02em;
+		line-height: 1.1;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.sim__figure::before {
+		content: '';
+		position: absolute;
+		top: 0.12em;
+		bottom: 0.12em;
+		left: 0.2rem;
+		width: 3px;
+		border-radius: 3px;
+		background: var(--g-bar);
+		rotate: calc(var(--slant) * -1);
+	}
+
+	.sim__unit {
+		font-size: 0.45em;
+		font-weight: 500;
+		letter-spacing: 0;
+	}
+
+	.sim__stats {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem 2.5rem;
+		margin-top: 0.75rem;
+		padding-top: 0.9rem;
+		border-top: 1px solid var(--c-line);
+		font-size: var(--fs-small);
+	}
+
+	.sim__stats dt {
+		color: var(--c-text);
+	}
+
+	.sim__stats dd {
+		color: var(--c-ink);
+		font-weight: 700;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.sim__saving {
+		margin-top: 0.4rem;
+		color: var(--c-label);
+		font-size: var(--fs-small);
+		font-weight: 500;
+	}
+
+	.sim__disclaimer {
+		margin-top: 0.4rem;
+		color: var(--c-text);
+		font-size: var(--fs-small);
+	}
+
+	/* The calculation line by line. */
+	.sim__details summary {
+		width: fit-content;
+		color: var(--c-accent);
+		font-size: var(--fs-label);
+		font-weight: 500;
+		cursor: pointer;
+	}
+
+	.sim__details[open] summary {
+		margin-bottom: 0.5rem;
+	}
+
+	.sim__line {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		gap: 1rem;
+		padding: 0.6rem 0;
+		border-bottom: 1px solid var(--c-line);
+		font-size: var(--fs-small);
+	}
+
+	.sim__line dt {
+		flex: 1 1 auto;
+		min-width: 0;
+		color: var(--c-text);
+	}
+
+	.sim__line dd {
+		flex: 0 1 auto;
+		min-width: 0;
+		color: var(--c-ink);
+		font-weight: 500;
+		text-align: right;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.sim__line.is-included dd {
+		color: var(--c-label);
+	}
+
+	.sim__line--sum {
+		margin-block: 0.4rem;
+		padding-inline: 1rem;
+		border-bottom: 0;
+		border-radius: var(--r-sm);
+		background: var(--c-tint);
+	}
+
+	.sim__line--sum dt,
+	.sim__line--sum dd {
+		color: var(--c-ink);
+		font-weight: 700;
+	}
+
+	/* ── The call-back offer ── */
+
+	.sim__contact {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: 1.5rem;
+		padding: clamp(1.5rem, 1rem + 2.5vw, 3rem);
+	}
+
+	.sim__contact-head {
+		display: grid;
+		gap: 0.6rem;
+	}
+
+	.sim__contact-head p {
+		max-width: 34rem;
+		color: var(--c-text);
+	}
+
+	/* The e-mail and the phone: two links, each an icon in a pale disc, a small label and the
+	   address or number; the edge turns blue when pointed at. */
+	.sim__reach {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: 1rem;
+	}
+
+	@media (min-width: 40em) {
+		.sim__reach {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			max-width: 52rem;
+		}
+	}
+
+	.sim__reach-link {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		min-width: 0;
+		padding: 1rem 1.25rem;
+		border: 1px solid var(--c-line-strong);
+		border-radius: var(--r-md);
+		color: var(--c-ink);
+		text-decoration: none;
+		transition:
+			border-color 0.15s ease-in-out,
+			background-color 0.15s ease-in-out;
+	}
+
+	.sim__reach-link:hover,
+	.sim__reach-link:focus-visible {
+		border-color: var(--c-accent);
+		background: var(--c-tint);
+	}
+
+	.sim__reach-icon {
+		display: grid;
+		flex: none;
+		place-items: center;
+		width: 3rem;
+		height: 3rem;
+		border-radius: 50%;
+		background: var(--c-tile);
+		color: var(--c-label);
+	}
+
+	.sim__reach-text {
+		display: grid;
+		min-width: 0;
+	}
+
+	.sim__reach-label {
+		color: var(--c-text);
+		font-size: var(--fs-small);
+	}
+
+	.sim__reach-value {
+		overflow-wrap: anywhere; /* only on the narrowest phones */
+		color: var(--c-accent);
+		font-size: var(--fs-ui);
+		font-weight: 500;
+	}
+
+	/* ── The FAQ ── */
+
+	.sim-faq {
+		margin-top: clamp(4rem, 3rem + 4vw, 7rem);
+	}
+
+	.sim-faq :global(h2) {
+		font-size: var(--fs-h2);
+		line-height: 1.15;
+	}
+
+	.sim-faq__list {
+		border-top: 1px solid var(--c-line);
+	}
+
+	.sim-faq__item {
+		border-bottom: 1px solid var(--c-line);
+	}
+
+	.sim-faq__item summary {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1.5rem;
+		padding: 1.15rem 0;
+		color: var(--c-ink);
+		font-size: var(--fs-ui);
+		font-weight: 500;
+		list-style: none;
+		cursor: pointer;
+	}
+
+	.sim-faq__item summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.sim-faq__item summary :global(.icon) {
+		flex: none;
+		color: var(--c-label);
+		transition: rotate 0.2s ease-in-out;
+	}
+
+	.sim-faq__item[open] summary :global(.icon) {
+		rotate: 180deg;
+	}
+
+	.sim-faq__item summary:hover {
+		color: var(--c-accent);
+	}
+
+	.sim-faq__item p {
+		max-width: 46rem;
+		padding-bottom: 1.25rem;
+		color: var(--c-text);
+		line-height: 1.65;
+	}
+
+	/* ── Large screens ── */
+
+	@media (min-width: 64em) {
+		/* Each step a row: its title on the left, its fields on the right. */
+		.sim__step {
+			grid-template-columns: minmax(15rem, 4fr) minmax(0, 8fr);
+			align-items: start;
+			column-gap: clamp(2.5rem, 5cqw, 6rem);
+		}
+
+		.sim__legend {
+			grid-column: 1;
+			grid-row: 1;
+		}
+
+		.sim__fields {
+			grid-column: 2;
+			grid-row: 1;
+		}
+
+		.sim__actions {
+			grid-template-columns: minmax(15rem, 4fr) minmax(0, 8fr);
+			column-gap: clamp(2.5rem, 5cqw, 6rem);
+		}
+
+		.sim__actions-in {
+			grid-column: 2;
+		}
+
+		/* The result: the amount on the left, the calculation on the right. */
+		.sim__body {
+			grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+			align-items: start;
+			column-gap: clamp(2rem, 5cqw, 6rem);
+		}
+
+	}
+
+	/* Over the widest screens the fields of a step stay at a readable length. */
+	@media (min-width: 100em) {
+		.sim__fields {
+			max-width: 60rem;
+		}
+	}
+</style>

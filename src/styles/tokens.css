@@ -51,6 +51,7 @@
 	/* The coloured half of titles (large text only): the logo's orange, taken towards the foot
 	   of its gradient and a little darker, so that it reads on the page and on glows. */
 	--c-display: color-mix(in srgb, color-mix(in srgb, var(--p-orange) 50%, var(--p-orange-deep)) 90%, black);
+	--c-required: var(--c-display); /* the star of a required field (the client asked for the charter's orange; this is its readable shade) */
 	--c-label: color-mix(in srgb, var(--p-blue) 65%, var(--p-ink)); /* small coloured text: chips, labels, icons */
 	--c-label-soft: color-mix(in srgb, var(--p-blue-light) 70%, var(--p-ink)); /* brighter blue text: the second screen's tag, slogan and signature; small numbers */
 

@@ -535,6 +535,165 @@ const pages = {
 		},
 	},
 
+	// The import duties simulator (pages/e-services/simulateur.astro), asked for by the client on
+	// 2026-11-01: new copy, not on the current site. Its fields are those of Mirage's calculator (the
+	// client's reference); its calculation is the company's (L99 rules, data/simulateur.ts). The
+	// client wants the page plain: short labels, no explanations ("lève les écritures
+	// supplémentaires"). {…} are filled in by the page's script.
+	simulateur: {
+		title: ['Simulateur des droits', 'et taxes à l’import'],
+		description:
+			'Estimez les droits et taxes de votre importation au Maroc : valeur en douane, droit d’importation, taxe parafiscale, TIC et TVA.',
+		intro: 'Estimez les droits et taxes de votre importation au Maroc.',
+		// The five steps of the form.
+		steps: {
+			invoice: 'Facture et change',
+			value: 'Incoterm et valeur en douane',
+			duty: 'Droit d’importation',
+			other: 'Autres droits et taxes',
+			vat: 'TVA à l’importation',
+		},
+		fields: {
+			invoice: 'Montant de la facture ({currency})',
+			currency: 'Devise',
+			rate: 'Taux de change (MAD pour 1 {currency})',
+			incoterm: 'Incoterm',
+			freight: 'Fret',
+			insurance: 'Assurance',
+			glass: 'Marchandise en verre',
+			amountCurrency: 'Devise',
+			mad: 'MAD',
+			aconage: 'Aconage en MAD',
+			dutyRate: 'Droit d’importation (%)',
+			origin: 'Origine',
+			originCommon: 'Droit commun',
+			originPreferential: 'Origine préférentielle',
+			preferentialRate: 'Taux préférentiel (%)',
+			pfi: 'Taxe parafiscale (TPI 0,25 %)',
+			tic: 'TIC en MAD',
+			otherDuties: 'Autres droits en MAD',
+			vatRate: 'TVA',
+			// Short notes under the fields where the visitor needs them (small type).
+			rateHint: 'Le cours de référence de Bank Al-Maghrib du jour.',
+			insuranceHint: 'Sans montant, nous retenons un forfait de 0,3 % de la facture et du fret (3 % pour le verre).',
+			aconageHint: 'Frais portuaires locaux. Sans montant, nous retenons une estimation de 3 600 MAD.',
+			dutyRateHint: 'Le taux de la position tarifaire de votre marchandise.',
+			preferentialHint: 'Avec une preuve d’origine valide : EUR.1, EUR-MED, certificat d’origine.',
+			pfiHint: 'Due sur toute importation : laissez-la cochée, sauf si un accord en exonère votre marchandise.',
+			ticHint: 'Seulement si votre produit y est soumis.',
+		},
+		vatRates: ['20 %', '10 %', '0 %'],
+		// The Incoterms in the list: their French names (Incoterms 2020).
+		incoterms: {
+			EXW: 'EXW, à l’usine',
+			FCA: 'FCA, franco transporteur',
+			FAS: 'FAS, franco le long du navire',
+			FOB: 'FOB, franco à bord',
+			CFR: 'CFR, coût et fret',
+			CPT: 'CPT, port payé jusqu’à',
+			CIF: 'CIF, coût, assurance et fret',
+			CIP: 'CIP, port payé, assurance comprise',
+			DAP: 'DAP, rendu au lieu de destination',
+			DPU: 'DPU, rendu au lieu de destination déchargé',
+			DDP: 'DDP, rendu droits acquittés',
+		},
+		currencies: { EUR: 'EUR', USD: 'USD', CNY: 'CNY', GBP: 'GBP', TRY: 'TRY', AED: 'AED', MAD: 'MAD' },
+		// The button that shows the result.
+		submit: 'Estimer les coûts',
+		result: {
+			title: 'Estimation',
+			missing: 'À renseigner : {fields}.',
+			// How the missing fields are named in that sentence.
+			short: { invoice: 'montant de la facture', rate: 'taux de change', incoterm: 'Incoterm', freight: 'fret', dutyRate: 'droit d’importation', preferentialRate: 'taux préférentiel', insurance: 'assurance', aconage: 'aconage', tic: 'TIC', otherDuties: 'autres droits' },
+			total: 'Droits et taxes à payer',
+			totalBySeller: 'Droits et taxes, à la charge du vendeur (DDP)',
+			unit: 'MAD',
+			ved: 'Valeur en douane',
+			landed: 'Coût total dédouané',
+			saving: 'Économie par rapport au droit commun : {amount} MAD.',
+			details: 'Détail du calcul',
+			included: 'Inclus',
+			lines: {
+				goods: 'Facture en dirhams',
+				freight: 'Fret',
+				insurance: 'Assurance',
+				aconage: 'Aconage',
+				ved: 'Valeur en douane (CAF)',
+				duty: 'Droit d’importation',
+				pfi: 'Taxe parafiscale',
+				tic: 'TIC',
+				otherDuties: 'Autres droits',
+				vatBase: 'Base de la TVA',
+				vat: 'TVA',
+				total: 'Total droits et taxes',
+			},
+			insuranceBasis: { given: '', rate: 'forfait 0,3 %', glass: 'forfait 3 %' },
+			aconageEstimated: 'estimation',
+			disclaimer: 'Estimation indicative.',
+		},
+		// After the result: for an exact figure, the company's e-mail and phone, which open the visitor's
+		// mail or call them (the client asked for this in place of a call-back form).
+		contact: {
+			title: 'Besoin d’une estimation précise et détaillée ?',
+			text: 'Nos déclarants classent votre marchandise, calculent le droit d’importation et vous remettent un chiffrage complet. Contactez-nous :',
+			emailLabel: 'Écrire à',
+			phoneLabel: 'Appeler le',
+			// The subject of the e-mail the link opens.
+			subject: 'Estimation des droits et taxes à l’importation',
+		},
+		// Under the simulator: questions on the simulator and its calculation (the company's rules,
+		// data/simulateur.ts: change an answer when a rate changes).
+		faq: {
+			title: ['Questions', 'fréquentes'],
+			items: [
+				{
+					q: 'Comment le simulateur calcule-t-il les droits et taxes ?',
+					a: 'Il part de la valeur en douane (CAF) de votre marchandise, puis y applique le droit d’importation, la taxe parafiscale, la TIC éventuelle et la TVA à l’importation. Le détail ligne par ligne s’affiche sous l’estimation.',
+				},
+				{
+					q: 'Qu’est-ce que la valeur en douane (CAF) ?',
+					a: 'C’est la valeur de la marchandise à son arrivée au Maroc : le montant de la facture converti en dirhams, augmenté du fret, de l’assurance et de l’aconage, arrondi au dirham supérieur. Tous les droits et taxes sont calculés sur cette base.',
+				},
+				{
+					q: 'Quel taux de change indiquer ?',
+					a: 'Le cours de référence publié par Bank Al-Maghrib. Le simulateur propose un cours indicatif : remplacez-le par celui du jour pour une estimation plus juste. Si votre facture est en dirhams, aucun taux n’est demandé.',
+				},
+				{
+					q: 'Pourquoi le fret n’est-il demandé que pour certains Incoterms ?',
+					a: 'Avec EXW, FCA, FAS et FOB, la facture ne comprend pas le transport jusqu’au Maroc : il faut l’ajouter à la valeur en douane. Indiquez le montant de votre facture de fret, il n’est jamais estimé. Avec les autres Incoterms, le fret est déjà compris dans la facture.',
+				},
+				{
+					q: 'Je ne connais pas le montant de l’assurance : que faire ?',
+					a: 'Laissez le champ vide : le simulateur retient un forfait de 0,3 % de la facture et du fret, ou de 3 % pour le verre et les produits en verre.',
+				},
+				{
+					q: 'Qu’est-ce que l’aconage ?',
+					a: 'Ce sont les frais portuaires locaux : manutention, passage, stationnement, sûreté… Ils entrent dans la valeur en douane. Sans montant, le simulateur retient une estimation de 3 600 MAD.',
+				},
+				{
+					q: 'Où trouver le taux du droit d’importation ?',
+					a: 'Il dépend de la position tarifaire de votre marchandise, dans le tarif des douanes. Si vous ne la connaissez pas, nos déclarants la déterminent pour vous.',
+				},
+				{
+					q: 'Qu’est-ce que l’origine préférentielle ?',
+					a: 'Une marchandise originaire d’un pays lié au Maroc par un accord de libre-échange (Union européenne, Turquie, États-Unis…) peut bénéficier d’un droit réduit ou nul, à condition de présenter une preuve d’origine valide (EUR.1, EUR-MED, certificat d’origine). Le simulateur indique alors l’économie réalisée par rapport au droit commun.',
+				},
+				{
+					q: 'Pourquoi la taxe parafiscale est-elle cochée ?',
+					a: 'La taxe parafiscale à l’importation (TPI) est due sur toute importation, à 0,25 % de la valeur en douane. Ne la décochez que si un accord en exonère votre marchandise.',
+				},
+				{
+					q: 'Comment la TVA à l’importation est-elle calculée ?',
+					a: 'Elle s’applique à la valeur en douane augmentée du droit d’importation, de la taxe parafiscale, de la TIC et des autres droits d’entrée. Le taux normal est de 20 % ; certains produits relèvent du taux réduit de 10 % ou sont exonérés.',
+				},
+				{
+					q: 'L’estimation vaut-elle déclaration en douane ?',
+					a: 'Non. Elle est indicative : le montant définitif dépend de la position tarifaire, de la validité de la preuve d’origine, du cours du jour et des frais réellement engagés. Pour un chiffrage exact, contactez nos déclarants.',
+				},
+			],
+		},
+	},
+
 	// The pages added to the menu and still to be built (ComingSoon.astro): what they say meanwhile.
 	soon: {
 		text: 'Cette page est en cours de préparation. Elle sera bientôt disponible.',

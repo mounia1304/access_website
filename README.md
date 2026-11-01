@@ -63,6 +63,7 @@ npm run check:palette
 | Phone, e-mail, addresses             | `src/data/site.ts`                                     |
 | Client and partner logos             | `src/data/references.ts` + `src/assets/`; the eight supplied as files (`reference/logos-clients/`) are prepared by `node scripts/make-client-logos.mjs` |
 | Page addresses (URLs)                | `src/i18n/routes.ts`                                   |
+| The import duties simulator's rates | `src/data/simulateur.ts` (see "Changing the simulator's rates" below) |
 | The logo                             | `src/assets/brand/logo-source.webp`, then `node scripts/make-logo.mjs` (shown by `src/components/Logo.astro`) |
 | The first screen's photograph        | `src/assets/photos/hero/port.webp`, then `node scripts/make-hero-scene.mjs` |
 | The icons of the four services, and of the three online services | `src/components/serviceIcons.ts` (drawn for the site, shown by `ServiceIcon.astro`) |
@@ -140,8 +141,27 @@ npm run check:palette
 
 Every link of the site leads to a page. The forms (quote, tracking, complaint, contact) do not send
 anything until phase 4: they show a notice saying so. The FR/EN switch was taken out of the menu bar at the client's
-request; it comes back with the English site (phase 3). "Simulateur" (E-services) and
-"Réglementation" (Actualités) are in the menu, their pages to be built: each says it is being prepared.
+request; it comes back with the English site (phase 3). "Simulateur" (E-services) is the import
+duties simulator (see "Changing the simulator's rates"). "Réglementation" (Actualités) is in the menu,
+its page to be built: it says it is being prepared.
+
+## Changing the simulator's rates
+
+The import duties simulator (`/e-services/simulateur/`) is in three files:
+
+- `src/data/simulateur.ts`: **every number it uses**: the currencies and their default exchange
+  rates (the visitor can change the rate in the form), what each Incoterm covers, the insurance
+  flat rates (0.3 %, 3 % for glass), the aconage estimate (3 600 MAD), the TPI rate (0.25 %), the VAT
+  rates offered (20, 10, 0 %) and the preferential rate filled in by default (0 %). Change a number
+  there and run `npm run build`; nothing else needs touching.
+- `src/utils/simulateur.ts`: the calculation, from the company's rules (R5 to R15 of the L99
+  prompt): customs value = invoice × rate + freight + insurance + aconage (rounded up), then the
+  import duty, TPI, TIC, other duties and VAT. Change it only to change the method.
+- `simulateur` in `src/i18n/fr.pages.ts`: the texts (short on purpose: the client wants the page plain), and the FAQ.
+
+It runs in the visitor's browser and sends nothing. Under the result, the company's e-mail and
+phone are links (`site.ts`). The FAQ under the tool (`faq` in `fr.pages.ts`) repeats the rates:
+change it too when a rate changes.
 
 ## Placeholders and open points
 

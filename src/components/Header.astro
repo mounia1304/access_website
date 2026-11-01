@@ -24,8 +24,8 @@ const within = (href: string) => (path.startsWith(href) || (inBlog && href === r
 // (the client's decision: there is no room in the bar for one more item), and that "Nos services"
 // ends with the company's presentation (its French page; the English one is to be reached through
 // FR/EN), which the client moved there from the column of the service pages (2026-10-22). On
-// 2026-10-29 the client added "Simulateur" to E-services and "Réglementation" to Actualités (two
-// pages to be built: each says meanwhile that it is being prepared), and had the language switch
+// 2026-10-29 the client added "Simulateur" to E-services and "Réglementation" to Actualités (the
+// simulator is built since; the regulations page says meanwhile that it is being prepared), and had the language switch
 // FR/EN taken out of the bar: it is to come back with the English site (phase 3).
 const serviceIcons = Object.fromEntries(t.services.items.map((item) => [item.key, item.icon]));
 const eserviceIcons = Object.fromEntries(t.eservices.items.map((item) => [item.key, item.icon]));

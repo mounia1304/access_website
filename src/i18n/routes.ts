@@ -14,8 +14,8 @@ export const routes = {
 		cotationNational: '/e-services/demander-une-cotation/transport-national/',
 		tracking: '/e-services/tracking/',
 		reclamation: '/e-services/reclamations/',
-		// New (2026-10-29): two pages the client added to the menu, to be built; for now each says it is
-		// being prepared.
+		// New (2026-10-29): two pages the client added to the menu. The simulator is built
+		// (2026-11-01); the regulations page (below) says for now that it is being prepared.
 		simulateur: '/e-services/simulateur/',
 		qualite: '/notre-politique-qualite/',
 		// New: the company's presentation, which the current site only offers as a PDF on Google Drive.

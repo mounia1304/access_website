@@ -116,8 +116,9 @@ testimonials) is gone, at the client's request: see "Fifth screen". The mockups 
   bar at the client's request (2026-10-29), to come back with the English site (phase 3). The menu
   is the current site's, except that "Blog" became "Actualités" (see "Actualités"), that
   "E-services" ends with "Simulateur" and "Actualités" with "Réglementation" (2026-10-29, the
-  client's: two pages to be built, which say meanwhile that they are being prepared, through
-  `ComingSoon.astro`, kept out of search engines; there was no room in the bar for them), and that "Nos services" ends with "Présentation
+  client's; there was no room in the bar for them: the simulator is built since, see "Import duties
+  simulator"; "Réglementation" is still to be built and says meanwhile that it is being prepared,
+  through `ComingSoon.astro`, kept out of search engines), and that "Nos services" ends with "Présentation
   de l’entreprise" (`nav.presentation`), the French page of the company's presentation, which the
   client moved there from the column of the service pages (2026-10-22); the English one is to be
   reached through FR/EN once the English site is built. The services panel is as wide as that label,
@@ -547,6 +548,72 @@ testimonials) is gone, at the client's request: see "Fifth screen". The mockups 
   1536 and 1920.
 - Still to come (approved): a "Dernières actualités" block on the homepage, once this page is
   approved; and the Logistique part, once the director has filled in the Excel file.
+
+### Import duties simulator
+
+- `pages/e-services/simulateur.astro` ("Simulateur" in the E-services menu; asked for by the client
+  on 2026-11-01). It went through several versions the same day; what holds now: the FIELDS of
+  Mirage's customs calculator (miragemetrics.com, "calculateur droits douane Maroc", the client's
+  reference), the CALCULATION of the company's own rules, and a PLAIN page: the client asked for
+  the extra writing to go ("le front doit être simple, lève les écritures supplémentaires"), then
+  for a short note to stay where the visitor needs one. Keep labels short; notes are one line in
+  small type (`.sim__hint`, `--fs-micro`) under: the exchange rate (BAM's rate of the day), the
+  insurance (the 0.3 % / 3 % flat rates when left empty), the aconage (the 3 600 MAD estimate), the
+  duty rate (the tariff line's), the preferential rate (the proofs of origin), the TPI (why it stays
+  ticked) and the TIC. None under the freight (it appears by itself when the Incoterm leaves it out).
+  No step sentences and no "how it is calculated" section.
+- The form, in five numbered steps: 01 invoice amount ("(EUR)"), currency, exchange rate (asked
+  for when not MAD, filled in with the rules' rate); 02 the Incoterm (named in French), the freight
+  when it does not cover it (required), the insurance when it does not cover it (optional,
+  placeholder "Forfait 0,3 %", a "Marchandise en verre" box), each in the invoice's currency or in
+  MAD, and the aconage (optional, placeholder 3 600); 03 the duty rate (%), the origin (two tiles:
+  general rate or preferential, which asks for the preferential rate); 04 the TPI box (ticked), the
+  TIC and other duties (MAD); 05 the VAT rate (20, 10 or 0 %). The aconage and glass fields are not
+  Mirage's: the company's rules need them.
+- Amounts and rates are plain text fields (`type="text" inputmode="decimal"` and a pattern of figures,
+  spaces, comma or point), never `type="number"`: the client does not want the arrows that change
+  the figure on a click. `parseAmount` (utils/simulateur.ts) reads "12 000", "10,7", "1.234,5"; the
+  default rates are written the French way ("10,7"). A field holding something else is named in
+  "À renseigner". Required fields carry a star in orange (`.sim__req`, role `--c-required`: the
+  client asked for the charter's orange; it is `--c-display`, the readable shade, since the plain
+  orange is too light for a character), read out by `required`, not by the star. Optional fields
+  carry nothing: no "(facultatif)".
+- The calculation is the company's (the "L99" prompt the client supplied, `PROMPT SYSTÈME.docx`,
+  kept on their computer, not in git): R5 the rate given; R6 VED CAF = invoice × rate + freight +
+  insurance + aconage, rounded up to the dirham, the freight never estimated; R7 insurance as given,
+  else 0.3 % of (invoice + freight), 3 % for glass; R8/R9 aconage as given, else 3 600 MAD; R13
+  preferential duty, and the saving against the general rate; R14 TIC in the VAT base; R15 PFI
+  0.25 % of the VED, VAT on VED + DI + PFI + TIC + other duties, total = DI + PFI + TIC + other +
+  VAT. Each tax is rounded to the dirham.
+- The result shows only once "Estimer les coûts" (the button under the last step) is pressed with
+  every required field filled in: otherwise a line under the button says "À renseigner : …" (names in
+  `result.short`), keeps up as the fields are filled, and the first missing field takes the focus.
+  Once shown, the result follows the form; emptying a required field hides it until the button is
+  pressed again. It holds "Droits et taxes à payer" as the one large amount ("à la charge du
+  vendeur" under DDP), the customs value and the landed cost, the saving when the origin is
+  preferential, "Estimation indicative." and the calculation line by line (open). Then, in its own card, "Besoin
+  d'une estimation précise et détaillée ?": a sentence and two links, the company's e-mail
+  (`mailto:` with a subject) and landline (`tel:`), from `site.ts`. The client asked for them
+  in place of a call-back form (2026-11-01): do not bring a form back here. There is no bar at the foot of the
+  screen any more: the client did not want the amount showing while the form is filled in.
+- Every number is in `src/data/simulateur.ts`; the arithmetic in `src/utils/simulateur.ts` holds
+  none. Texts are `simulateur` in `fr.pages.ts`. The default exchange rates are indicative and dated
+  (`ratesDate`).
+- Layout: the form takes the whole width and the result comes under it (the client asked for that
+  instead of form and result side by side). Each step is a row, a hairline between two: from 64em
+  its number and title on the left (4fr), its fields on the right (8fr, two across from 36em, long
+  ones across, at most 60rem wide); stacked below. Do not set the steps side by side as columns:
+  their heights differ too much, which left holes and broke the reading order (the client found it
+  "pas bon visuellement"). The button sits after a hairline, in line with the fields. The result
+  card puts the amount on the left and the calculation on the right from 64em; the contact card
+  has its sentence above and the two links side by side (from 40em, at most 52rem: the e-mail must
+  stay on one line on a laptop).
+- Under the tool, "Questions fréquentes" (`faq` in `fr.pages.ts`, asked for by the client): eleven
+  questions on the simulator and its calculation, as a `.split` (title left, list right), each a
+  `<details>` closed by default; also given to search engines as FAQPage data. Its answers repeat
+  the rates of `data/simulateur.ts`: change both together.
+- Check 1920, 1366, 1024, a tablet and a phone after changing it: field labels must stay on one or
+  two lines in the half columns, and the result card's grid needs `minmax(0, 1fr)`.
 
 ### Movement
 
